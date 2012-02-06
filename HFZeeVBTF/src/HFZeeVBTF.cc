@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy M Mans
 //         Created:  Mon May 31 07:00:26 CDT 2010
-// $Id: HFZeeVBTF.cc,v 1.23 2011/04/15 01:45:06 mansj Exp $
+// $Id: HFZeeVBTF.cc,v 1.24 2011/06/09 14:07:42 mansj Exp $
 //
 //
 
@@ -79,6 +79,7 @@ private:
   std::string myName_;
   double minEtECAL_;
   double minEtHF_;
+  double min2dFilter_;
   std::vector<int> acceptedElectronIDs_;
   std::vector<double> hfIdParams_;
   edm::InputTag hFElectrons_;
@@ -549,10 +550,12 @@ void HFZeeVBTF::HistPerDef::fill(pat::ElectronCollection::const_iterator ecalE,
 
 // this value for tight is lower than CMS AN-2009/106 to accont for S/L miscalib in data
 // see figure 15 therein: turn-on is sharp
+/*
 static const double hf_2d_loose   = 0.32;
 static const double hf_2d_tight   = 0.45;
 static const double e9e25_loose   = 0.90;
 static const double e9e25_tight   = 0.94;
+*/
 //////////////////////////////////////////////////////////////////////////////////////
 // FIXME
 // gf: bring HF variables to PSet as well, as opposed to having them hard-coded
@@ -582,6 +585,7 @@ HFZeeVBTF::HFZeeVBTF(const edm::ParameterSet& iConfig)
   hFElectrons_         = iConfig.getParameter< edm::InputTag> ("hFElectrons");
   minEtECAL_           = iConfig.getParameter< double >("minEtECAL");
   minEtHF_             = iConfig.getParameter< double >("minEtHF");
+  min2dFilter_         = iConfig.getParameter< double >("min2dFilter");
   myName_              = iConfig.getParameter<std::string>("myName");
   skipTrigger_         = iConfig.getParameter<bool>("skipTrigger");
   massWindow_          = iConfig.getParameter< std::vector<double> >("Zmass");
@@ -848,7 +852,7 @@ HFZeeVBTF::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       hists.mee60tight.fill(ecalE,hfE,hfshape,w.doesElePass( ecalE->electronID("simpleEleId60relIso")),robust60relIsoEleIDCutsV04_ps_,1,hfIdParams_);
 
       if (!filterId_.empty()) {
-	filterOk=w.doesElePass( ecalE->electronID(filterId_) ) && var2d>hf_2d_loose;
+	filterOk=w.doesElePass( ecalE->electronID(filterId_) ) && var2d>min2dFilter_;
       } 
 
     }// if mass is in Z window
