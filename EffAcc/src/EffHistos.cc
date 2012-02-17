@@ -78,25 +78,32 @@ void EffHistos::Book(TFileDirectory& tdf,bool mzbin) {
     //at/al/phistar
 
 
-    atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 200, 0, 150.);
-    alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{l,Z0}", 200, 0, 150.);
+    atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 150, 0, 150.);
+    alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{l,Z0}", 150, 0, 150.);
     ptZ_ = tdf.make<TH1F>("wZ0_pt","Z0_Pt;p_{T,Z0}", 200, 0, maxPt);
-    phiStar_ = tdf.make<TH1F>("wZ0_phiStar","Z0_phiStar;phiStar_{T,Z0}", 500, 0, 1.);
+    phiStar_ = tdf.make<TH1F>("wZ0_phiStar","Z0_phiStar;phiStar_{T,Z0}", 100, 0, 1.);
+
+    deta_= tdf.make<TH1F>("e_deltaEta","Z0_at;#Delta#eta", 200, -10,10);
+    dphi_= tdf.make<TH1F>("e_deltaPhi","Z0_at;#Delta#phi", 150, -0.001, 1.001*pi);
+ 
+
+   MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 150, 0, 150.);
+    MCalZ_ = tdf.make<TH1F>("Z0_al_MC","Z0_al_MC;a_{l,Z0}", 150, 0, 150.);
+    MCphiStar_ = tdf.make<TH1F>("wZ0_phiStar_MC","Z0_phiStar_MC;phiStar_{T,Z0}", 100, 0, 1.);
 
 
-    MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 200, 0, 150.);
-    MCalZ_ = tdf.make<TH1F>("Z0_al_MC","Z0_al_MC;a_{l,Z0}", 200, 0, 150.);
-    MCphiStar_ = tdf.make<TH1F>("wZ0_phiStar_MC","Z0_phiStar_MC;phiStar_{T,Z0}", 500, 0, 1.);
 
+    atTL_at_= tdf.make<TH2F>("atTL_vs_at","atTL_vs_at;Y_{Z};Y_{ZtreeLevel}" ,150, 0, 150., 150, 0, 150.); 
 
+    phiStarTL_phiStar_= tdf.make<TH2F>("phiStarTL_vs_phiStar","phiStarTL_vs_phiStar;phiStar_{Z};phiStar_{ZtreeLevel}" ,100, 0, 1., 100, 0, 1.);
+    atTL_at_matrix_= tdf.make<TH2F>("atTL_vs_at_matrix","atTL_vs_at_matrix;Y_{Z};Y_{ZtreeLevel}" ,150, 0, 150., 150, 0, 150.); 
 
-    atTL_at_= tdf.make<TH2F>("atTL_vs_at","atTL_vs_at;Y_{Z};Y_{ZtreeLevel}" ,200, 0, 150., 200, 0, 150.); 
-
-    phiStarTL_phiStar_= tdf.make<TH2F>("phiStarTL_vs_at","phiStarTL_vs_at;phiStar_{Z};phiStar_{ZtreeLevel}" ,500, 0, 1., 500, 0, 1.);
-    atTL_at_matrix_= tdf.make<TH2F>("atTL_vs_at_matrix","atTL_vs_at_matrix;Y_{Z};Y_{ZtreeLevel}" ,200, 0, 150., 200, 0, 150.); 
-
-    phiStarTL_phiStar_matrix_= tdf.make<TH2F>("phiStarTL_vs_at_matrix","phiStarTL_vs_at_matrix;phiStar_{Z};phiStar_{ZtreeLevel}" ,500, 0, 1., 500, 0, 1.);
-
+    phiStarTL_phiStar_matrix_= tdf.make<TH2F>("phiStarTL_vs_at_matrix","phiStarTL_vs_at_matrix;phiStar_{Z};phiStar_{ZtreeLevel}" ,100, 0, 1., 100, 0, 1.);
+    
+    ptTL_phiStar_= tdf.make<TH2F>("ptTL_phiStar_","ptTL_vs_phiStar;phiStar_{Z};Pt_{ZtreeLevel}" ,100, 0, 1.,200, 0, maxPt);
+    
+    ptTL_at_= tdf.make<TH2F>("ptTL_at","ptTL_vs_at;at_{Z};Pt_{ZtreeLevel}" ,150, 0, 150.,200, 0, maxPt);
+        
     //Now make the 2-D histograms
 
     mZ_Y_ = tdf.make<TH2F>("Z0_Y_v_mass","Z0_Y_v_mass;Y_{Z0};m_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max, 3*binsZmass, minZmass-10, maxZmass);
@@ -147,7 +154,7 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
         std::cerr << "Attempt to fill without booking!\n";
         return;
     }
-
+ const float pi       = 3.141593;
 
     XYZTLorentzVector p1(e1.p4_);
     XYZTLorentzVector p2(e2.p4_);
@@ -228,14 +235,18 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
 
 
     double thetaStar;
-    if (e1.charge_ < 0){
-        thetaStar=acos(tanh(.5*(e1eta-e2eta)));
-    }else{
-        thetaStar=acos(tanh(.5*(e2eta-e1eta)));
-    }
+   
+      thetaStar=acos(tanh(-.5*((e1.charge_*e1eta)+(e2.charge_*e2eta))));
+   
+   
 
     double delPhi=e1phi-e2phi;
-    double phiStar=tan((3.141596-delPhi)/2)*sin(thetaStar);
+    if(delPhi<0){
+      if(delPhi>-pi)delPhi=fabs(delPhi);
+      if(delPhi<-pi)delPhi+=2*pi;
+    }
+    if(delPhi>pi){delPhi=2*pi-delPhi;}
+    double phiStar=tan((pi-delPhi)/2)*sin(thetaStar);
 
 
     //calculate at, al, t for MC, (i.e. atm, alm, tm)
@@ -253,15 +264,18 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
     //calculate mc  phi*
 
     double mthetaStar;
-    if (e1.charge_ < 0){
-        mthetaStar=acos(tanh(.5*(em1eta-em2eta)));
-    }else{
-        mthetaStar=acos(tanh(.5*(em2eta-em1eta)));
-    }
+   
+      mthetaStar=acos(tanh(-.5*((e1.charge_*em1eta)-(e1.charge_*em2eta))));
+   
 
     double mdelPhi=em1phi-em2phi;
-    double mphiStar=tan((3.141596-mdelPhi)/2)*sin(mthetaStar);
-
+    if(mdelPhi<0){
+      if(mdelPhi>-pi)mdelPhi=fabs(mdelPhi);
+      if(mdelPhi<-pi)mdelPhi+=2*pi;
+    }
+    if(mdelPhi>pi){mdelPhi=2*pi-mdelPhi;}
+    double mphiStar=tan((pi-mdelPhi)/2)*sin(mthetaStar);
+    
     atZ_->Fill(at,wgt); 
     alZ_->Fill(al,wgt);
     phiStar_->Fill(phiStar,wgt);
@@ -280,7 +294,8 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
             ptZTL_ptZ_zoom_  -> Fill(zPt,zTLPt,wgt); 
             phiStarTL_phiStar_-> Fill(phiStar,mphiStar,wgt);
             atTL_at_-> Fill(at,atm,wgt);
-
+	    ptTL_phiStar_-> Fill(phiStar,zTLPt,wgt);
+	    ptTL_at_-> Fill(at,zTLPt,wgt);
         }
     }
 
@@ -317,7 +332,8 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
     eeta_ -> Fill(e2eta,wgt);
     ephi_ -> Fill(e1phi,wgt);
     ephi_ -> Fill(e2phi,wgt);
-
+    dphi_->Fill(delPhi,wgt);
+    deta_->Fill(((e1.charge_*em1eta)-(e1.charge_*em2eta)),wgt);
     if (fabs(e1eta)>3.0 && fabs(e1eta)<5.0)
         hfeta_ -> Fill(fabs(e1eta),wgt);
     if (fabs(e2eta)>3.0 && fabs(e2eta)<5.0)
