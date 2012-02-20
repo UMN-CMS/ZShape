@@ -87,6 +87,9 @@ private:
   
 
   // ----------member data ---------------------------
+  //Alex's rank hack
+  edm::InputTag L1ForJets_;
+
   ZShapeEvent evt_;
   ZShapeEvent evtMC_;
   std::string wfile_;
