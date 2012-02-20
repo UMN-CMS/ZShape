@@ -16,6 +16,12 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+
+#include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+
 
 
 //
@@ -24,121 +30,123 @@
 
 ZFromData::ZFromData(const edm::ParameterSet& iConfig) :
 m_srcTag(iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("source"))),
-quiet_(iConfig.getUntrackedParameter<bool>("quiet", false)) {
-   //
-   //now do what ever initialization is needed
+    quiet_(iConfig.getUntrackedParameter<bool>("quiet", false)) {
+        //
+        //now do what ever initialization is needed
+        // Alex's hack
+        L1ForJets_ = iConfig.getUntrackedParameter<edm::InputTag> ("L1ForJets");
 
-   outFileName_ = iConfig.getUntrackedParameter<std::string > ("outHistogramsFile", "");
-   writeHistoConservatively_ = iConfig.getUntrackedParameter<bool > ("writeHistoBeforeEndJob", false);
-   doMC_ = iConfig.getUntrackedParameter<bool > ("doMC", true);
-   delRMatchingCut_ = iConfig.getUntrackedParameter<double>("dRMatchCut", 0.2);
-   delPtRelMatchingCut_ = iConfig.getUntrackedParameter<double>("dPtMatchCut", 15.0);
-   wfile_ = iConfig.getUntrackedParameter<std::string > ("WeightsFile", "none");
-   //
-   //Extra histos generated from the "From Data trials"
-   extraHistos_ = iConfig.getUntrackedParameter<bool > ("ExtraFromDataHistos", false);
+        outFileName_ = iConfig.getUntrackedParameter<std::string > ("outHistogramsFile", "");
+        writeHistoConservatively_ = iConfig.getUntrackedParameter<bool > ("writeHistoBeforeEndJob", false);
+        doMC_ = iConfig.getUntrackedParameter<bool > ("doMC", true);
+        delRMatchingCut_ = iConfig.getUntrackedParameter<double>("dRMatchCut", 0.2);
+        delPtRelMatchingCut_ = iConfig.getUntrackedParameter<double>("dPtMatchCut", 15.0);
+        wfile_ = iConfig.getUntrackedParameter<std::string > ("WeightsFile", "none");
+        //
+        //Extra histos generated from the "From Data trials"
+        extraHistos_ = iConfig.getUntrackedParameter<bool > ("ExtraFromDataHistos", false);
 
-   //
-   // multiple PSets==Zdefinitions: each electron required to pass a set of cuts
+        //
+        // multiple PSets==Zdefinitions: each electron required to pass a set of cuts
 
-   std::vector<edm::ParameterSet> zdefSetups = iConfig.getUntrackedParameter< std::vector<edm::ParameterSet> >("ZDefs");
+        std::vector<edm::ParameterSet> zdefSetups = iConfig.getUntrackedParameter< std::vector<edm::ParameterSet> >("ZDefs");
 
-   for (std::vector<edm::ParameterSet>::iterator i = zdefSetups.begin(); i != zdefSetups.end(); ++i) {
-       std::string name = i->getUntrackedParameter<std::string > ("name");
-       std::vector<std::string> req1 = i->getUntrackedParameter<std::vector<std::string> >("e1");
-       std::vector<std::string> req2 = i->getUntrackedParameter<std::vector<std::string> >("e2");
-       std::vector<std::string> reqZ = i->getUntrackedParameter<std::vector<std::string> >("Z");
-       ZShapeZDef* zdef = new ZShapeZDef();
-       for (std::vector<std::string>::iterator k = req1.begin(); k != req1.end(); k++)
-           zdef->addCriterion(ZShapeZDef::crit_E1, *k);
-       for (std::vector<std::string>::iterator k = req2.begin(); k != req2.end(); k++)
-           zdef->addCriterion(ZShapeZDef::crit_E2, *k);
-       for (std::vector<std::string>::iterator k = reqZ.begin(); k != reqZ.end(); k++)
-           zdef->addCriterion(ZShapeZDef::crit_Z, *k);
-       zdefs_[name] = zdef;
-       zptorder_[name] = i->getUntrackedParameter<bool > ("ptorder", false);
-   }
+        for (std::vector<edm::ParameterSet>::iterator i = zdefSetups.begin(); i != zdefSetups.end(); ++i) {
+            std::string name = i->getUntrackedParameter<std::string > ("name");
+            std::vector<std::string> req1 = i->getUntrackedParameter<std::vector<std::string> >("e1");
+            std::vector<std::string> req2 = i->getUntrackedParameter<std::vector<std::string> >("e2");
+            std::vector<std::string> reqZ = i->getUntrackedParameter<std::vector<std::string> >("Z");
+            ZShapeZDef* zdef = new ZShapeZDef();
+            for (std::vector<std::string>::iterator k = req1.begin(); k != req1.end(); k++)
+                zdef->addCriterion(ZShapeZDef::crit_E1, *k);
+            for (std::vector<std::string>::iterator k = req2.begin(); k != req2.end(); k++)
+                zdef->addCriterion(ZShapeZDef::crit_E2, *k);
+            for (std::vector<std::string>::iterator k = reqZ.begin(); k != reqZ.end(); k++)
+                zdef->addCriterion(ZShapeZDef::crit_Z, *k);
+            zdefs_[name] = zdef;
+            zptorder_[name] = i->getUntrackedParameter<bool > ("ptorder", false);
+        }
 
-   //
-   // list of all available efficiencies
-   //MAYBE REMOVE THIS... WHAT DO I NEED IT FOR????
+        //
+        // list of all available efficiencies
+        //MAYBE REMOVE THIS... WHAT DO I NEED IT FOR????
 
-   std::vector<edm::ParameterSet> effs = iConfig.getUntrackedParameter< std::vector<edm::ParameterSet> >("Effs");
+        std::vector<edm::ParameterSet> effs = iConfig.getUntrackedParameter< std::vector<edm::ParameterSet> >("Effs");
 
-   //for (std::vector<edm::ParameterSet>::iterator i=effs.begin(); i!=effs.end(); ++i) {
-   //  std::string name=i->getUntrackedParameter<std::string>("name");
-   //  std::string file=i->getUntrackedParameter<std::string>("effFile");
-   //std::string var=i->getUntrackedParameter<std::string>("variable");
-   //   loadEfficiency(name,file);
-   // }
-
-
-   //
-   // Set up the Z from the data initializer
-   //This is the Zee association map that we will start the efficiencies on
-   tnpProducer_ = iConfig.getUntrackedParameter<edm::InputTag > ("TagProbeProducer");
-
-   //Collection of GsfElectrons greater than 20 GeV pt.
-   gsfProducer_ = iConfig.getUntrackedParameter<edm::InputTag > ("GsfProducer");
-   //The Isolation & HLT  Parameters
-   ///_HLTpassed.Init(iConfig);
-   ///_Isopassed.Init(iConfig);
-
-   random_ = new TRandom3();
-
-   // ********** Tag-Probes ********** //
-   //std::vector< edm::InputTag > defaultTagProbeMapTags;
-   //tagProbeMapTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
-   //    "tagProbeMapTags",defaultTagProbeMapTags);
-   //for( int i=0; i<(int)tagProbeMapTags_.size(); ++i )
-   //    std::cout << tagProbeMapTags_[i] << std::endl;
-   // ******************************** //
-   //Just for now allow more than 1 TagandProbe to be read in...
-
-   // ********** Candiates ********** //
-   //int map_size = (int)tagProbeMapTags_.size();
-   const edm::InputTag dBlankTag("Blank");
-
-   std::vector< edm::InputTag > defaultAllProbeCandTags;
-   allProbeCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
-           "allProbeCandTags", defaultAllProbeCandTags);
-   for (int i = 0; i < (int) allProbeCandTags_.size(); ++i)
-       std::cout << allProbeCandTags_[i] << std::endl;
-   int map_size = (int) allProbeCandTags_.size();
-   // Make sure the arrays won't cause a seg fault!
-   //if( (int)allProbeCandTags_.size() < map_size )
-   //{
-   //   std::cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << std::endl;
-   //   for( int i=0; i<(map_size-(int)allProbeCandTags_.size()); ++i )
-   //     allProbeCandTags_.push_back(dBlankTag);
-   //}
-
-   std::vector< edm::InputTag > defaultPassProbeCandTags;
-   passProbeCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
-           "passProbeCandTags", defaultPassProbeCandTags);
-   for (int i = 0; i < (int) passProbeCandTags_.size(); ++i)
-       std::cout << passProbeCandTags_[i] << std::endl;
-   // Make sure the arrays won't cause a seg fault!
-   if ((int) passProbeCandTags_.size() < map_size) {
-       std::cout << "Warning: Number of TagProbe maps bigger than number of probe arrays!" << std::endl;
-       for (int i = 0; i < (map_size - (int) passProbeCandTags_.size()); ++i)
-           passProbeCandTags_.push_back(dBlankTag);
-   }
-   // ******************************************* //
+        //for (std::vector<edm::ParameterSet>::iterator i=effs.begin(); i!=effs.end(); ++i) {
+        //  std::string name=i->getUntrackedParameter<std::string>("name");
+        //  std::string file=i->getUntrackedParameter<std::string>("effFile");
+        //std::string var=i->getUntrackedParameter<std::string>("variable");
+        //   loadEfficiency(name,file);
+        // }
 
 
-   // **********Cut Names for Candiates************ //
-   cutName_ = iConfig.getUntrackedParameter< std::vector<std::string> >("CutNames");
-   // ******************************************* //
+        //
+        // Set up the Z from the data initializer
+        //This is the Zee association map that we will start the efficiencies on
+        tnpProducer_ = iConfig.getUntrackedParameter<edm::InputTag > ("TagProbeProducer");
+
+        //Collection of GsfElectrons greater than 20 GeV pt.
+        gsfProducer_ = iConfig.getUntrackedParameter<edm::InputTag > ("GsfProducer");
+        //The Isolation & HLT  Parameters
+        ///_HLTpassed.Init(iConfig);
+        ///_Isopassed.Init(iConfig);
+
+        random_ = new TRandom3();
+
+        // ********** Tag-Probes ********** //
+        //std::vector< edm::InputTag > defaultTagProbeMapTags;
+        //tagProbeMapTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+        //    "tagProbeMapTags",defaultTagProbeMapTags);
+        //for( int i=0; i<(int)tagProbeMapTags_.size(); ++i )
+        //    std::cout << tagProbeMapTags_[i] << std::endl;
+        // ******************************** //
+        //Just for now allow more than 1 TagandProbe to be read in...
+
+        // ********** Candiates ********** //
+        //int map_size = (int)tagProbeMapTags_.size();
+        const edm::InputTag dBlankTag("Blank");
+
+        std::vector< edm::InputTag > defaultAllProbeCandTags;
+        allProbeCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+                "allProbeCandTags", defaultAllProbeCandTags);
+        for (int i = 0; i < (int) allProbeCandTags_.size(); ++i)
+            std::cout << allProbeCandTags_[i] << std::endl;
+        int map_size = (int) allProbeCandTags_.size();
+        // Make sure the arrays won't cause a seg fault!
+        //if( (int)allProbeCandTags_.size() < map_size )
+        //{
+        //   std::cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << std::endl;
+        //   for( int i=0; i<(map_size-(int)allProbeCandTags_.size()); ++i )
+        //     allProbeCandTags_.push_back(dBlankTag);
+        //}
+
+        std::vector< edm::InputTag > defaultPassProbeCandTags;
+        passProbeCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+                "passProbeCandTags", defaultPassProbeCandTags);
+        for (int i = 0; i < (int) passProbeCandTags_.size(); ++i)
+            std::cout << passProbeCandTags_[i] << std::endl;
+        // Make sure the arrays won't cause a seg fault!
+        if ((int) passProbeCandTags_.size() < map_size) {
+            std::cout << "Warning: Number of TagProbe maps bigger than number of probe arrays!" << std::endl;
+            for (int i = 0; i < (map_size - (int) passProbeCandTags_.size()); ++i)
+                passProbeCandTags_.push_back(dBlankTag);
+        }
+        // ******************************************* //
 
 
-   // **********Exact Matching for Candiates************ //
-   exactMatch_ = iConfig.getUntrackedParameter< std::vector<int> >("ExactMatch");
-   // ******************************************* //
+        // **********Cut Names for Candiates************ //
+        cutName_ = iConfig.getUntrackedParameter< std::vector<std::string> >("CutNames");
+        // ******************************************* //
 
 
-   std::cout << " Done with the constructor " << std::endl;
-}
+        // **********Exact Matching for Candiates************ //
+        exactMatch_ = iConfig.getUntrackedParameter< std::vector<int> >("ExactMatch");
+        // ******************************************* //
+
+
+        std::cout << " Done with the constructor " << std::endl;
+    }
 
 ZFromData::~ZFromData() {
 
@@ -155,40 +163,55 @@ ZFromData::~ZFromData() {
 // ------------ method called to for each event  ------------
 
 void ZFromData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-   using namespace edm;
-   using namespace std;
-   using namespace cms;
+    using namespace edm;
+    using namespace std;
+    using namespace cms;
 
-   evtMC_.clear();
+    evtMC_.clear();
 
-   Handle< HepMCProduct > EvtHandle;
+    Handle< HepMCProduct > EvtHandle;
 
-   // find initial (unsmeared, unfiltered,...) HepMCProduct
-   if (doMC_) {
-       iEvent.getByLabel(m_srcTag, EvtHandle);
-       const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
-       fillMCEvent(Evt);
-   }
-   //evt_.findDataZ(iEvent);
-   evt_.clear();
+    // find initial (unsmeared, unfiltered,...) HepMCProduct
+    if (doMC_) {
+        iEvent.getByLabel(m_srcTag, EvtHandle);
+        const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
+        fillMCEvent(Evt);
+    }
+    //evt_.findDataZ(iEvent);
+    evt_.clear();
 
-   //This just stores the event information
-   evt_.initEvent(iEvent, iSetup);
+    //This just stores the event information
+    evt_.initEvent(iEvent, iSetup);
 
-   //First set the number of Gsf Electrons above 20 GeV
-   edm::Handle< reco::CandidateView> electronHandle;
-   try
-   {
-       iEvent.getByLabel(gsfProducer_, electronHandle);
-   }
+    //First set the number of Gsf Electrons above 20 GeV
+    edm::Handle< reco::CandidateView> electronHandle;
+    try
+    {
+        iEvent.getByLabel(gsfProducer_, electronHandle);
+    }
 
-   catch(cms::Exception & ex) {
-       edm::LogError("ZFromData::GsfElectron ") << "Error! Can't get collection " <<
-               gsfProducer_;
-       throw ex;
-   }
-   evt_.n_gsf20 = electronHandle->size();
+    catch(cms::Exception & ex) {
+        edm::LogError("ZFromData::GsfElectron ") << "Error! Can't get collection " <<
+            gsfProducer_;
+        throw ex;
+    }
+    evt_.n_gsf20 = electronHandle->size();
 
+
+    // Alex's hacked Rank
+    edm::Handle<l1extra::L1JetParticleCollection> l1ForJets;
+    iEvent.getByLabel(L1ForJets_, l1ForJets);
+
+    double maxJetPt = -1.0;
+
+    for (unsigned int jetc=0;jetc<l1ForJets->size();++jetc) {
+        double newJetPt = (*l1ForJets)[jetc].pt() / 4.; // / .4 to recover rank
+        if (newJetPt > maxJetPt){
+            maxJetPt = newJetPt;
+        }
+    }
+
+    evt_.free_i = maxJetPt;
 
    // Fill some information about the tag & probe collections
    //int nrtp = 0;
@@ -210,13 +233,13 @@ void ZFromData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        int usetp = (tpsize > 0) ? (iEvent.id().event()) % tpsize : 0;
        int tpnum = 0;
        //--End picking a random Tag and Probe combination
-       std::cout << " tpnum " << tpnum << " usetp " << usetp << " tpsize " << tpsize << std::endl;
+       //std::cout << " tpnum " << tpnum << " usetp " << usetp << " tpsize " << tpsize << std::endl;
        reco::CandidateView::const_iterator tpItr = tagprobes->begin();
        for (; tpItr != tagprobes->end(); ++tpItr, ++tpnum) {
-           std::cout << " tpnum is " << tpnum << " usetp is " << usetp << std::endl;
+           //std::cout << " tpnum is " << tpnum << " usetp is " << usetp << std::endl;
            if (tpnum != usetp) continue;
-           std::cout << "In tag probes Iterator " << std::endl;
-           std::cout << "RUN: " << iEvent.run() << " Event: " << iEvent.id().event() << " LS: " << iEvent.luminosityBlock() << " BX: " << iEvent.bunchCrossing() << " ORBIT: " << iEvent.orbitNumber() << std::endl;
+           //std::cout << "In tag probes Iterator " << std::endl;
+           //std::cout << "RUN: " << iEvent.run() << " Event: " << iEvent.id().event() << " LS: " << iEvent.luminosityBlock() << " BX: " << iEvent.bunchCrossing() << " ORBIT: " << iEvent.orbitNumber() << std::endl;
 
 
 
@@ -246,7 +269,7 @@ void ZFromData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            //std::cout << "Got the 4-vectors " << std::endl;
            // If there are two probes with the tag continue
            // if( vprobes.size() > 1 ) { std::cout << " More Than 2 Probes; Z Rapidity "<< tpP4.Rapidity() << " Mass " << sqrt ( tpP4.Dot(tpP4) ) << " PT " << tpP4.Pt()<< std::endl; continue;}
-           std::cout << " Z Rapidity:  " << tpP4.Rapidity() << " Mass: " << sqrt(tpP4.Dot(tpP4)) << " PT: " << tpP4.Pt() << std::endl;
+           //std::cout << " Z Rapidity:  " << tpP4.Rapidity() << " Mass: " << sqrt(tpP4.Dot(tpP4)) << " PT: " << tpP4.Pt() << std::endl;
            //std::cout << " Z RapidityO "<< tpItr->p4().Rapidity() << " Mass " <<  tpItr->p4().M() << " PT " << tpItr->p4().Pt()<< std::endl;
            //std::cout << "Only 2 probes " << std::endl;
            for (int itype = 0; itype < (int) passProbeCandTags_.size(); ++itype) {
@@ -415,11 +438,11 @@ void ZFromData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            }
            if (spitoutE && spitoutZ && spitright) {
                //std::cout << "MYZ " << std::endl;
-               std::cout << "MYZ " << q->first << " RUN: " << iEvent.run() << " Event: " << iEvent.id().event() << " LS: " << iEvent.luminosityBlock() << "BX: " << iEvent.bunchCrossing() << " ORBIT: " << iEvent.orbitNumber() << std::endl;
+               //std::cout << "MYZ " << q->first << " RUN: " << iEvent.run() << " Event: " << iEvent.id().event() << " LS: " << iEvent.luminosityBlock() << "BX: " << iEvent.bunchCrossing() << " ORBIT: " << iEvent.orbitNumber() << std::endl;
                math::PtEtaPhiMLorentzVector tpP4 = evt_.elec(e1n).p4_ + evt_.elec(e2n).p4_;
-               std::cout << "MYZ " << q->first << " Z Rapidity:  " << tpP4.Rapidity() << " Mass: " << sqrt(tpP4.Dot(tpP4)) << " PT: " << tpP4.Pt() << std::endl;
-               std::cout << "MYZ " << q->first << "Electron 1 (eta,phi,pt : deteta) " << evt_.elec(e1n).p4_.eta() << ", " << evt_.elec(e1n).p4_.phi() << ", " << evt_.elec(e1n).p4_.Pt() << " : " << evt_.elec(e1n).detEta_ << std::endl;
-               std::cout << "MYZ " << q->first << "Electron 2 (eta,phi,pt : deteta) " << evt_.elec(e2n).p4_.eta() << ", " << evt_.elec(e2n).p4_.phi() << ", " << evt_.elec(e2n).p4_.Pt() << " : " << evt_.elec(e2n).detEta_ << std::endl;
+               //std::cout << "MYZ " << q->first << " Z Rapidity:  " << tpP4.Rapidity() << " Mass: " << sqrt(tpP4.Dot(tpP4)) << " PT: " << tpP4.Pt() << std::endl;
+               //std::cout << "MYZ " << q->first << "Electron 1 (eta,phi,pt : deteta) " << evt_.elec(e1n).p4_.eta() << ", " << evt_.elec(e1n).p4_.phi() << ", " << evt_.elec(e1n).p4_.Pt() << " : " << evt_.elec(e1n).detEta_ << std::endl;
+               //std::cout << "MYZ " << q->first << "Electron 2 (eta,phi,pt : deteta) " << evt_.elec(e2n).p4_.eta() << ", " << evt_.elec(e2n).p4_.phi() << ", " << evt_.elec(e2n).p4_.Pt() << " : " << evt_.elec(e2n).detEta_ << std::endl;
                //std::cout << "MYZ " << std::endl;
            }
        }// criteria

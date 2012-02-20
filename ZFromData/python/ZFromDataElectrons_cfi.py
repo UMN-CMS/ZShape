@@ -41,7 +41,7 @@ hfRecoEcalCandidateTight.intercept2DCut = 0.45
 #  SC --> GsfElectron --> isolation --> id --> Trigger
 #############################################################
 
-ELECTRON_ET_CUT_MIN = 20.0
+ELECTRON_ET_CUT_MIN = 15.0
 HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
 RECO_NAME = "RECO"
 #RECO_NAME = "reRECO"
@@ -162,7 +162,8 @@ patElectronIDs = cms.Sequence(simpleEleIdSequence)
 patElectronIsolation = cms.Sequence(egammaIsolationSequence)
 
 
-makePatElectrons = cms.Sequence(patElectronIDs*patElectronIsolation*patElectrons)
+#makePatElectrons = cms.Sequence(patElectronIDs*patElectronIsolation*patElectrons)
+makePatElectrons = cms.Sequence(patElectronIDs*patElectrons)
 
 patElectrons.addElectronID = cms.bool(True)
 patElectrons.electronIDSources = cms.PSet(
@@ -635,8 +636,8 @@ HFIDMatch = cms.EDFilter("MCTruthDeltaRMatcherNew",
 truthMatch_sequence = cms.Sequence( SuperClustersMatch + GsfElectronsMatch + IsolationMatch + IdMatch + HLTMatch + HFSCMatch + HFIDMatch)
 #truthMatch_sequence = cms.Sequence( GsfElectronsMatch + IsolationMatch + IdMatch + HLTMatch + HFSCMatch + HFIDMatch)
 #lepton_cands = cms.Sequence(genParticles * hfEMClusteringSequence * sc_sequence * electron_sequence * tpMap_sequence * truthMatch_sequence)
-
-lepton_cands = cms.Sequence(hfEMClusteringSequence * sc_sequence * neweleseq * electron_sequence * tpMap_sequence )
+#lepton_cands = cms.Sequence(hfEMClusteringSequence * sc_sequence * neweleseq * electron_sequence * tpMap_sequence )
+lepton_cands = cms.Sequence( sc_sequence * neweleseq * electron_sequence * tpMap_sequence )
 
 
    
