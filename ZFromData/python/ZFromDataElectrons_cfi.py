@@ -512,19 +512,22 @@ tpMapGsfElectrons = cms.EDProducer("CandViewShallowCloneCombiner",
 )
 
 tpMapIsolation = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("theHLT theIsolation"), # charge coniugate states are implied
+    #decay = cms.string("theHLT theIsolation"), # charge coniugate states are implied
+    decay = cms.string("theId theIsolation"), # charge coniugate states are implied
     cut   = cms.string("60 < mass < 120"),
     checkCharge = cms.bool(False),
 )
 
 tpMapId =  cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("theHLT theId"), # charge coniugate states are implied
+    #decay = cms.string("theHLT theId"), # charge coniugate states are implied
+    decay = cms.string("theId theId"), # charge coniugate states are implied
     cut   = cms.string("60 < mass < 120"),
     checkCharge = cms.bool(False),
 )
 
 tpMapHFSuperClusters = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("theHLT theHFSuperClusters"), # charge coniugate states are implied
+    #decay = cms.string("theHLT theHFSuperClusters"), # charge coniugate states are implied
+    decay = cms.string("theId theHFSuperClusters"), # charge coniugate states are implied
     cut   = cms.string("30 < mass < 120"),
     checkCharge = cms.bool(False),
 )
