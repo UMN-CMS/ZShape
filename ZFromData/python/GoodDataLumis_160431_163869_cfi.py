@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 GoodLumis1 = cms.vstring(
-    #'runnumber:lumi-runnumber:lumi',
-
- '160431:19-160431:218',
+        '160431:19-160431:218',
 	'160577:254-160577:306',
 	'160578:6-160578:53',
 	'160578:274-160578:400',
