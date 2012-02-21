@@ -401,6 +401,7 @@ theId = ElectronID95.clone()
 
 # Trigger  ##################
 theHLT = cms.EDProducer("trgMatchedGsfElectronProducer",                     
+
         InputProducer = cms.InputTag("theId"),                          
         hltTag = cms.untracked.VInputTag(
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
@@ -432,6 +433,7 @@ theHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
             #cms.InputTag("HLT_DoubleEle17_SW_L1R","","HLT"),
             cms.InputTag("HLT_Ele32_SW_TighterEleId_L1R","","HLT")),
         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
+
 )
 
 theHLTGsf = cms.EDProducer("trgMatchedGsfElectronProducer",                     

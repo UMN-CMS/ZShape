@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
 #process.GlobalTag.globaltag = cms.string('MC_31X_V3::All')
 #process.GlobalTag.globaltag = 'GR10_P_V10::All'
-process.GlobalTag.globaltag = 'GR_R_39X_V4::All'
+process.GlobalTag.globaltag = 'GR_R_311_V2::All'
 
 
 
@@ -28,16 +28,17 @@ process.source = cms.Source("PoolSource",
 
 #process.load("ZShape.ZFromData.GoodLumis_cfi")
 
-from ZShape.ZFromData.GoodLumis_cfi import *
-#from ZShape.ZFromData.GoodLumis_July16ReReco_cfi import *
-#from ZShape.ZFromData.GoodLumis_June14thReReco_cfi import *
+## from ZShape.ZFromData.GoodLumis_cfi import *
+## #from ZShape.ZFromData.GoodLumis_July16ReReco_cfi import *
+## #from ZShape.ZFromData.GoodLumis_June14thReReco_cfi import *
 
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(
-    GoodLumis1+GoodLumis2+
-    GoodLumis3+
-    GoodLumis4+
-    GoodLumis5
-)
+## process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(
+##    GoodLumis1+GoodLumis2+
+##    GoodLumis3+
+##    GoodLumis4+
+##    GoodLumis5+
+##    GoodLumis6
+## )
 
 #print(process.source.lumisToProcess)
 
@@ -74,7 +75,7 @@ process.ZFromData = cms.EDAnalyzer("ZFromData",
     quiet = cms.untracked.bool(False),
     src = cms.untracked.InputTag('generator'),
     outHistogramsFile = cms.untracked.string('base_Jan23rd_1.root'),
-    ExtraFromDataHistos = cms.untracked.bool(False),
+    ExtraFromDataHistos = cms.untracked.bool(True),
     doMC = cms.untracked.bool(False),                               
     WeightsFile = cms.untracked.string('none'),                               
 
