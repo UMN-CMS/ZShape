@@ -18,13 +18,13 @@ FullSimSmearedElectronsProducer = cms.EDProducer("ZSmearingProducer",
     SmearTable = cms.FileInPath('ZShape/EffAcc/data/CBBinsFile.txt'),
     HF = cms.PSet(
        stocastic = cms.double(0.0),
-       constantp = cms.double(0.122),#uncert 0.02
-       constantm = cms.double(0.0997),#uncert 0.0143
-       constantp2 = cms.double(0.122),#uncert 0.02
-       constantm2 = cms.double(0.0997),#uncert 0.0143
+       constantp = cms.double(0.104),#uncert 0.02
+       constantm = cms.double(0.099),#uncert 0.0143
+       constantp2 = cms.double(0.104),#uncert 0.02
+       constantm2 = cms.double(0.099),#uncert 0.0143
        fraction2 = cms.double(0.00),
-       meanp = cms.double(0.965),  #uncert 0.007 
-       meanm = cms.double(0.925),  #uncert 0.009
+       meanp = cms.double(0.961),  #uncert 0.007 
+       meanm = cms.double(0.935),  #uncert 0.009
        reseta = cms.double(0.001),
        resphi = cms.double(0.001)
        ),
@@ -32,9 +32,9 @@ FullSimSmearedElectronsProducer = cms.EDProducer("ZSmearingProducer",
        p0 = cms.double(0.0) , 
        p1 = cms.double(0.0),
        p2 = cms.double(0.0),
-       c = cms.double(0.0045),# uncertainty 0.0006 or 0.0061 with u 0.0008
+       c = cms.double(0.005),# uncertainty 0.0006 or 0.0061 with u 0.0008
        alpha = cms.double(1.0), #doesn't matter with n=0
-       mean = cms.double(1.0028),  #uncertainty 0.00025
+       mean = cms.double(1.002),  #uncertainty 0.00025
        n = cms.double(0.0)
    
     ),
@@ -43,9 +43,9 @@ FullSimSmearedElectronsProducer = cms.EDProducer("ZSmearingProducer",
         p0 = cms.double(0.0) , 
        p1 = cms.double(0.0),
        p2 = cms.double(0.0),
-       c = cms.double(0.0155), #uncertainty 0.0017
+       c = cms.double(0.016), #uncertainty 0.0017
        alpha = cms.double(1.0), #doesn't matter with n=0
-       mean = cms.double(.990),  #uncertainty 0.0007
+       mean = cms.double(0.991),  #uncertainty 0.0007
        n = cms.double(0.0)
    
     )
