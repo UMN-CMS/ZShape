@@ -81,7 +81,7 @@ private:
   edm::InputTag m_srcTag;
   edm::InputTag zElectronsTag;
   bool quiet_;
-  bool doSmearing_;
+  bool doSmearing_,doEB_,doEE_,doHFenergy_,doHFeta_,doHFphi_;
   float zElectronsCone_;
   int randomSeed_;
   math::XYZPoint vtx_;
@@ -126,6 +126,11 @@ ZSmearingProducer::ZSmearingProducer(const edm::ParameterSet& iConfig) :
     zElectronsTag(iConfig.getUntrackedParameter<edm::InputTag>("zElectronsCollection",edm::InputTag("ZIntoElectronsEventProducer:ZEventParticles"))),
     quiet_(iConfig.getUntrackedParameter<bool>("quiet",false)),
     doSmearing_(iConfig.getUntrackedParameter<bool>("doSmearing",false)),
+    doEB_(iConfig.getUntrackedParameter<bool>("doEB",true)),
+    doEE_(iConfig.getUntrackedParameter<bool>("doEE",true)),
+    doHFenergy_(iConfig.getUntrackedParameter<bool>("doHFenergy",true)),
+    doHFeta_(iConfig.getUntrackedParameter<bool>("doHFeta",true)),
+    doHFphi_(iConfig.getUntrackedParameter<bool>("doHFphi",true)),
     zElectronsCone_(iConfig.getParameter<double>("zElectronsCone")),
     randomSeed_(iConfig.getParameter<int>("randomSeed"))
 {
@@ -336,87 +341,92 @@ void ZSmearingProducer::smearElectron(math::PtEtaPhiELorentzVector &electron)
   double deteta = myElec.detectorEta(vtx_);
   
   if (fabs(deteta) < EBEEboundry )
-  {
-    //Do EB stuff
-    Efrac = smearECALCB(deteta,e, mdt_EB);
-   
-  }
+    {
+      //Do EB stuff
+      if(doEB_){
+	Efrac = smearECALCB(deteta,e, mdt_EB);
+      }else {  Efrac = 1;}
+    }
   else if (fabs(deteta) < EEHFbountry)
-  {
-    //Do EE Stuff
-    Efrac = smearECALCB(deteta,e, mdt_EE);    // EE is now using the same parameterization as EB
-  }
+    {
+      //Do EE Stuff 
+      if(doEE_){
+	Efrac = smearECALCB(deteta,e, mdt_EE);    // EE is now using the same parameterization as EB
+      }else {  Efrac = 1;}
+    }
   else if (fabs(deteta) < 5.0)
-  {
-
-    // pick the constant...
-    double myfraction = randomNum_->Uniform(1.0);
-    double myconst;
-    if (myfraction<HFParams_.fraction2) {
-      myconst = ( deteta > 0 ) ? HFParams_.constantp2 : HFParams_.constantm2;
-    } else {
-      myconst = ( deteta > 0 ) ? HFParams_.constantp : HFParams_.constantm;
-    }
-
-    double mymean = ( deteta > 0 ) ? HFParams_.meanp : HFParams_.meanm;
-    double mysig = TMath::Power(TMath::Power(HFParams_.stocastic/sqrt(std::max(e,1.0)),2)+myconst*myconst,0.5);
-    //double mysig = HFParams_.stocastic/sqrt(std::max(e,1.0)+myconst;
-
-    double  etaFact=sinh(eta)/sinh(deteta);
-    Efrac = randomNum_->Gaus(mymean,mysig);
-    double newEta=deteta;
-    double perc = randomNum_->Uniform(1.0);
-    double sign = (deteta < 0.) ?(-1.) : (1.); //added to know the + or - sign.
-
-    //    static const double binCenterProb[] = { 0.00, 0.050, 0.050, 0.030, 0.030, 0.020, 0.020, 0.020, 0.020, 0.020, 0.020, 0.020, 0.000 };
-    static const double binCenterProb[] = { 0.00, 0.050, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.000 };
-
-
-    double deteta_abs=fabs(deteta);
-    //    static const double eta_offset=0.0144225; // needed because this is applied in reco for a "centered hit"
-    static const double eta_offset=0.0; // needed because this is applied in reco for a "centered hit"
-    
-    double centerProb=0.0;
-
-    int iring=0;
-
-    for (iring=0; iring<14; iring++)
-      if (deteta_abs<theHFEtaBounds[iring+1]) {
-	centerProb=binCenterProb[iring];
-	break;
+    {
+      
+      // pick the constant...
+      double myfraction = randomNum_->Uniform(1.0);
+      double myconst;
+      if (myfraction<HFParams_.fraction2) {
+	myconst = ( deteta > 0 ) ? HFParams_.constantp2 : HFParams_.constantm2;
+      } else {
+	myconst = ( deteta > 0 ) ? HFParams_.constantp : HFParams_.constantm;
       }
-
-    if (perc<centerProb) {
-      newEta=sign*((theHFEtaBounds[iring]+theHFEtaBounds[iring+1])/2+eta_offset);
-      // smear eta
-      newEta+=randomNum_->Gaus(0.0,HFParams_.res_eta/10.0); // small effect here
-    } else {
-      // smear eta
-      newEta+=randomNum_->Gaus(0.0,HFParams_.res_eta);
+      
+      double mymean = ( deteta > 0 ) ? HFParams_.meanp : HFParams_.meanm;
+      double mysig = TMath::Power(TMath::Power(HFParams_.stocastic/sqrt(std::max(e,1.0)),2)+myconst*myconst,0.5);
+      //double mysig = HFParams_.stocastic/sqrt(std::max(e,1.0)+myconst;
+      
+      double  etaFact=sinh(eta)/sinh(deteta);
+      if(doHFenergy_){ Efrac = randomNum_->Gaus(mymean,mysig); }else {  Efrac = 1;}
+      double newEta=deteta;
+      double perc = randomNum_->Uniform(1.0);
+      double sign = (deteta < 0.) ?(-1.) : (1.); //added to know the + or - sign.
+      
+      //    static const double binCenterProb[] = { 0.00, 0.050, 0.050, 0.030, 0.030, 0.020, 0.020, 0.020, 0.020, 0.020, 0.020, 0.020, 0.000 };
+      static const double binCenterProb[] = { 0.00, 0.050, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.040, 0.000 };
+      
+      
+      double deteta_abs=fabs(deteta);
+      //    static const double eta_offset=0.0144225; // needed because this is applied in reco for a "centered hit"
+      static const double eta_offset=0.0; // needed because this is applied in reco for a "centered hit"
+      
+      double centerProb=0.0;
+      
+      int iring=0;
+      
+      for (iring=0; iring<14; iring++)
+	if (deteta_abs<theHFEtaBounds[iring+1]) {
+	  centerProb=binCenterProb[iring];
+	  break;
+	}
+      if(doHFeta_){
+	if (perc<centerProb) {
+	  newEta=sign*((theHFEtaBounds[iring]+theHFEtaBounds[iring+1])/2+eta_offset);
+	  // smear eta
+	  newEta+=randomNum_->Gaus(0.0,HFParams_.res_eta/10.0); // small effect here
+	} else {
+	  // smear eta
+	  newEta+=randomNum_->Gaus(0.0,HFParams_.res_eta);
+	}
+	eta=(asinh(etaFact*sinh(newEta))); 
+      }
+      double newPhi=electron.phi();
+      
+      // smear phi
+      if(doHFphi_){
+	newPhi+=randomNum_->Gaus(0.0,HFParams_.res_phi);
+	if (newPhi<-M_PI) newPhi+=2*M_PI;
+	if (newPhi>M_PI) newPhi-=2*M_PI;
+	
+	phi=newPhi;
+      }
+      
+      
     }
-    
-    double newPhi=electron.phi();
-
-    // smear phi
-    newPhi+=randomNum_->Gaus(0.0,HFParams_.res_phi);
-    if (newPhi<-M_PI) newPhi+=2*M_PI;
-    if (newPhi>M_PI) newPhi-=2*M_PI;
-
-    phi=newPhi;
-
-    eta=(asinh(etaFact*sinh(newEta)));
-
-  }
   
   //std::cout << " OLD E " << electron.E() << " new eta " << electron.eta() << " new et " << electron.Et() << " new pt " << electron.pt() <<  " mass : " << electron.M() << std::endl;
-
+  
   //double pz = electron.pz();
   ///electron.SetE(Efrac*e);
   //electron.SetPt(pow(-e*e*(1-Efrac*Efrac)+pt*pt,0.5));
   ///electron.SetPt(electron.Et());
   electron = math::PtEtaPhiELorentzVector(Efrac*e/cosh(eta),eta,phi,Efrac*e);
- 
-
+  
+  
   //std::cout << " cosh way " << Efrac*e/cosh(eta) << " Other way " << Efrac*e*sin(electron.theta()) << std::endl;
   //std::cout << " New E " << electron.E() << " new eta " << electron.eta() << " new et " << electron.Et() << " new pt " << electron.pt() <<  " mass : " << electron.M() << std::endl;
 }
@@ -428,7 +438,7 @@ Double_t crystalBall(Double_t *x, Double_t *par)
 
   Double_t absAlpha = fabs((Double_t)par[0]);
 
-  if (t >= -absAlpha) {
+  if (t >= -absAlpha || par[1]==0 ) {
     return par[4]*exp(-0.5*t*t);
   }
   else {
