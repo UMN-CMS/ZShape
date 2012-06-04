@@ -34,8 +34,8 @@ process.load("ZShape.EffAcc.ZEfficiencyKevin_cfi")
 
 #process.load("ZShape.EffAcc.ZEfficiencyStd_cfi")
 
-process.mcEff.zsrc = cms.untracked.InputTag("f2s","ZEventParticles")
-process.mcEff.zElectronsCollection = cms.untracked.InputTag("f2s","ZEventParticles")
+process.mcEff.zsrc = cms.untracked.InputTag("FullSimSmearedElectronsProducer","ZEventParticles")
+process.mcEff.zElectronsCollection = cms.untracked.InputTag("FullSimSmearedElectronsProducer","ZEventParticles")
 process.mcEff.zTreeLevelElectronsCollection = cms.untracked.InputTag("f2s","ZEventEle3")
 
 process.f2s = cms.EDProducer("ZFullSim2Event"
@@ -43,4 +43,4 @@ process.f2s = cms.EDProducer("ZFullSim2Event"
 process.load("RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff")
 
 #process.p = cms.Path(process.makePatElectrons+process.f2s)
-process.p = cms.Path(process.hfRecoEcalCandidate+process.f2s+process.mcEff)
+process.p = cms.Path(process.hfRecoEcalCandidate+process.f2s+process.FullSimSmearedElectronsProducer+process.mcEff)
