@@ -7,7 +7,7 @@ import ElectroWeakAnalysis.WENu.simpleCutBasedElectronIDSpring10_cfi
 hfzeevbtf = cms.EDFilter('HFZeeVBTF',
                     acceptedElectronIDs = cms.vint32( 7 ),
                     ECALid = cms.string('simpleEleId80cIso'),
-                    minEtECAL = cms.double(20),
+                    minEtECAL = cms.double(30),
                     minEtHF   = cms.double(20),
                     min2dFilter = cms.double(0.2),
                     Zmass     = cms.vdouble(40,130),
