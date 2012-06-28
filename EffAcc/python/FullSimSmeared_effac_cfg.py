@@ -44,3 +44,4 @@ process.load("RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff")
 
 #process.p = cms.Path(process.makePatElectrons+process.f2s)
 process.p = cms.Path(process.hfRecoEcalCandidate+process.f2s+process.FullSimSmearedElectronsProducer+process.mcEff)
+#process.p = cms.Path(process.hfEMClusteringSequence+process.f2s+process.FullSimSmearedElectronsProducer+process.mcEff)

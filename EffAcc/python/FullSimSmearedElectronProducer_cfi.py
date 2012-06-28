@@ -18,13 +18,13 @@ FullSimSmearedElectronsProducer = cms.EDProducer("ZSmearingProducer",
     SmearTable = cms.FileInPath('ZShape/EffAcc/data/CBBinsFile.txt'),
     HF = cms.PSet(
        stocastic = cms.double(0.0),
-       constantp = cms.double(0.104),#uncert 0.02
+       constantp = cms.double(0.075),#uncert 0.02
        constantm = cms.double(0.099),#uncert 0.0143
-       constantp2 = cms.double(0.104),#uncert 0.02
+       constantp2 = cms.double(0.075),#uncert 0.02
        constantm2 = cms.double(0.099),#uncert 0.0143
        fraction2 = cms.double(0.00),
-       meanp = cms.double(0.961),  #uncert 0.007 
-       meanm = cms.double(0.935),  #uncert 0.009
+       meanp = cms.double(0.965),  #uncert 0.007 
+       meanm = cms.double(0.932),  #uncert 0.009
        reseta = cms.double(0.001),
        resphi = cms.double(0.001)
        ),
