@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alexander Gude
 //         Created:  Fri Sep 23 11:50:21 CDT 2011
-// $Id$
+// $Id: MakeZEffTree.cc,v 1.1 2011/11/10 18:04:25 gude Exp $
 //
 //
 
@@ -187,6 +187,8 @@ MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         m_ze->gen.phi[1] = ge1->momentum().phi();
         m_ze->gen.pt[0] = ge0->momentum().perp();
         m_ze->gen.pt[1] = ge1->momentum().perp();
+        m_ze->gen.charge[0] = ge0->charge();
+        m_ze->gen.charge[1] = ge1->charge();
         m_ze->gen.mz = Z->momentum().m();
         m_ze->gen.yz = 0.5*log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
         m_ze->gen.qtz = Z->momentum().perp();
@@ -224,6 +226,8 @@ MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
                 m_ze->reco.phi[1] = vprobes->p4().phi(); 
                 m_ze->reco.pt[0] = tag->p4().pt();
                 m_ze->reco.pt[1] = vprobes->p4().pt();
+                m_ze->reco.charge[0] = tag->charge();
+                m_ze->reco.charge[1] = vprobes->charge();
                 m_ze->reco.mz = tpP4.M();
                 m_ze->reco.yz = tpP4.Rapidity();
                 m_ze->reco.qtz = tpP4.pt();
