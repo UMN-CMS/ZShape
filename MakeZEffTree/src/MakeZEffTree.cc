@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alexander Gude
 //         Created:  Fri Sep 23 11:50:21 CDT 2011
-// $Id: MakeZEffTree.cc,v 1.2 2012/09/13 20:06:47 gude Exp $
+// $Id: MakeZEffTree.cc,v 1.3 2012/09/14 15:21:00 gude Exp $
 //
 //
 
@@ -50,6 +50,14 @@ Implementation:
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
+// Trying to get Lozentz Vectors to work...
+#include "Math/PtEtaPhiM4D.h"
+#include "Math/VectorUtil.h"
+
+// And 3d vectors
+#include "Math/Vector3D.h"
+
+
 //
 // class declaration
 //
@@ -74,6 +82,7 @@ class MakeZEffTree : public edm::EDAnalyzer {
 
         bool ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, edm::Handle<reco::CandidateView>& passprobes);
         bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
+        float getPhiStar( float eta0, float phi0, int charge0, float eta1, float phi1);
         // ----------member data ---------------------------
         ZEffTree *m_ze;
         edm::InputTag tnpProducer_;
@@ -125,8 +134,7 @@ MakeZEffTree::~MakeZEffTree() {
 //
 
 // ------------ method called for each event  ------------
-void
-MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     using namespace edm;
 
     m_ze->Clear();
@@ -194,12 +202,11 @@ MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
             m_ze->gen.charge[1] = -1;
             m_ze->gen.charge[0] = 1;
         }
-        //m_ze->gen.charge[0] = ge0->charge();
-        //m_ze->gen.charge[1] = ge1->charge();
         m_ze->gen.mz = Z->momentum().m();
         m_ze->gen.yz = 0.5*log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
         m_ze->gen.qtz = Z->momentum().perp();
         m_ze->gen.nverts = npv;
+        m_ze->gen.phistar = MakeZEffTree::getPhiStar( m_ze->gen.eta[0], m_ze->gen.phi[0], m_ze->gen.charge[0], m_ze->gen.eta[1], m_ze->gen.phi[1]);
     }
 
     edm::Handle<reco::CandidateView> tagprobes;
@@ -238,6 +245,12 @@ MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
                 m_ze->reco.mz = tpP4.M();
                 m_ze->reco.yz = tpP4.Rapidity();
                 m_ze->reco.qtz = tpP4.pt();
+                /* Use the electron that we have a charge for to set the PhiStar */
+                if (m_ze->reco.charge[0] != 0){
+                    m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.charge[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
+                } else if (m_ze->reco.charge[1] != 0){
+                    m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.charge[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
+                }
 
                 for (int itype = 0; itype < (int) passProbeCandTags_.size(); ++itype) {
                     //std::cout << "Looping over the types" << std::endl;
@@ -383,6 +396,50 @@ bool MakeZEffTree::MatchObjects(const reco::Candidate *hltObj, const reco::Candi
     //std::cout << " tEta " << tEta << " tPhi " << tPhi << " tPt " << tPt << " hEta " <<  hEta << " hPhi " << hPhi << " hPt " << hPt << std::endl;
     return ( dRval < delRMatchingCut_ && dPtRel < delPtRelMatchingCut_);
 }
+
+float MakeZEffTree::getPhiStar(float eta0, float phi0, int charge0, float eta1, float phi1){
+    /* Calculate phi star */
+    //typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > PtEtaPhiMLorentzVector;
+    //typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > XYZVector;
+
+    //double m_e = 5.10998928e-4; // GeV from 2012 pdg
+
+    /* We make LorentzVectors to recover the coordinates, and use these to make normal 3 Vectors. */
+    //PtEtaPhiMLorentzVector e0lv(pt1, eta0, phi0, m_e);
+    //PtEtaPhiMLorentzVector e1lv(pt1, eta1, phi1, m_e);
+    //XYZVector test0(e0lv.X(), e0lv.Y(), 0);
+    //XYZVector test1(e1lv.X(), e1lv.Y(), 0);
+
+    //XYZVector Ptp = (test0 + test1);
+    //XYZVector Ptm = (test0 - test1);
+
+    //Ptm = Ptm * (1.0/(Ptm.r()));
+
+    //double a_t = (Ptp.Cross(Ptm)).r();
+    //double a_l = Ptp.Dot(Ptm);
+
+    /* Calculate dPhi, stolen from Kevin's code */
+    const double pi = 3.14159265;
+    float dPhi=phi0-phi1;
+
+    if (dPhi < 0){
+        if (dPhi > -pi){
+            dPhi = fabs(dPhi);
+        }
+        if (dPhi < -pi) {
+            dPhi += 2*pi;
+        }
+    }
+
+    /* Theta* */
+    float thetaStar = acos( tanh( -0.5 * ( (charge0 * eta0) - (charge0 * eta1) ) ) );
+
+    /* PhiStar */
+    float phiStar = tan( (pi - dPhi)/2. ) * sin( thetaStar );
+
+    return phiStar;
+}
+
 
 
 //define this as a plug-in
