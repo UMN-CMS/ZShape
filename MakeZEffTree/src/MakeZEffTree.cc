@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alexander Gude
 //         Created:  Fri Sep 23 11:50:21 CDT 2011
-// $Id: MakeZEffTree.cc,v 1.1 2011/11/10 18:04:25 gude Exp $
+// $Id: MakeZEffTree.cc,v 1.2 2012/09/13 20:06:47 gude Exp $
 //
 //
 
@@ -165,7 +165,7 @@ MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
 
         // ge0 is always the highest pt electron
-        if (ge1->momentum().perp()>ge0->momentum().perp()) {
+        if (ge1->momentum().perp() > ge0->momentum().perp()) {
             std::swap(ge0,ge1);
         }
 
@@ -187,8 +187,15 @@ MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         m_ze->gen.phi[1] = ge1->momentum().phi();
         m_ze->gen.pt[0] = ge0->momentum().perp();
         m_ze->gen.pt[1] = ge1->momentum().perp();
-        m_ze->gen.charge[0] = ge0->charge();
-        m_ze->gen.charge[1] = ge1->charge();
+        if (ge0->pdg_id() == 11) {
+            m_ze->gen.charge[0] = -1;
+            m_ze->gen.charge[1] = 1;
+        } else {
+            m_ze->gen.charge[1] = -1;
+            m_ze->gen.charge[0] = 1;
+        }
+        //m_ze->gen.charge[0] = ge0->charge();
+        //m_ze->gen.charge[1] = ge1->charge();
         m_ze->gen.mz = Z->momentum().m();
         m_ze->gen.yz = 0.5*log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
         m_ze->gen.qtz = Z->momentum().perp();
