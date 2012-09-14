@@ -42,7 +42,7 @@ void ZEffTree::prepBitmap() {
     cutToBits_["HLT-EtaDet"] = 4;
     cutToBits_["HFElectronId-EtaDet"] = 5;
     cutToBits_["HFSuperCluster-Et"] = 6;
-    cutToBits_["HFTigh tElectronId-EtaDet"] = 7;
+    cutToBits_["HFTightElectronId-EtaDet"] = 7;
     cutToBits_["EID95"] = 8;
     cutToBits_["ISO95"] = 9;
     cutToBits_["EID90"] = 10;
