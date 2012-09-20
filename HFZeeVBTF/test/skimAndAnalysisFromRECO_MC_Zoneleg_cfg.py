@@ -15,7 +15,7 @@ process.source = cms.Source("PoolSource",
     fileNames=cms.untracked.vstring(     )
                   
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 ## Load additional processes
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -249,8 +249,6 @@ import ElectroWeakAnalysis.WENu.simpleCutBasedElectronIDSpring10_cfi
 # ---> this is the instance to run AFTER the Wenu EWK filter
 process.demo = cms.EDAnalyzer('HFZeeVBTF',
     ECALid = cms.string('simpleEleId90cIso'),
-    minEtECAL = cms.double(20),
-    minEtHF   = cms.double(20),
     DoLog = cms.bool(True),
 #   this is instance of the analysis code which matters; keep only enectrons that pass the full selection
     acceptedElectronIDs = cms.vint32( 7 ),
@@ -277,8 +275,6 @@ process.demo = cms.EDAnalyzer('HFZeeVBTF',
 # ---> this is the instance to run AFTER the Wenu EWK filter
 process.demoLoose = cms.EDAnalyzer('HFZeeVBTF',
     ECALid = cms.string('simpleEleId90cIso'),
-    minEtECAL = cms.double(20),
-    minEtHF   = cms.double(20),
     DoLog = cms.bool(True),
 #   this is instance of the analysis code which I carry along to allow the keeping also of electrons that have not passed conversion rejection
     acceptedElectronIDs = cms.vint32( 3, 7 ),
@@ -305,8 +301,6 @@ process.demoLoose = cms.EDAnalyzer('HFZeeVBTF',
 # ---> this is the instance to run BEFORE the Wenu EWK filter, so to have normalization of number of MC events processed
 process.demoBefCuts = cms.EDAnalyzer('HFZeeVBTF',
     ECALid = cms.string('simpleEleId90cIso'),
-    minEtECAL = cms.double(20),
-    minEtHF   = cms.double(20),
     DoLog = cms.bool(True),
 #   this instance of the analysis code is just to count events, so it does not matter how tight eleID might be
     acceptedElectronIDs = cms.vint32( 7 ),
@@ -375,8 +369,6 @@ process.EG_1e28.andOr = True
 
 process.load("RecoEgamma.EgammaHFProducers.hfRecoEcalCandidate_cfi")
 process.hfRecoEcalCandidate.intercept2DCut=0.3
-process.hfRecoEcalCandidate.e9e25Cut      =0.94
-# 0.94 is the same as default in the HF cluster producer
 
 
 process.z1lPath = cms.Path(

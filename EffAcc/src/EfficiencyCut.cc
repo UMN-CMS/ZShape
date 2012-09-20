@@ -2,13 +2,13 @@
 #include "TH1.h"
 #include <iostream>
 #include "TRandom3.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-TRandom* EfficiencyCut::randomGenerator_=0; 
 
-EfficiencyCut::EfficiencyCut ( TH1F * histo, EffTableLoader* ind) : theIndexer(ind) {
+EfficiencyCut::EfficiencyCut ( void ) {
+  std::cerr << "in EfficiencyCut void constructor" << std::endl ;
+}
 
-  if (randomGenerator_==0) randomGenerator_=new TRandom3(0);
+EfficiencyCut::EfficiencyCut ( TH1F * histo ):theTmpHisto_(histo) {
   
   if(! histo)
     {
@@ -16,68 +16,57 @@ EfficiencyCut::EfficiencyCut ( TH1F * histo, EffTableLoader* ind) : theIndexer(i
       return;
     }
 
-  std::cout << "building EfficiencyCut - constructor - num entries is: " << histo->GetEntries() << std::endl;
-  //  std::cerr << "theTmpHisto_ is: " << theTmpHisto_<< std::endl;
-
-  char name[1024];
-  snprintf(name,1023,"%s ",histo->GetName());
-  theClonedEffHisto_ = (TH1F *) histo->Clone(name);
+  std::cout << "building EfficiencyCut - constructor - num entries is: " << theTmpHisto_->GetEntries() << std::endl;
+  std::cerr << "theTmpHisto_ is: " << theTmpHisto_<< std::endl;
+  
+  theClonedEffHisto_ = (TH1F *) theTmpHisto_->Clone("clonedEfficiencyHisto");
+  //   std::cout << "cloned EfficiencyCut obj created with histo named: " 
+  // 	    <<   theClonedEffHisto_ ->GetTitle() 
+  // 	    << " and pointer: " << theClonedEffHisto_ << std::endl;
   theClonedEffHisto_ ->SetDirectory(0);
 }
- 
-bool EfficiencyCut::passesCut(int index, float level) const
+
+
+bool EfficiencyCut::passesCut(float variable)
 {
+  //  std::cerr << "in EfficiencyCut passesCut, original histo is: " <<   theTmpHisto_ ->GetTitle() << " and pointer: " <<  theTmpHisto_ << std::endl;
+  std::cerr << "in EfficiencyCut passesCut, cloned histo is: " <<   theClonedEffHisto_ ->GetTitle() << " and pointer: " << theClonedEffHisto_ << std::endl;
    
-  int theBin =  index + 1;
-  if (theBin <= 0 ) 
+  int theBin =  theClonedEffHisto_ -> Fill(variable,0);
+  if (theBin == -1 ) 
     {
+      std::cout << "in EfficiencyCut passesCut piff underflow" << std::endl;
       return false; // underflow
     }
   if (theBin ==  ( theClonedEffHisto_->GetNbinsX()  +1)  ) 
     {
-
+      std::cout << "in EfficiencyCut passesCut overflow" << std::endl;
       return false; // underflow
     }
 
 
   float theEfficiency = theClonedEffHisto_->GetBinContent(theBin);
 
- 
-  float randNum;
-  if (level<0) randNum=randomGenerator_->Uniform(0.,1.);
-  else randNum=level;
-  lastRandomLevel_=randNum;
+  TRandom3 randomNum(0); // put this back
+  float randNum = randomNum.Uniform(0., 1.); // put this back
 
-    if ( randNum < theEfficiency ) 
+  if ( randomNum.Uniform(0., 1.) < theEfficiency ) 
+     if ( randNum < theEfficiency ) 
        {
-	   //std::cout << "EfficiencyCut passescut in cut: " <<  theClonedEffHisto_->GetTitle() <<  " which falls in bin: " << theBin << " and the cut was passed" 
-	  //            " (randNum: " << randNum << " eff: " << theEfficiency << ")" <<std::endl;
-	 // std::cout << " Returning TRUE " << std::endl;
+	 //  	std::cout << "EfficiencyCut passescut in cut: " <<  theClonedEffHisto_->GetTitle() << " variable is: " <<
+	 //  	  variable << " which falls in bin: " << theBin << " and the cut was passed" 
+	 //  	  " (randNum: " << randNum << " eff: " << theEfficiency << ")" <<std::endl;
 	 return true;
        }
-   else{
-           //  std::cout << "iEfficiencyCut passescut n cut: " <<  theClonedEffHisto_->GetTitle() << " which falls in bin: " << theBin << " and the cut was not passed" 
-         //	" (randNum: " << randNum << " eff: " << theEfficiency << ")" << std::endl;
-           //   std::cout << " Returning FALSE " << std::endl;
-         return false;
-    }
+     else{
+       //        std::cout << "iEfficiencyCut passescut n cut: " <<  theClonedEffHisto_->GetTitle() << " variable is: " <<
+       //  	variable << " which falls in bin: " << theBin << " and the cut was not passed" 
+       //  	" (randNum: " << randNum << " eff: " << theEfficiency << ")" << std::endl;
+       return false;
+     }
 
-  std::cout << " Returning FALSE " << std::endl;
-  return false;
+
+  return true;
 
 } 
-
-
-bool EfficiencyCut::passesCut( const ZShapeElectron& elec) const {
-  return passesCut(indexOf(elec));
-}
-
-bool EfficiencyCut::passesCut( const ZShapeElectron& elec, float level) const {
-  return passesCut(indexOf(elec),level);
-}
-
-
-int EfficiencyCut::indexOf( const ZShapeElectron& elec) const {
-  return theIndexer->GetBandIndex(elec.p4_.Pt(),elec.detEta_);
-}
-
+ 

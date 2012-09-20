@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Thu Oct  4 11:30:13 CEST 2007
-// $Id: ZEfficiencyCalculator.h,v 1.20 2011/01/27 17:28:25 mansj Exp $
+// $Id$
 //
 //
 
@@ -28,24 +28,22 @@ Implementation:
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/Candidate/interface/Particle.h"
-
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "ZShape/Base/interface/ZShapeEvent.h"
-#include "ZShape/Base/interface/ZShapeZDef.h"
-#include "ZShape/Base/interface/ZShapeStandardCuts.h"
+#include "FastSimulation/Particle/interface/RawParticle.h"
+
+#include <CLHEP/Vector/LorentzVector.h>
+
 #include "ZShape/EffAcc/interface/EffHistos.h"
+#include "ZShape/EffAcc/interface/EtaAcceptance.h"
 #include "ZShape/EffAcc/interface/EfficiencyStore.h"
 #include "ZShape/EffAcc/interface/EfficiencyCut.h"
-#include "ZShape/Base/interface/Systematics.h"
+
 
 #include "TRandom3.h"
 #include "TFile.h"
 
-class TProfile;
 
 //
 // class decleration
@@ -58,88 +56,51 @@ public:
 
 
 private:
-  virtual void beginJob() ;
+  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  void fillEvent(const reco::GenParticleCollection* ZeeParticles, const reco::GenParticleCollection* ZeeTreeLevelParticles); 
-  void loadEfficiency(const std::string& name, const std::string& fname);
-  void applyEfficiencies();
-  void createAlternateEfficiencies(int cycle, TFileDirectory& fd);
-  void createAlternateZDefs(const std::string& targetZDefSys, const std::string& targetEffSys);
-
-  double getPDFWeight(const edm::Event&);
-  
   // ----------member data ---------------------------
-  ZShapeEvent evt_;
 
+  std::vector<RawParticle> myElectrons_;
   TRandom3 randomNum;
 
-  edm::InputTag m_srcTag;
-  edm::InputTag zElectronsTag;
-  edm::InputTag zTreeLevelElectronsTag;
-  edm::InputTag partonIdTag,partonMomFractionTag,scaleQTag;
-  bool doPDFreweight_;
-  std::string pdfReweightBaseName, pdfReweightTargetName;
-  int pdfReweightBaseId, pdfReweightTargetId;
-  bool pdfReweightAddZmass_;
-  bool quiet_;
-  float zElectronsCone_;
+  std::string outFileName_;
+  bool        writeHistoConservatively_;
+  TFile*      histoFile_;
+  TFile *     eff1File_;
+  TFile *     eff2File_;
+  TFile *     eff3File_;
 
-  // the efficiency objects: strings identify the cuts efficiencies and corresponding cuts
-  std::map<std::string, EfficiencyStore*> efficiencies_;
-  std::map<std::string, EfficiencyCut*> theCuts_;
+  TFile * effHistoFile_;
+  std::string inputEffFileName_;
+
+  std::string inputEffFileNameCut1_;
+  std::string inputEffFileNameCut2_;
+  std::string inputEffFileNameCut3_;
+
+  //GF: these three will go away
+  std::string cut1HistoName_;
+  std::string cut2HistoName_;
+  std::string cut3HistoName_;
+
+  EfficiencyStore * eff1_;
+  EfficiencyStore * eff2_;
+  EfficiencyStore * eff3_;
   
-  // object which applies the eta and pt cuts
-  ZShapeStandardCuts stdCuts_;
+  TH1F*  histoSeeding_;
+  TH1F*  histoTracking_;
+  TH1F*  histoEReco_;
 
-  // Z Definitions
-  std::map<std::string, ZShapeZDef*> zdefs_;
-
-  // when doing efficiency statistics runs
-  struct StatsBox {
-    std::string targetEffStat;
-    int trials;
-    std::vector<EfficiencyCut*> alternateCuts;
-    std::map<std::string, std::vector<EffHistos> > hists;
-    std::vector<TH1*> rawHists;
-    TProfile* cutsProfile;
-  } statsBox_;
+  // objects holding histograms to fill
+  EffHistos allCase_, acceptance_, aftercut1_, aftercut2_, aftercut3_;
   
-  // targets for systematic variations
-  std::string targetEffSys_, targetZDefSys_;
+  // object which applies the eta cuts
+  EtaAcceptance theEtaSelector_;
 
-  // other systematics
-  std::string systematicVariation_;
-  struct SystematicsBlock {
-    zshape::EnergyScale* energyScale;
-  } m_systematics;
-
-  // Z Plots:
-
-  // before any z-def selection
-  EffHistos allCase_;
-
-  struct RegionalPlots {
-    TH1F* ecal_ecal, *ecal_ntrk, *ecal_hf, *ecal_noacc;
-    TH1F* ntrk_ntrk, *ntrk_hf, *ntrk_noacc;
-    TH1F* hf_hf, *hf_noacc, *noacc_noacc;
-    TH1F* weights;
-  } accHistos_;
-    
-
-  // at each step of selection for any z-definition
-  struct ZPlots {
-    ZPlots(int nc, int nz) : postCut_(nc),zCut_(nz) { }
-    EffHistos acceptance_;
-    std::vector<EffHistos> postCut_;
-    std::vector<EffHistos> zCut_;
-  };
-  std::map<std::string,ZPlots*> zplots_;
-
-  // invariant mass cuts
-  double massLow_ ;
-  double massHigh_;
+  // objects for the efficiency cuts
+  EfficiencyCut * seedingCut_;
+  EfficiencyCut * trackingCut_;
+  EfficiencyCut * eRecoCut_;
+  
 };
-
-

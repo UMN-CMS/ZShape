@@ -23,7 +23,7 @@ Implementation:
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
@@ -34,8 +34,6 @@ Implementation:
 #include "ZShape/EffAcc/interface/EffHistos.h"
 #include "ZShape/EffAcc/interface/EfficiencyStore.h"
 #include "ZShape/EffAcc/interface/EfficiencyCut.h"
-#include "ZShape/EffAcc/interface/WgtProducer.h"
-
 #include "ZShape/ZFromData/interface/EffExtraHistos.h"
 
 ///#include "AnalysisDataFormats/ElectronEfficiency/interface/EmObjectFwd.h"
@@ -62,7 +60,7 @@ public:
 
 
 private:
-  virtual void beginJob() ;
+  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -75,6 +73,7 @@ private:
   };
 
   void fillMCEvent(const HepMC::GenEvent* evt);
+  void loadEfficiency(const std::string& name, const std::string& fname);
   void applyEfficiencies();
   void createAlternateEfficiencies();
   void createAlternateZDefs(const std::string& targetZDefSys, const std::string& targetEffSys);
@@ -87,17 +86,13 @@ private:
   
 
   // ----------member data ---------------------------
-  //Alex's rank hack
-  edm::InputTag L1ForJets_;
-
   ZShapeEvent evt_;
   ZShapeEvent evtMC_;
-  std::string wfile_;
-  WgtProducer wclass;
+
+ 
 
   std::map<std::string, EffInfo*> effInfo_;
   edm::InputTag tnpProducer_;
-  edm::InputTag gsfProducer_; //added to count the number of gsf's above 20
 
   //Iso and hlt information
   ///HLTisPassed _HLTpassed;
@@ -107,18 +102,19 @@ private:
 
   edm::InputTag m_srcTag;
   bool quiet_;
-  bool doMC_;
   std::string outFileName_;
   bool        writeHistoConservatively_;
   TFile*      histoFile_;
 
+  // the efficiency objects: strings identify the cuts efficiencies and corresponding cuts
+  std::map<std::string, EfficiencyStore*> efficiencies_;
+  std::map<std::string, EfficiencyCut*> theCuts_;
   
   // object which applies the eta and pt cuts
   ZShapeStandardCuts stdCuts_;
 
   // Z Definitions
   std::map<std::string, ZShapeZDef*> zdefs_;
-  std::map<std::string, bool> zptorder_;
 
   // when doing efficiency statistics runs
   struct StatsBox {
@@ -141,23 +137,14 @@ private:
   EffExtraHistos allCaseExtra_;
   EffExtraHistos allCaseExtraFirst_;
 
-
-  struct RegionalPlots {
-    TH1F* ecal_ecal, *ecal_ntrk, *ecal_hf, *ecal_noacc;
-    TH1F* ntrk_ntrk, *ntrk_hf, *ntrk_noacc;
-    TH1F* hf_hf, *hf_noacc, *noacc_noacc;
-  } accHistos_;
-
   // at each step of selection for any z-definition
   struct ZPlots {
-    ZPlots(int nc, int nz) : postCut_(nc), postCutExtra_(nc), zCut_(nz), zCutExtra_(nz) { }
+    ZPlots(int nc) : postCut_(nc), postCutExtra_(nc) { }
     ///ZPlots(int nc) : postCut_(nc) { }
     EffHistos acceptance_;
     EffExtraHistos acceptanceExtra_; //added for the extra histos
     std::vector<EffHistos> postCut_;
     std::vector<EffExtraHistos> postCutExtra_; //added for the extra histos
-    std::vector<EffHistos> zCut_;
-    std::vector<EffExtraHistos> zCutExtra_; //added for the extra histos
   };
   std::map<std::string,ZPlots*> zplots_;
   TRandom3 *random_;
