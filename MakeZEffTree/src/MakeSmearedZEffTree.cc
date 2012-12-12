@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alexander Gude
 //         Created:  Fri Sep 23 11:50:21 CDT 2011
-// $Id: MakeSmearedZEffTree.cc,v 1.2 2012/12/12 21:00:31 gude Exp $
+// $Id: MakeSmearedZEffTree.cc,v 1.3 2012/12/12 21:03:06 gude Exp $
 //
 //
 
@@ -287,7 +287,7 @@ int MakeSmearedZEffTree::getHFTower( double eta ){
     static const double starts[arraySize] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
     static const double ends[arraySize] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
     static const int towers[arraySize] = {29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41};
-    static const double feta = fabs(eta);
+    double feta = fabs(eta);
     /* Check for outside range */
     if (feta < starts[0] || feta > ends[arraySize-1]){
         return 0;
@@ -303,12 +303,12 @@ int MakeSmearedZEffTree::getHFTower( double eta ){
     int upper = arraySize-1;
     int location = (arraySize-1)/2;
     while ( ( upper > lower ) ){
-        if ( eta < starts[location] ){
+        if ( feta < starts[location] ){
             upper = location;
         } else {
             lower = location;
         }
-        if ( eta < ends[location] ){
+        if ( feta < ends[location] ){
             upper = location;
         } else {
             lower = location;
@@ -329,7 +329,7 @@ double MakeSmearedZEffTree::getHFSlope( double eta ){
     /* Corrections: 29, 30, ..., 41 for positive and negative ieta  */
     static const double pos_correction[arraySize] = {0.0862, 0.0862, 0.1402, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862};  
     static const double neg_correction[arraySize] = {0.0862, 0.0862, 0.1402, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862};  
-    static const double feta = fabs(eta);
+    double feta = fabs(eta);
     /* Check for outside range */
     if (feta < starts[0] || feta > ends[arraySize-1]){
         return 0;
@@ -340,12 +340,12 @@ double MakeSmearedZEffTree::getHFSlope( double eta ){
     int upper = arraySize-1;
     int location = (arraySize-1)/2;
     while ( ( upper > lower ) ){
-        if ( eta < starts[location] ){
+        if ( feta < starts[location] ){
             upper = location;
         } else {
             lower = location;
         }
-        if ( eta < ends[location] ){
+        if ( feta < ends[location] ){
             upper = location;
         } else {
             lower = location;
