@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alexander Gude
 //         Created:  Fri Sep 23 11:50:21 CDT 2011
-// $Id: MakeSmearedZEffTree.cc,v 1.1 2012/09/17 19:58:50 gude Exp $
+// $Id: MakeSmearedZEffTree.cc,v 1.2 2012/12/12 21:00:31 gude Exp $
 //
 //
 
@@ -189,7 +189,7 @@ void MakeSmearedZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetu
         /* Apply HF correction if required */
         if ( doHFCor_ && inHF(me[0]->momentum().Eta()) ){
             double hfcorrection = (npv - 1) * getHFSlope(me[0]->momentum().Eta());
-            m_ze->reco.pt[0] = me[0]->momentum().Rho()*(0-hfcorrection);
+            m_ze->reco.pt[0] = me[0]->momentum().Rho()*(1-hfcorrection);
         } else {
             m_ze->reco.pt[0] = me[0]->momentum().Rho();
         }
