@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alexander Gude
 //         Created:  Fri Sep 23 11:50:21 CDT 2011
-// $Id: MakeSmearedZEffTree.cc,v 1.1 2011/11/10 18:04:25 gude Exp $
+// $Id: MakeSmearedZEffTree.cc,v 1.1 2012/09/17 19:58:50 gude Exp $
 //
 //
 
@@ -85,9 +85,14 @@ class MakeSmearedZEffTree : public edm::EDAnalyzer {
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
         float getPhiStar( float eta0, float phi0, int charge0, float eta1, float phi1);
+        bool inHF( double eta );
+        int getHFTower( double eta );
+        double getHFSlope( double eta );
+
         // ----------member data ---------------------------
         ZEffTree *m_ze;
         edm::InputTag source_;
+        bool doHFCor_;
 
 };
 
@@ -110,6 +115,7 @@ MakeSmearedZEffTree::MakeSmearedZEffTree(const edm::ParameterSet& iConfig) {
     m_ze = new ZEffTree(f,writable);
 
     source_ = iConfig.getUntrackedParameter<edm::InputTag>("zsrc");
+    doHFCor_ = iConfig.getUntrackedParameter<bool>("doHFCorrection",false);
 }
 
 
@@ -173,8 +179,6 @@ void MakeSmearedZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetu
         m_ze->reco.eta[1] = me[1]->momentum().Eta();
         m_ze->reco.phi[0] = me[0]->momentum().Phi();
         m_ze->reco.phi[1] = me[1]->momentum().Phi();
-        m_ze->reco.pt[0] = me[0]->momentum().Rho();
-        m_ze->reco.pt[1] = me[1]->momentum().Rho();
         m_ze->reco.charge[0] = me[0]->charge();
         m_ze->reco.charge[1] = me[1]->charge();
         m_ze->reco.mz = Zp4.M();
@@ -182,6 +186,19 @@ void MakeSmearedZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetu
         m_ze->reco.qtz = Zp4.pt();
         m_ze->reco.nverts = npv;
         m_ze->reco.phistar = getPhiStar(m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.charge[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
+        /* Apply HF correction if required */
+        if ( doHFCor_ && inHF(me[0]->momentum().Eta()) ){
+            double hfcorrection = (npv - 1) * getHFSlope(me[0]->momentum().Eta());
+            m_ze->reco.pt[0] = me[0]->momentum().Rho()*(0-hfcorrection);
+        } else {
+            m_ze->reco.pt[0] = me[0]->momentum().Rho();
+        }
+        if ( doHFCor_ && inHF(me[1]->momentum().Eta()) ){
+            double hfcorrection = (npv - 1) * getHFSlope(me[1]->momentum().Eta());
+            m_ze->reco.pt[1] = me[1]->momentum().Rho()*(1-hfcorrection);
+        } else {
+            m_ze->reco.pt[1] = me[1]->momentum().Rho();
+        }
     }
 
     m_ze->Fill();
@@ -255,5 +272,97 @@ float MakeSmearedZEffTree::getPhiStar(float eta0, float phi0, int charge0, float
 
     return phiStar;
 }
+
+bool MakeSmearedZEffTree::inHF( double eta ){
+    double feta = fabs(eta);
+    if ( fabs(2.853) < feta && feta < fabs(5.191) ){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int MakeSmearedZEffTree::getHFTower( double eta ){
+    static const int arraySize = 13;
+    static const double starts[arraySize] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
+    static const double ends[arraySize] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
+    static const int towers[arraySize] = {29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41};
+    static const double feta = fabs(eta);
+    /* Check for outside range */
+    if (feta < starts[0] || feta > ends[arraySize-1]){
+        return 0;
+    }
+    /* Determine Sign of the tower */
+    int sign = 1;
+    if (eta < 0){
+        sign = -1;
+    }
+
+    /* Binary search for location */
+    int lower = 0;
+    int upper = arraySize-1;
+    int location = (arraySize-1)/2;
+    while ( ( upper > lower ) ){
+        if ( eta < starts[location] ){
+            upper = location;
+        } else {
+            lower = location;
+        }
+        if ( eta < ends[location] ){
+            upper = location;
+        } else {
+            lower = location;
+        }
+
+        int step = ( upper - lower )/2;
+        location = upper - step;
+    }
+
+    /* Return location */
+    return sign*towers[location];
+}
+
+double MakeSmearedZEffTree::getHFSlope( double eta ){
+    static const int arraySize = 13;
+    static const double starts[arraySize] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
+    static const double ends[arraySize] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
+    /* Corrections: 29, 30, ..., 41 for positive and negative ieta  */
+    static const double pos_correction[arraySize] = {0.0862, 0.0862, 0.1402, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862};  
+    static const double neg_correction[arraySize] = {0.0862, 0.0862, 0.1402, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862, 0.0862};  
+    static const double feta = fabs(eta);
+    /* Check for outside range */
+    if (feta < starts[0] || feta > ends[arraySize-1]){
+        return 0;
+    }
+
+    /* Binary search for location */
+    int lower = 0;
+    int upper = arraySize-1;
+    int location = (arraySize-1)/2;
+    while ( ( upper > lower ) ){
+        if ( eta < starts[location] ){
+            upper = location;
+        } else {
+            lower = location;
+        }
+        if ( eta < ends[location] ){
+            upper = location;
+        } else {
+            lower = location;
+        }
+
+        int step = ( upper - lower )/2;
+        location = upper - step;
+    }
+
+    /* Determine Sign of the tower */
+    if (eta < 0){
+        return neg_correction[location];
+    } else {
+        return pos_correction[location];
+    }
+}
+
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(MakeSmearedZEffTree);
