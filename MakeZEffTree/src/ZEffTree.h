@@ -49,8 +49,36 @@ class ZEffTree {
         }
 
         void Clear() { 
-            gen.eta[0] = 0; gen.eta[1] = 0; gen.phi[0] = 0; gen.phi[1] = 0; gen.pt[0] = 0; gen.pt[1] = 0; gen.mz = 0; gen.yz = 0; gen.qtz = 0; gen.bits[0] = 0; gen.bits[1] = 0; gen.nverts = 0; gen.charge[0] = 0; gen.charge[1] = 0; gen.phistar = -999.;
-            reco.eta[0] = 0; reco.eta[1] = 0; reco.phi[0] = 0; reco.phi[1] = 0; reco.pt[0] = 0; reco.pt[1] = 0; reco.mz = 0; reco.yz = 0; reco.qtz = 0; reco.bits[0] = 0; reco.bits[1] = 0; reco.nverts = 0; reco.charge[0] = 0; reco.charge[1] = 0; reco.phistar = -999.;
+            gen.eta[0] = -10;
+            gen.eta[1] = -10;
+            gen.phi[0] = -10;
+            gen.phi[1] = -10;
+            gen.pt[0] = -1;
+            gen.pt[1] = -1;
+            gen.mz = -1;
+            gen.yz = -100;
+            gen.qtz = -100;
+            gen.bits[0] = 0;
+            gen.bits[1] = 0;
+            gen.nverts = -1;
+            gen.charge[0] = 0;
+            gen.charge[1] = 0;
+            gen.phistar = -999.;
+            reco.eta[0] = -10;
+            reco.eta[1] = -10;
+            reco.phi[0] = -10;
+            reco.phi[1] = -10;
+            reco.pt[0] = -1;
+            reco.pt[1] = -1;
+            reco.mz = -1;
+            reco.yz = -100;
+            reco.qtz = -100;
+            reco.bits[0] = 0;
+            reco.bits[1] = 0;
+            reco.nverts = -1;
+            reco.charge[0] = 0;
+            reco.charge[1] = 0;
+            reco.phistar = -999.;
         }
 
     private:
