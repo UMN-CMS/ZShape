@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Thu Oct  4 11:30:13 CEST 2007
-// $Id: ZEfficiencyCalculator.h,v 1.20 2011/01/27 17:28:25 mansj Exp $
+// $Id: ZEfficiencyCalculator.h,v 1.21 2011/11/15 17:38:56 mansj Exp $
 //
 //
 
@@ -72,7 +72,7 @@ private:
   
   // ----------member data ---------------------------
   ZShapeEvent evt_;
-
+  bool doWeight_;
   TRandom3 randomNum;
 
   edm::InputTag m_srcTag;
@@ -85,7 +85,8 @@ private:
   bool pdfReweightAddZmass_;
   bool quiet_;
   float zElectronsCone_;
-
+  edm::InputTag vertices_;
+  int nvtx_;
   // the efficiency objects: strings identify the cuts efficiencies and corresponding cuts
   std::map<std::string, EfficiencyStore*> efficiencies_;
   std::map<std::string, EfficiencyCut*> theCuts_;

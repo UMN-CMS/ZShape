@@ -22,8 +22,11 @@ class EfficiencyCut
   bool passesCut( const ZShapeElectron& elec, float level ) const;
   EffTableLoader* indexer() const { return theIndexer; }
   float lastRandomLevel() const { return lastRandomLevel_; }
+  float weightForCut( const ZShapeElectron& elec ) const;
+  float weightForCut( const ZShapeElectron& elec, float level ) const;
  private:
   bool passesCut( int index, float level=-1 ) const;
+  float weightForCut(  int index) const;
   int indexOf( const ZShapeElectron& elec) const;
   EffTableLoader* theIndexer;
   TH1F * theClonedEffHisto_;
