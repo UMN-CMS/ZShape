@@ -59,7 +59,7 @@ EfficiencyStore::EfficiencyStore(const std::string & textFileName)
   doInit();
   textFileName_ = textFileName;
   efftable_ = new EffTableLoader(textFileName_);
-  std::cout << "class EfficiencyStore created with text file: " << textFileName_ << std::endl;
+  //std::cout << "class EfficiencyStore created with text file: " << textFileName_ << std::endl;
   produceHistograms(0);
 }
 
