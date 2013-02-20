@@ -21,16 +21,19 @@ from RecoEgamma.EgammaIsolationAlgos.eleIsoDepositHcalFromTowers_cff import *
 
 hfEMClusters.correctionType = cms.int32(1)
 hfRecoEcalCandidate.Correct = True
-#hfRecoEcalCandidate.e9e25Cut = 0
-hfRecoEcalCandidate.intercept2DCut = 0.2
+hfRecoEcalCandidate.e9e25Cut = 0.94
+hfRecoEcalCandidate.intercept2DCut = 0.815
+hfRecoEcalCandidate.intercept2DSlope = 0.475
 
 hfSuperClusterCandidate = hfRecoEcalCandidate.clone()
-hfSuperClusterCandidate.e9e25Cut = 0
+hfSuperClusterCandidate.e9e25Cut = -99
 hfSuperClusterCandidate.intercept2DCut = -99
+hfSuperClusterCandidate.intercept2DSlope = -99
 
 hfRecoEcalCandidateTight = hfRecoEcalCandidate.clone()
-hfRecoEcalCandidateTight.intercept2DCut = 0.45
-#hfRecoEcalCandidateTight.e9e25Cut = 0
+hfRecoEcalCandidateTight.intercept2DCut = 0.92
+hfRecoEcalCandidateTight.intercept2DSlope = 0.2
+hfRecoEcalCandidateTight.e9e25Cut = 0.94
 
 
 #  Calculate efficiency for *SuperClusters passing as GsfElectron* 

@@ -161,7 +161,7 @@ int InclusiveCheck::ProbePassProbeOverlap( const reco::CandidateBaseRef& probe,
 	//isOverlap = isOverlap && ( probeSC == passprobeSC );
         if( isOverlap ) 
         {
-           int myindex = effBinsFromTxt_->GetBandIndex(probe->pt(), probe->eta());
+	  int myindex = effBinsFromTxt_->GetBandIndex(probe->pt(), probe->eta(),1.0);
             if ((myindex == 1 || myindex == 3) )  HMCptvsSCpt_->Fill(probe->pt(),(*passprobes)[ipp].et());
            SCtoMCERatio_[myindex]->Fill(((*passprobes)[ipp].et())/(probe->pt()));
         }
