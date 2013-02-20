@@ -37,13 +37,13 @@ void EffExtraHistos::Book(TFileDirectory& tdf) {
     De1pt_  = tdf.make<TH1F>("e1_P_t_Delta","e1_P_t_Delta;p_{T,e1}", 200, -50., 50.);  
     De2pt_  = tdf.make<TH1F>("e2_P_t_Delta","e2_P_t_Delta;p_{T,e2}", 200, -50., 50.);
 
-    atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 200, 0, 150.);
-    alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{T,Z0}", 200, 0, 150.);
-    ptZ_ = tdf.make<TH1F>("wZ0_pt","Z0_Pt;p_{T,Z0}", 200, 0, maxPt);
+    // atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 200, 0, 150.);
+//     alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{T,Z0}", 200, 0, 150.);
+//     ptZ_ = tdf.make<TH1F>("wZ0_pt","Z0_Pt;p_{T,Z0}", 200, 0, maxPt);
 
 
-    MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 200, 0, 150.);
-    MCalZ_ = tdf.make<TH1F>("Z0_al_MC","Z0_al_MC;a_{T,Z0}", 200, 0, 150.);
+//     MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 200, 0, 150.);
+//     MCalZ_ = tdf.make<TH1F>("Z0_al_MC","Z0_al_MC;a_{T,Z0}", 200, 0, 150.);
 
 
     MCmZ_  = tdf.make<TH1F>("Z0_mass_MC","Z0_mass_MC;m_{Z0} (GeV/c^{2})", 60, 35., 150.);  
@@ -102,9 +102,9 @@ void EffExtraHistos::Fill(const ZShapeElectron& e1, const ZShapeElectron& e2, co
     math::XYZVector pt2(p2.Vect().X(),p2.Vect().Y(),0);
     math::XYZVector Pt=pt1+pt2;
     math::XYZVector t=(pt1-pt2);
-    t*=1.0/(t.r());
-    double at=(Pt.Cross(t)).r();
-    double al=Pt.Dot(t);
+   //  t*=1.0/(t.r());
+//     double at=(Pt.Cross(t)).r();
+//     double al=Pt.Dot(t);
 
     //calculate at, al, t for MC, (i.e. atm, alm, tm)
 
@@ -112,10 +112,10 @@ void EffExtraHistos::Fill(const ZShapeElectron& e1, const ZShapeElectron& e2, co
     math::XYZVector ptm2(pm2.Vect().X(),pm2.Vect().Y(),0);
     math::XYZVector Ptm=ptm1+ptm2;
     math::XYZVector tm=(ptm1-ptm2);
-    tm*=1.0/(tm.r());
+   //  tm*=1.0/(tm.r());
 
-    double atm=(Ptm.Cross(tm)).r();
-    double alm=Ptm.Dot(tm);
+//     double atm=(Ptm.Cross(tm)).r();
+//     double alm=Ptm.Dot(tm);
 
     //  debug
     //  std::cout << "this is e1:"  << p1 << std::endl;
@@ -184,11 +184,11 @@ void EffExtraHistos::Fill(const ZShapeElectron& e1, const ZShapeElectron& e2, co
         MCephi_ -> Fill(em1phi,wgt);
         MCephi_ -> Fill(em2phi,wgt);
 
-        MCatZ_->Fill(atm,wgt); 
-        MCalZ_->Fill(alm,wgt);
+       //  MCatZ_->Fill(atm,wgt); 
+//         MCalZ_->Fill(alm,wgt);
     }
-    atZ_->Fill(at,wgt); 
-    alZ_->Fill(al,wgt);
-    ptZ_->Fill(zPt,wgt);
+  //   atZ_->Fill(at,wgt); 
+//     alZ_->Fill(al,wgt);
+//     ptZ_->Fill(zPt,wgt);
 
 }
