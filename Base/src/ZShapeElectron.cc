@@ -22,6 +22,20 @@ void ZShapeElectron::cutResult(const std::string& cutName, bool didpass) {
   cutMap_["!"+cutName]=!didpass;
 }
 
+void  ZShapeElectron::setWeight(const std::string& cutName, bool didpass){
+  wgtMap_[cutName]=(didpass)?(1.0):(0.0);
+ }
+
+void  ZShapeElectron::setWeight(const std::string& cutName, double wgt){
+  wgtMap_[cutName]=wgt;
+ }
+
+double  ZShapeElectron::weight(const std::string& cutName) const{
+  std::map<std::string,double>::const_iterator i=wgtMap_.find(cutName);
+  return (double)((i==wgtMap_.end())?(0.0):(i->second)); 
+}
+
+
 double ZShapeElectron::detectorEta(const math::XYZPoint& vtx) const {
   const double EBr=1290+8.9*6; // front face + 6 Xo
   const double EEz=3144+8.9*6; // "front face" + 6 Xo 

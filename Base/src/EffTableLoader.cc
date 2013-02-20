@@ -21,12 +21,14 @@ EffTableLoader::~EffTableLoader () {
   delete mParameters;
 }
 
-int EffTableLoader::GetBandIndex(float fEt, float fEta)const {
-  int index=mParameters->bandIndex(fEt, fEta);
+int EffTableLoader::GetBandIndex(float fEt, float fEta, float fPU)const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU);
   return index;
 }
-std::vector<float> EffTableLoader::correctionEff (float fEt,float fEta) const {
-  int index=mParameters->bandIndex(fEt, fEta);
+
+
+std::vector<float> EffTableLoader::correctionEff (float fEt,float fEta, float fPU) const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU);
   EffTableReader::Record rec=mParameters->record(index);
   std::vector<float> param=rec.parameters();
   return param;
@@ -38,6 +40,10 @@ std::vector<float> EffTableLoader::correctionEff (int index) const {
 }
 
 
+std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(float fEt, float fEta, float fPU)const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU);
+  return (this->GetCellInfo(index)) ;
+}
 std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(int index)const {
   EffTableReader::Record rec=mParameters->record(index);
   std::pair<float, float> PtBin;
@@ -47,15 +53,20 @@ std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(int index)cons
   std::pair<float, float> EtaBin;
   EtaBin.first = rec.etaMin();
   EtaBin.second= rec.etaMax();
-   
+  std::pair<float, float> PUbin;
+  PUbin.first=rec.PUmin();
+  PUbin.second=rec.PUmax();
   std::vector<std::pair<float, float> > BinInfo;
   BinInfo.push_back(PtBin);
   BinInfo.push_back(EtaBin);
+  BinInfo.push_back(PUbin);
   return BinInfo ;
 }
 
-
-
+std::pair<float, float> EffTableLoader::GetCellCenter(float fEt, float fEta, float fPU )const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU);
+  return (this->GetCellCenter(index)); 
+}
 std::pair<float, float> EffTableLoader::GetCellCenter(int index )const {
   EffTableReader::Record rec=mParameters->record(index);
   std::pair<float, float> BinCenter;
@@ -64,23 +75,6 @@ std::pair<float, float> EffTableLoader::GetCellCenter(int index )const {
   return BinCenter ;
 }
 
-
-
-
-
-std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(float fEt, float fEta)const {
-  int index=mParameters->bandIndex(fEt, fEta);
-  return (this->GetCellInfo(index)) ;
-}
-
-
-
-
-
-std::pair<float, float> EffTableLoader::GetCellCenter(float fEt, float fEta )const {
-  int index=mParameters->bandIndex(fEt, fEta);
-  return (this->GetCellCenter(index)); 
-}
 
 int EffTableLoader::size(void) {
   return mParameters->size();

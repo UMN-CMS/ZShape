@@ -49,7 +49,7 @@ bool ZShapeZDef::pass(const ZShapeEvent& evt, int ne1, int ne2, int nz,bool* swa
   bool p=pass(evt.elec(0),evt.elec(1),ne1,ne2);
   if (!p) { // try swapping electrons!
     p=pass(evt.elec(1),evt.elec(0),ne1,ne2);
-    if (swapPairing!=0) *swapPairing=true;
+    if (p && swapPairing!=0) *swapPairing=true;
   } else if (swapPairing!=0) *swapPairing=false;
 
   if (p) {
