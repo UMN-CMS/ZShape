@@ -7,7 +7,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "LHAPDF/LHAPDF.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 //
 // constructors and destructor
 //
@@ -20,7 +21,9 @@ ZEfficiencyCalculator::ZEfficiencyCalculator(const edm::ParameterSet& iConfig) :
   scaleQTag(iConfig.getUntrackedParameter<edm::InputTag>("scaleQCollection",edm::InputTag("ZIntoElectronsEventProducer:ScaleQ"))),
   doPDFreweight_(iConfig.getUntrackedParameter<bool>("doPDFReweight",false)),
   quiet_(iConfig.getUntrackedParameter<bool>("quiet",false)),
-  zElectronsCone_(iConfig.getParameter<double>("zElectronsCone"))
+  doWeight_(iConfig.getUntrackedParameter<bool>("doWeight",true)),
+  zElectronsCone_(iConfig.getParameter<double>("zElectronsCone")),
+  vertices_(iConfig.getUntrackedParameter<edm::InputTag>("VertexCollection",(edm::InputTag)"offlinePrimaryVertices"))
 {
   //
   //now do what ever initialization is needed
@@ -150,9 +153,23 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
   using namespace std;
   using namespace cms;
   using namespace reco;
-
-  double weight=1.0;
   
+  //vertex 
+  int nvertex = 0;
+  edm:: Handle<reco::VertexCollection> pvHandle;
+  iEvent.getByLabel(vertices_, pvHandle);
+  const reco::VertexCollection & vertices = *pvHandle.product();
+  static const int minNDOF = 4;
+  static const double maxAbsZ = 15.0;
+  static const double maxd0 = 2.0;
+  //count verticies
+  for(reco::VertexCollection::const_iterator vit = vertices.begin(); vit != vertices.end(); ++vit){
+    if(vit->ndof() > minNDOF && ((maxAbsZ <= 0) || fabs(vit->z()) <= maxAbsZ) && ((maxd0 <= 0) || fabs(vit->position().rho()) <= maxd0)) 
+      nvertex++;
+  }
+  nvtx_= nvertex;
+  
+  double weight=1.0;
   //super-fast reconstructed electrons for efficiency propagation step (aka electrons 'cones') 
   Handle <GenParticleCollection> pZeeParticles;
   iEvent.getByLabel(zElectronsTag,pZeeParticles);
@@ -176,6 +193,9 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   if (doPDFreweight_) weight*=getPDFWeight(iEvent);
+
+  //get weight!
+
 
   accHistos_.weights->Fill(weight);
 
@@ -223,7 +243,7 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
   }
     
   EfficiencyCut* keep=0;
-
+  //std::cout<<"    here are the stats box trials.......:"<<statsBox_.trials<<std::endl;
   int pass=0;
   do {
     if (statsBox_.trials>=1) {
@@ -237,8 +257,9 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
       // apply all cuts and store results into ZEle objects
       for (std::map<std::string,EfficiencyCut*>::iterator cut=theCuts_.begin(); cut!=theCuts_.end(); cut++) {
 	for (int ne=0; ne<2; ne++) {
-	  //std::cout << " Looking at Cut " << cut->first << " Electron " << ne << std::endl;
+	  //std::cout << "*** Looking at Cut " << cut->first << " Electron " << ne << std::endl;
 	  evt_.elec(ne).cutResult(cut->first,cut->second->passesCut(evt_.elec(ne)));
+	  evt_.elec(ne).setWeight(cut->first,cut->second->weightForCut(evt_.elec(ne)));
 	}
       }
     } else {
@@ -255,9 +276,11 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
     //------------------------------------------------------------------//
     
     bool pairing;
-    
+    double save_weight=weight;
     if (pass==0) {
       if (!quiet_) evt_.dump();
+
+     
 
       // selections done at first pass, no matter whether there are trials or not
       for (std::map<std::string,ZShapeZDef*>::const_iterator q=zdefs_.begin(); q!=zdefs_.end(); ++q) {
@@ -271,16 +294,23 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
 	else plots->acceptance_.Fill(evt_.elec(1), evt_.elec(0), evt_.elecTreeLevel(1).polarP4(), evt_.elecTreeLevel(0).polarP4(),weight);      
 	plots->acceptance_.FillEvt(evt_,weight,true); //ONLY WORK ON FULL MC if false
 	
+
 	// next n-cuts
 	bool ok=true;
 	for (int j=1; ok && j<q->second->criteriaCount(ZShapeZDef::crit_E1); j++) {
 	  ok=q->second->pass(evt_,j+1,j+1,0,&pairing);
-          if (ok) { 
+	  if(doWeight_){	
+	    double e0Weight=((pairing)?(evt_.elec(1).weight(q->second->criteria(ZShapeZDef::crit_E1,j))):(evt_.elec(0).weight(q->second->criteria(ZShapeZDef::crit_E1,j)))); 
+	    double e1Weight=((pairing)?(evt_.elec(0).weight(q->second->criteria(ZShapeZDef::crit_E2,j))):(evt_.elec(1).weight(q->second->criteria(ZShapeZDef::crit_E2,j))));
+	    //printf("wgt1: %0.3f wgt2: %0.3f \n",e1Weight,e0Weight);
+	    weight*=e1Weight*e0Weight;
+	  }//end weighting
+	  if (ok || doWeight_) { 
 	    plots->postCut_[j-1].FillEvt(evt_,weight,true); //ONLY WORKS ON FULL MC if false
-            if (!pairing)  
-              plots->postCut_[j-1].Fill(evt_.elec(0), evt_.elec(1), evt_.elecTreeLevel(0).polarP4(), evt_.elecTreeLevel(1).polarP4(),weight);
-            else 
-              plots->postCut_[j-1].Fill(evt_.elec(1), evt_.elec(0), evt_.elecTreeLevel(1).polarP4(), evt_.elecTreeLevel(0).polarP4(),weight);
+	    if (!pairing)  
+	      plots->postCut_[j-1].Fill(evt_.elec(0), evt_.elec(1), evt_.elecTreeLevel(0).polarP4(), evt_.elecTreeLevel(1).polarP4(),weight);
+	    else 
+	      plots->postCut_[j-1].Fill(evt_.elec(1), evt_.elec(0), evt_.elecTreeLevel(1).polarP4(), evt_.elecTreeLevel(0).polarP4(),weight);
 	  }
 	} // now the Z cuts
 	for (int j=0; ok && j<q->second->criteriaCount(ZShapeZDef::crit_Z); j++) {
@@ -313,6 +343,8 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
     pass++;
+
+    weight=save_weight;
 
   } while (statsBox_.trials>0 && pass<=statsBox_.trials);
   
@@ -379,6 +411,8 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
   evt_.elec(0).charge_=me[0]->charge();
   evt_.elec(1).p4_=elecs[1];
   evt_.elec(1).charge_=me[1]->charge();
+  evt_.elec(0).PU_=nvtx_;
+  evt_.elec(1).PU_=nvtx_;
   
   // end loop on particles
   evt_.n_elec=ne;
@@ -416,6 +450,7 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
 
   // flipping order only if necessary
   if (pt2 > pt1){
+  //if(fabs(evt_.elec(0).detEta_)>fabs(evt_.elec(1).detEta_)){
     std::swap( evt_.elec(0), evt_.elec(1));
   }
   //  evt_.dump(std::cout);
