@@ -9,7 +9,7 @@ EtaAcceptance::EtaAcceptance () {
 
 
 bool EtaAcceptance::isInAcceptance(double p, Zone z) const {
-  float eta = fabsf(p);
+  float eta = fabs(p);
 
   switch (z) {
   case (zone_EB) :

@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 // Adapted From Following Description:
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: EffTableReader.cc,v 1.1 2010/07/14 04:04:56 haupt Exp $
+// $Id: EffTableReader.cc,v 1.2 2010/10/03 19:22:08 haupt Exp $
 // Generic parameters for Jet corrections
 //----------------------------------------------------------------------------
 #include "ZShape/Base/interface/EffTableReader.h"
@@ -34,7 +34,7 @@ namespace {
 
 
 EffTableReader::Record::Record (const std::string& fLine) 
-  : mEtaMin (0), mEtaMax (0), mEtMax(0), mEtMin(0) 
+  : mEtaMin (0), mEtaMax (0), mEtMax(0), mEtMin(0),mPUmin(0),mPUmax(0) 
 {
   // quckly parse the line
   std::vector<std::string> tokens;
@@ -55,27 +55,53 @@ EffTableReader::Record::Record (const std::string& fLine)
   if (!currentToken.empty()) tokens.push_back (currentToken); // flush end
   if (!tokens.empty ()) { // pure comment line
     if (tokens.size() < 5) {
-     throw cms::Exception ("EffTableReader") << "at least 5 tokens are expected: minEta, maxEta, # of parameters.,"
-                                                            <<  " minEt, maxEt " 
-							    << tokens.size() << " are provided.\n" 
-							    << "Line ->>" << fLine << "<<-";  
-    }
-    // get parameters
-    mEtMin = getFloat (tokens[0]);
-    mEtMax = getFloat (tokens[1]);
-    mEtaMin = getFloat (tokens[2]);
-    mEtaMax = getFloat (tokens[3]);
-    unsigned nParam = getUnsigned (tokens[4]);
-    if (nParam != tokens.size() - 5) {
-     throw cms::Exception ("EffTableReader") << "Actual # of parameters " 
-                                                           << tokens.size() - 5 
-                                                           << " doesn't correspond to requested #: " << nParam << "\n"
-							    << "Line ->>" << fLine << "<<-";  
-    }
-    for (unsigned i = 4; i < tokens.size(); ++i) {
-      mParameters.push_back (getFloat (tokens[i]));
-    }
-  }
+      throw cms::Exception ("EffTableReader") << "at least 7 tokens are expected: minEta, maxEta,"
+					      <<  " minEt, maxEt , minPU, maxPU,  # of parameters.," 
+					      << tokens.size() << " are provided.\n" 
+					      << "Line ->>" << fLine << "<<-";  
+    } 
+    else if (tokens.size() >= 11){
+      // get parameters
+      mEtMin = getFloat (tokens[0]);
+      mEtMax = getFloat (tokens[1]);
+      mEtaMin = getFloat (tokens[2]);
+      mEtaMax = getFloat (tokens[3]);
+      mPUmin = getFloat (tokens[4]);
+      mPUmax = getFloat (tokens[5]);
+      unsigned nParam = getUnsigned (tokens[6]);
+      if (nParam != tokens.size() - 7) {
+	throw cms::Exception ("EffTableReader") << "Actual # of parameters " 
+						<< tokens.size() - 7 
+						<< " doesn't correspond to requested #: " << nParam << "\n"
+						<< "Line ->>" << fLine << "<<-";  
+      }
+      for (unsigned i = 6; i < tokens.size(); ++i) {
+	mParameters.push_back (getFloat (tokens[i]));
+      }
+      
+    }//end token ==9
+    else if (tokens.size() == 9){
+      // get parameters
+      mEtMin = getFloat (tokens[0]);
+      mEtMax = getFloat (tokens[1]);
+      mEtaMin = getFloat (tokens[2]);
+      mEtaMax = getFloat (tokens[3]);
+      mPUmin = 1;
+      mPUmax = 100;
+      unsigned nParam = getUnsigned (tokens[4]);
+      if (nParam != tokens.size() - 5) {
+	throw cms::Exception ("EffTableReader") << "Actual # of parameters " 
+						<< tokens.size() - 7 
+						<< " doesn't correspond to requested #: " << nParam << "\n"
+						<< "Line ->>" << fLine << "<<-";  
+      }
+      for (unsigned i = 4; i < tokens.size(); ++i) {
+	mParameters.push_back (getFloat (tokens[i]));
+      }
+      
+    } 
+    
+  }//end !token=empty
 }
 
 
@@ -93,17 +119,18 @@ EffTableReader::EffTableReader (const std::string& fFile) {
 }
 
 
-int EffTableReader::bandIndex (float fEt, float fEta) const{
+int EffTableReader::bandIndex (float fEt, float fEta, float fPU) const{
   int bandInd = -1; //new default value says it isn't in a band (bin)
-       for (unsigned i = 0; i < mRecords.size(); ++i) {
-         if(fEt>=mRecords[i].EtMin() && fEt<mRecords[i].EtMax()){
-	   if(fEta>=mRecords[i].etaMin() && fEta<mRecords[i].etaMax()){
-	     bandInd=i;
-              break;                        
-                   }
-	 }
-
-       }
-       return bandInd;
+  for (unsigned i = 0; i < mRecords.size(); ++i) {
+    if(fEt>=mRecords[i].EtMin() && fEt<mRecords[i].EtMax()){
+      if(fEta>=mRecords[i].etaMin() && fEta<mRecords[i].etaMax()){
+	if(fPU>=mRecords[i].PUmin() && fPU<mRecords[i].PUmax()){
+	  bandInd=i;
+	  break;                        
+	}
+      }
+    }
+  }
+  return bandInd;
 }
 
