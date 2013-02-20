@@ -16,13 +16,15 @@ EfficiencyCut::EfficiencyCut ( TH1F * histo, EffTableLoader* ind) : theIndexer(i
       return;
     }
 
-  std::cout << "building EfficiencyCut - constructor - num entries is: " << histo->GetEntries() << std::endl;
+ 
   //  std::cerr << "theTmpHisto_ is: " << theTmpHisto_<< std::endl;
 
   char name[1024];
   snprintf(name,1023,"%s ",histo->GetName());
   theClonedEffHisto_ = (TH1F *) histo->Clone(name);
   theClonedEffHisto_ ->SetDirectory(0);
+  //std::cout << "building EfficiencyCut - constructor - num entries is: " << histo->GetEntries() << std::endl;
+
 }
  
 bool EfficiencyCut::passesCut(int index, float level) const
@@ -68,16 +70,59 @@ bool EfficiencyCut::passesCut(int index, float level) const
 } 
 
 
+
+float EfficiencyCut::weightForCut(int index) const {
+  int theBin =  index + 1;
+  if (theBin <= 0 ) 
+    {
+      return false; // underflow
+    }
+  if (theBin ==  ( theClonedEffHisto_->GetNbinsX()  +1)  ) 
+    {
+      return false; // underflow
+    }
+  float theEfficiency =1.0;
+  if(!theClonedEffHisto_->GetBinContent(theBin)) theEfficiency =0;
+  else theEfficiency =theClonedEffHisto_->GetBinContent(theBin);
+  return theEfficiency;
+
+}
+
+
+
+
+
+
+
 bool EfficiencyCut::passesCut( const ZShapeElectron& elec) const {
+ 
   return passesCut(indexOf(elec));
 }
 
+
+
 bool EfficiencyCut::passesCut( const ZShapeElectron& elec, float level) const {
+ 
   return passesCut(indexOf(elec),level);
 }
 
 
+
+
+
+float  EfficiencyCut::weightForCut( const ZShapeElectron& elec ) const 
+{ 
+return weightForCut(indexOf(elec));
+}
+float  EfficiencyCut::weightForCut( const ZShapeElectron& elec, float level ) const 
+{
+return weightForCut(indexOf(elec));
+}
+
+
+
+
 int EfficiencyCut::indexOf( const ZShapeElectron& elec) const {
-  return theIndexer->GetBandIndex(elec.p4_.Pt(),elec.detEta_);
+   return theIndexer->GetBandIndex(elec.p4_.Pt(),elec.detEta_,elec.PU_);
 }
 

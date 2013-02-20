@@ -38,13 +38,56 @@ void EffHistos::Book(TFileDirectory& tdf,bool mzbin) {
     //                       4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5. }; //11
 
     mZ_  = tdf.make<TH1F>("Z0_mass","Z0_mass;m_{Z} (GeV/c^{2})", binsZmass, minZmass, maxZmass);
- mZ_zoom  = tdf.make<TH1F>("Z0_mass_zoom","Z0_mass(fine binning);m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
-mz_hfn = tdf.make<TH1F>("HFneg_mass_zoom","Z0_mass(fine binning) for HF minus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
-mz_hfp = tdf.make<TH1F>("HFpos_mass_zoom","Z0_mass(fine binning) for HF plus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
+    mZ_zoom  = tdf.make<TH1F>("Z0_mass_zoom","Z0_mass(fine binning);m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
+   
     YZ_  = tdf.make<TH1F>("Z0_Y","Z0_Y;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
     ptZ_  = tdf.make<TH1F>("Z0_Pt","Z0_Pt;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning);
     ptZmon_ = tdf.make<TH1F>("Z0_PtMon","Z0_PtMon;p_{T,Z0}", 200, 0, maxPt);
+    
+    atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 150, 0, 150.);
+    alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{l,Z0}", 150, 0, 150.);
+    ptZ_ = tdf.make<TH1F>("wZ0_pt","Z0_Pt;p_{T,Z0}", 200, 0, maxPt);
+    phiStar_ = tdf.make<TH1F>("wZ0_phiStar","Z0_phiStar;phiStar_{T,Z0}", 1000, 0, 1.);
+    phiStar_lr= tdf.make<TH1F>("wZ0_phiStar_lr","Z0_phiStar long range;phiStar_{T,Z0}", 200, 1.0, 5);
+    newphistar_=tdf.make<TH1F>("delta_phiStars","old phis star- old phi star;#Delta phiStar_{T,Z0}", 1000, -2, 2.);
+    e1eta_ = tdf.make<TH1F>("e1_eta","e1_eta;detector #eta_{e1}", 50, -5, 5);
+    e2eta_ = tdf.make<TH1F>("e2_eta","e2_eta;detector #eta_{e2}", 50, -5, 5);
+    eeta_ = tdf.make<TH1F>("e_eta","e_eta;detector #eta_{e}", 50, -5, 5);
+    e1phi_ = tdf.make<TH1F>("e1_phi","e1_phi;#phi_{e1}", 50, -pi, pi);
+    e2phi_ = tdf.make<TH1F>("e2_phi","e2_phi;#phi_{e2}", 50,  -pi, pi);
+    ephi_ = tdf.make<TH1F>("e_phi","e_phi;#phi_{e}", 50,  -pi, pi);
+    e1pt_  = tdf.make<TH1F>("e1_P_t","e1_P_t;p_{T,e1}", 200, 0, maxPt);
+    e2pt_  = tdf.make<TH1F>("e2_P_t","e2_P_t;p_{T,e2}", 200, 0, maxPt);
+    //2D mass v stuff  stff=x, mass=y
 
+
+
+    
+  
+    mZ_v_mz_  = tdf.make<TH2F>("mZ_vs_Z0_mass_zoom","mZ_vs_Z0_mass_zoom;m_{Z} (GeV/c^{2});m_{Z} (GeV/c^{2})",120, 60.0, 120.0,60, 60.0, 120.0);
+    YZ_v_mz_  = tdf.make<TH2F>("mZ_vs_Z0_Y","mZ_vs_Z0_Y;Y_{Z0};m_{Z} (GeV/c^{2})", zshape::y_bins, -zshape::y_max, zshape::y_max,60, 60.0, 120.0);
+    atZ_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_at","mZ_vs_Z0_at;a_{T,Z0};m_{Z} (GeV/c^{2})", 150, 0, 150.,60, 60.0, 120.0);
+    ptZ_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_pt","mZ_vs_Z0_Pt;p_{T,Z0};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
+    phiStar_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_phiStar","mZ_vs_Z0_phiStar;phiStar_{T,Z0};m_{Z} (GeV/c^{2})", 1000, 0, 1.,60, 60.0, 120.0);
+    e1eta_v_mz_ = tdf.make<TH2F>("mZ_vs_e1_eta","mZ_vs_e1_eta;detector #eta_{e1};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
+    e2eta_v_mz_ = tdf.make<TH2F>("mZ_vs_e2_eta","mZ_vs_e2_eta;detector #eta_{e2};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
+    eeta_v_mz_= tdf.make<TH2F>("mZ_vs_e_eta","mZ_vs_e_eta;detector #eta_{e};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
+    e1phi_v_mz_ = tdf.make<TH2F>("mZ_vs_e1_phi","mZ_vs_e1_phi;#phi_{e1};m_{Z} (GeV/c^{2})", 50, -pi, pi,60, 60.0, 120.0);
+    e2phi_v_mz_ = tdf.make<TH2F>("mZ_vs_e2_phi","mZ_vs_e2_phi;#phi_{e2};m_{Z} (GeV/c^{2})", 50,  -pi, pi,60, 60.0, 120.0);
+    ephi_v_mz_ = tdf.make<TH2F>("mZ_vs_e_phi","mZ_vs_e_phi;#phi_{e};m_{Z} (GeV/c^{2})", 50,  -pi, pi,60, 60.0, 120.0);
+    e1pt_v_mz_  = tdf.make<TH2F>("mZ_vs_e1_P_t","mZ_vs_e1_P_t;p_{T,e1};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
+    e2pt_v_mz_  = tdf.make<TH2F>("mZ_vs_e2_P_t","mZ_vs_e2_P_t;p_{T,e2};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
+
+
+
+
+
+
+
+
+
+    mz_hfn = tdf.make<TH1F>("HFneg_mass_zoom","Z0_mass(fine binning) for HF minus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
+    mz_hfp = tdf.make<TH1F>("HFpos_mass_zoom","Z0_mass(fine binning) for HF plus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
     //polarization
     polarizationZ_= tdf.make<TH1F>("Z0_Pol","Z0_Polarization", 100, 0,3.2 );
     cosPolarizationZ_= tdf.make<TH1F>("Z0_cosPol","Z0_cosinePolarization", 100, -1,1);
@@ -65,15 +108,6 @@ mz_hfp = tdf.make<TH1F>("HFpos_mass_zoom","Z0_mass(fine binning) for HF plus;m_{
     evt_nvert_ = tdf.make<TH1F>("nvert","Number of Vertices;Vertices", 31, -1, 30);
     evt_npu_ = tdf.make<TH1F>("npu","Number of Pile Up;Pile Up", 31, -1, 30);
 
-
-    e1eta_ = tdf.make<TH1F>("e1_eta","e1_eta;detector #eta_{e1}", 50, -5, 5);
-    e2eta_ = tdf.make<TH1F>("e2_eta","e2_eta;detector #eta_{e2}", 50, -5, 5);
-    eeta_ = tdf.make<TH1F>("e_eta","e_eta;detector #eta_{e}", 50, -5, 5);
-    e1phi_ = tdf.make<TH1F>("e1_phi","e1_phi;#phi_{e1}", 50, -pi, pi);
-    e2phi_ = tdf.make<TH1F>("e2_phi","e2_phi;#phi_{e2}", 50,  -pi, pi);
-    ephi_ = tdf.make<TH1F>("e_phi","e_phi;#phi_{e}", 50,  -pi, pi);
-    e1pt_  = tdf.make<TH1F>("e1_P_t","e1_P_t;p_{T,e1}", 200, 0, maxPt);
-    e2pt_  = tdf.make<TH1F>("e2_P_t","e2_P_t;p_{T,e2}", 200, 0, maxPt);
 
     e1charge_  = tdf.make<TH1F>("e1_charge","e1_charge", 3, -1.5, 1.5);
     e2charge_  = tdf.make<TH1F>("e2_charge","e2_charge", 3, -1.5, 1.5);
@@ -96,29 +130,25 @@ mz_hfp = tdf.make<TH1F>("HFpos_mass_zoom","Z0_mass(fine binning) for HF plus;m_{
     //at/al/phistar
 
 
-    atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 150, 0, 150.);
-    alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{l,Z0}", 150, 0, 150.);
-    ptZ_ = tdf.make<TH1F>("wZ0_pt","Z0_Pt;p_{T,Z0}", 200, 0, maxPt);
-    phiStar_ = tdf.make<TH1F>("wZ0_phiStar","Z0_phiStar;phiStar_{T,Z0}", 100, 0, 1.);
 
     deta_= tdf.make<TH1F>("e_deltaEta","Z0_at;#Delta#eta", 200, -10,10);
     dphi_= tdf.make<TH1F>("e_deltaPhi","Z0_at;#Delta#phi", 150, -0.001, 1.001*pi);
  
 
-   MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 150, 0, 150.);
+    MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 150, 0, 150.);
     MCalZ_ = tdf.make<TH1F>("Z0_al_MC","Z0_al_MC;a_{l,Z0}", 150, 0, 150.);
-    MCphiStar_ = tdf.make<TH1F>("wZ0_phiStar_MC","Z0_phiStar_MC;phiStar_{T,Z0}", 100, 0, 1.);
+    MCphiStar_ = tdf.make<TH1F>("wZ0_phiStar_MC","Z0_phiStar_MC;phiStar_{T,Z0}", 1000, 0, 1.);
 
 
 
     atTL_at_= tdf.make<TH2F>("atTL_vs_at","atTL_vs_at;a_{T};a_{T treeLevel}" ,150, 0, 150., 150, 0, 150.); 
 
-    phiStarTL_phiStar_= tdf.make<TH2F>("phiStarTL_phiStar","phiStarTL_vs_phiStar;#phi^{*};#phi^{*}_{treeLevel}" ,100, 0, 1., 100, 0, 1.);
+    phiStarTL_phiStar_= tdf.make<TH2F>("phiStarTL_phiStar","phiStarTL_vs_phiStar;#phi^{*};#phi^{*}_{treeLevel}" ,1000, 0, 1., 1000, 0, 1.);
     atTL_at_matrix_= tdf.make<TH2F>("atTL_vs_at_matrix","atTL_vs_at_matrix;a_{T};a_{T treeLevel}" ,100, 0, 90., 100, 0, 90.); 
 
-    phiStarTL_phiStar_matrix_= tdf.make<TH2F>("phiStarTL_vs_phistar_matrix","phiStarTL_vs_phiStar_matrix;#phi^{*};#phi^{*}_{treeLevel}" ,100, 0, 1., 100, 0, 1.);
+    phiStarTL_phiStar_matrix_= tdf.make<TH2F>("phiStarTL_vs_phistar_matrix","phiStarTL_vs_phiStar_matrix;#phi^{*};#phi^{*}_{treeLevel}" ,1000, 0, 1., 1000, 0, 1.);
     
-    ptTL_phiStar_= tdf.make<TH2F>("ptTL_phiStar_","ptTL_vs_phiStar;phiStar_{Z};Pt_{ZtreeLevel}" ,100, 0, 1.,200, 0, maxPt);
+    ptTL_phiStar_= tdf.make<TH2F>("ptTL_phiStar_","ptTL_vs_phiStar;phiStar_{Z};Pt_{ZtreeLevel}" ,1000, 0, 1.,200, 0, maxPt);
     
     ptTL_at_= tdf.make<TH2F>("ptTL_at","ptTL_vs_at;at_{Z};Pt_{ZtreeLevel}" ,150, 0, 150.,200, 0, maxPt);
         
@@ -145,13 +175,13 @@ mz_hfp = tdf.make<TH1F>("HFpos_mass_zoom","Z0_mass(fine binning) for HF plus;m_{
     //  mZ_e2pt_e2eta_ = tdf.make<TH3F>("Z0_mass_vs_e2_pt_vs_e2_eta","Z0_mass_vs_e2_pt_vs_e2_eta;p_{T,e2};#eta_{e2};m_{Z0}", zshape::e_pt_bins,zshape::e_pt_binning,zshape::e_eta_bins,zshape::e_eta_binning,110, ZmassBins );
 
     if (massFinals_) {
-        mZ_binned_finals.e1eta_ = tdf.make<TH2F>("mZ_vs_e1_eta","mZ_vs_e1_eta;detector #eta_{e1};m_{ee}", 50, -5, 5,55,40,150);
-        mZ_binned_finals.e2eta_ = tdf.make<TH2F>("mZ_vs_e2_eta","mZ_vs_e2_eta;detector #eta_{e2};m_{ee}", 50, -5, 5,55,40,150);
-        mZ_binned_finals.hfeta_ = tdf.make<TH2F>("mZ_vs_hfeta","mZ_vs_hf_eta;detector #eta_{e};m_{ee}", 13*7, 3.0, 5.0,55,40,150);
-        mZ_binned_finals.e1phi_ = tdf.make<TH2F>("mZ_vs_e1_phi","mZ_vs_e1_phi;#phi_{e1};m_{ee}", 50, -pi, pi,55,40,150);
-        mZ_binned_finals.e2phi_ = tdf.make<TH2F>("mZ_vs_e2_phi","mZ_vs_e2_phi;#phi_{e2};m_{ee}", 50,  -pi, pi,55,40,150);
-        mZ_binned_finals.e1pt_  = tdf.make<TH2F>("mZ_vs_e1_P_t","mZ_vs_e1_P_t;p_{T,e1};m_{ee}", 200, 0, maxPt,55,40,150);
-        mZ_binned_finals.e2pt_  = tdf.make<TH2F>("mZ_vs_e2_P_t","mZ_vs_e2_P_t;p_{T,e2};m_{ee}", 200, 0, maxPt,55,40,150);
+        mZ_binned_finals.e1eta_ = tdf.make<TH2F>("mZ_vs_e1_eta_","mZ_vs_e1_eta;detector #eta_{e1};m_{ee}", 50, -5, 5,55,40,150);
+        mZ_binned_finals.e2eta_ = tdf.make<TH2F>("mZ_vs_e2_eta_","mZ_vs_e2_eta;detector #eta_{e2};m_{ee}", 50, -5, 5,55,40,150);
+        mZ_binned_finals.hfeta_ = tdf.make<TH2F>("mZ_vs_hfeta_","mZ_vs_hf_eta;detector #eta_{e};m_{ee}", 13*7, 3.0, 5.0,55,40,150);
+        mZ_binned_finals.e1phi_ = tdf.make<TH2F>("mZ_vs_e1_phi_","mZ_vs_e1_phi;#phi_{e1};m_{ee}", 50, -pi, pi,55,40,150);
+        mZ_binned_finals.e2phi_ = tdf.make<TH2F>("mZ_vs_e2_phi_","mZ_vs_e2_phi;#phi_{e2};m_{ee}", 50,  -pi, pi,55,40,150);
+        mZ_binned_finals.e1pt_  = tdf.make<TH2F>("mZ_vs_e1_P_t_","mZ_vs_e1_P_t;p_{T,e1};m_{ee}", 200, 0, maxPt,55,40,150);
+        mZ_binned_finals.e2pt_  = tdf.make<TH2F>("mZ_vs_e2_P_t_","mZ_vs_e2_P_t;p_{T,e2};m_{ee}", 200, 0, maxPt,55,40,150);
     }
 
     //Now mkae some Event histograms
@@ -254,7 +284,7 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
 
     double thetaStar;
    
-      thetaStar=acos(tanh(-.5*((e1.charge_*e1eta)-(e1.charge_*e2eta))));
+    thetaStar=acos(tanh(-.5*((e1.charge_*e1eta)-(e1.charge_*e2eta))));
    
    
 
@@ -264,8 +294,15 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
       if(delPhi<-pi)delPhi+=2*pi;
     }
     if(delPhi>pi){delPhi=2*pi-delPhi;}
+    double delEta=-((e1.charge_*e1eta)-(e1.charge_*e2eta));
+   
     double phiStar=tan((pi-delPhi)/2)*sin(thetaStar);
-
+    //test new ps form;
+    double newps=(1.0/tan(delPhi/2.0))*(1.0/cosh(delEta/2.0));
+    double delPS=phiStar-newps; 
+    if((fabs(newps)> 100) && (fabs(phiStar)>100)) 
+      delPS=0;
+    if(delPS>0.004)  {  std::cout<<"Broken phi start old:"<<phiStar<<" new:"<<newps<<" delta:"<<delPS<<" dphi:"<<delPhi<<" "<<delEta <<std::endl;}
 
     //calculate at, al, t for MC, (i.e. atm, alm, tm)
 
@@ -293,18 +330,29 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
     }
     if(mdelPhi>pi){mdelPhi=2*pi-mdelPhi;}
     double mphiStar=tan((pi-mdelPhi)/2)*sin(mthetaStar);
-    
+    mZ_-> Fill(zMass,wgt);
+    mZ_zoom -> Fill(zMass,wgt);
     atZ_->Fill(at,wgt); 
     alZ_->Fill(al,wgt);
     phiStar_->Fill(phiStar,wgt);
-    mZ_  -> Fill(zMass,wgt);
-    mZ_zoom -> Fill(zMass,wgt);
+    phiStar_lr->Fill(phiStar,wgt);
+    newphistar_->Fill(delPS,wgt);
+
+    atZ_v_mz_->Fill(at,zMass,wgt); 
+   
+    phiStar_v_mz_->Fill(phiStar,zMass,wgt);
+    mZ_v_mz_-> Fill(zMass,zMass,wgt);
+    
 
     if(e2eta<-2.9){mz_hfn  -> Fill(zMass,wgt);}
     else if(e2eta>2.9) {mz_hfp -> Fill(zMass,wgt);}
     
     YZ_  -> Fill(zY,wgt);
     ptZ_ -> Fill(zPt,wgt);
+
+    YZ_v_mz_  -> Fill(zY,zMass,wgt);
+    ptZ_v_mz_ -> Fill(zPt,zMass,wgt);
+
 
     if (zMass >= massWindowLow_ && zMass < massWindowHigh_) {
         YZmasscut_  -> Fill(zY,wgt);
@@ -370,6 +418,20 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
     eeta_ -> Fill(e2eta,wgt);
     ephi_ -> Fill(e1phi,wgt);
     ephi_ -> Fill(e2phi,wgt);
+
+    e1eta_v_mz_ -> Fill(e1eta,zMass,wgt);
+    e1pt_v_mz_  -> Fill(e1Pt,zMass,wgt);
+    e1phi_v_mz_ -> Fill(e1phi,zMass,wgt);
+   
+    e2eta_v_mz_ -> Fill(e2eta,zMass,wgt);
+    e2pt_v_mz_  -> Fill(e2Pt,zMass,wgt);
+    e2phi_v_mz_ -> Fill(e2phi,zMass,wgt);
+   
+    eeta_v_mz_ -> Fill(e1eta,zMass,wgt);
+    eeta_v_mz_ -> Fill(e2eta,zMass,wgt);
+    ephi_v_mz_ -> Fill(e1phi,zMass,wgt);
+    ephi_v_mz_ -> Fill(e2phi,zMass,wgt);
+
     dphi_->Fill(delPhi,wgt);
     deta_->Fill(((e1.charge_*e1eta)-(e1.charge_*e2eta)),wgt);
     if (fabs(e1eta)>3.0 && fabs(e1eta)<5.0)
