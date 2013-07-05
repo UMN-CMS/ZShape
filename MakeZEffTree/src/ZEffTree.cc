@@ -65,5 +65,7 @@ void ZEffTree::prepBitmap() {
     cutToBits_["WP85"] = 27;
     cutToBits_["WP80"] = 28;
     cutToBits_["NTLooseElectronId-EtaDet"] = 29;
-    cutToBits_["NTTightElectronId-EtaDet"] = 30;
+    //cutToBits_["NTTightElectronId-EtaDet"] = 30;
+    //cutToBits_["HFTID"] = 31;
+    cutToBits_["HFTID"] = 30;
 }
