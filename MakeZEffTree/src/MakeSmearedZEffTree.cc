@@ -13,9 +13,6 @@ Implementation:
 //
 // Original Author:  Alexander Gude
 //         Created:  Fri Sep 23 11:50:21 CDT 2011
-// $Id: MakeSmearedZEffTree.cc,v 1.3 2012/12/12 21:03:06 gude Exp $
-//
-//
 
 
 // system include files
