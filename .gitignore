@@ -1,8 +1,18 @@
-#Binary
+#Binary and Image
 *.exe
 *.png
 *.jpg
 *.gif
+*.bmp
+*.pdf
+*.ps
+*.jpeg
+
+#Root
+*.root
+
+#Network File System
+.nfs*
 
 ##Github EMACS Ignore
 *~
@@ -121,6 +131,9 @@ nosetests.xml
 *.lo
 *.o
 
+# Dependency Files
+*.d
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
@@ -181,3 +194,4 @@ META.yml
 MYMETA.yml
 nytprof.out
 pm_to_blib
+
