@@ -18,6 +18,7 @@
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TLatex.h>
+#include <TRandom3.h>
 #include <TLorentzVector.h>
 
 // Global because the fit functions can only have two arguments, so we need a
@@ -32,8 +33,9 @@ struct global{
     double delta;
 } GLOBAL;
 
-enum electronLocation{
-    EB,
+
+enum electronLocation{ 
+    EB, 
     EE,
     NT,
     HF,
@@ -64,6 +66,7 @@ struct effs{
     double eff;
     double err;
 };
+
 
 double bgFunc(double x, double alpha, double gamma, double delta){
     double fitval = TMath::Erfc((alpha-x)/delta) * TMath::Exp(-gamma*x);
@@ -123,7 +126,7 @@ double getHFSlope( const double eta ){
     /* Corrections: 29, 30, ..., 41 for positive and negative ieta */
     static const double starts[arraySize] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
     static const double ends[arraySize] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
-
+    
     /* MC */
     //static const double main_cor = 0.0785;
     //static const double ieta_30_cor = 0.1516;
@@ -169,7 +172,7 @@ double getHFSlope( const double eta ){
 }
 
 effs effFromCounting(TH1F* baseData, TH1F* postData, TH1F* baseBG, TH1F* postBG, const double baseP, const double baseE, const double postP, const double postE, const double minMZ=60., const double maxMZ=120.){
-    /*
+    /* 
      * postD = postData count
      * postP = postData param
      * postB = postBackground count
@@ -193,9 +196,9 @@ effs effFromCounting(TH1F* baseData, TH1F* postData, TH1F* baseBG, TH1F* postBG,
 
     tmp.eff = (postD - (postP*postB)) / (baseD - (baseP*baseB));
     /* Note: dEff = Eff * Sqrt((da^2+db^2)/(a-b)^2 + (dc^2-dd^2)/(c-d)^2) */
-    tmp.err = tmp.eff * sqrt(
-            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postP * postB ) * ( postD - postP * postB ) )
-            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseP * baseB ) * ( baseD - baseP * baseB ) )
+    tmp.err = tmp.eff * sqrt( 
+            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postP * postB ) * ( postD - postP * postB ) ) 
+            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseP * baseB ) * ( baseD - baseP * baseB ) ) 
             );
 
     return tmp;
@@ -213,7 +216,7 @@ effs effFromSignal(TH1F* baseSig, TH1F* postSig, const double baseP, const doubl
     tmp.err = tmp.eff * sqrt( (baseE * baseE)/(( baseS * baseP )*( baseS * baseP )) + (postE * postE) / (( postS * postP )*( postS * postP )) );
 
 
-    // TODO: Double check formula
+    // TODO: Double check formula 
     return tmp;
 }
 
@@ -221,7 +224,7 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
     /* Prints probewp ptmin ptmax etamin etamax pumin pumax sigeff sigerr counteff counterr */
     using namespace std;
     cout << "#XMin XMax EtaMin  EtaMax  PUMin PUMax NumParms eff      systp    systm    den     phistar" << endl;
-    cout << left << setw(6) << xBin.minX;
+    cout << left << setw(6) << xBin.minX; 
     cout << left << setw(5) << xBin.maxX ;
     switch (probeLoc){
         case EB:
@@ -278,8 +281,7 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
             break;
     }
     cout << left << setw(6) << eventrq.minPU;
-    //cout << left << setw(6) << eventrq.maxPU;
-    cout << left << setw(6) << eventrq.maxPU + 1; // Kevin's code requires 0-4 inclusive to be listed as 0-5, etc.
+    cout << left << setw(6) << eventrq.maxPU;
     cout << left << setw(9) << "5"; // Number of params
     const double diff = fabs(sigeff - counteff)/2.;
     const double avg = fabs(sigeff + counteff)/2.;
@@ -295,66 +297,66 @@ bool inAcceptance(const electronLocation Loc, const double eta){
     bool accepted = false;
     switch (Loc){
         case EB:
-            if ( feta < 1.4442 ){
-                accepted = true;
+            if ( feta < 1.4442 ){ 
+                accepted = true; 
             }
             break;
         case EBp:
             if ( 0. < eta && eta < 1.4442 ){
-                accepted = true;
+                accepted = true; 
             }
         case EBm:
             if ( 0. > eta && eta > -1.4442 ){
-                accepted = true;
+                accepted = true; 
             }
         case EE:
-            if (1.566 < feta && feta < 2.5 ){
-                accepted = true;
+            if (1.566 < feta && feta < 2.5 ){ 
+                accepted = true; 
             }
             break;
         case EEp:
-            if (1.566 < eta && eta < 2.5 ){
-                accepted = true;
+            if (1.566 < eta && eta < 2.5 ){ 
+                accepted = true; 
             }
             break;
         case EEm:
-            if (-1.566 > eta && eta > -2.5 ){
-                accepted = true;
+            if (-1.566 > eta && eta > -2.5 ){ 
+                accepted = true; 
             }
             break;
         case ET:
-            if ( (feta < 1.4442) || (1.566 < feta && feta < 2.5) ){
-                accepted = true;
+            if ( (feta < 1.4442) || (1.566 < feta && feta < 2.5) ){ 
+                accepted = true; 
             }
             break;
         case NT:
-            if (2.5 < feta && feta < 2.850 ){
-                accepted = true;
+            if (2.5 < feta && feta < 2.850 ){ 
+                accepted = true; 
             }
             break;
         case NTp:
-            if (2.5 < eta && eta < 2.850 ){
-                accepted = true;
+            if (2.5 < eta && eta < 2.850 ){ 
+                accepted = true; 
             }
             break;
         case NTm:
-            if (-2.5 > eta && eta > -2.850 ){
-                accepted = true;
+            if (-2.5 > eta && eta > -2.850 ){ 
+                accepted = true; 
             }
             break;
         case HF:
             if (3.1 < feta && feta < 4.6 ){
-                accepted = true;
+                accepted = true; 
             }
             break;
         case HFp:
             if (3.1 < eta && eta < 4.6 ){
-                accepted = true;
+                accepted = true; 
             }
             break;
         case HFm:
             if (-3.1 > eta && eta > -4.6 ){
-                accepted = true;
+                accepted = true; 
             }
             break;
     }
@@ -366,12 +368,20 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
     // Some commont variables
     const double tagXCutPt = 20.;
     const double probeXCutPt = 20.;
+    // Smearing
+    const bool smear = true;
+    int randSeed=123456; //using constant seed for reproducibility
+    TRandom3* trand = new TRandom3(randSeed);
 
     // Get our background and set variables
     Background bg(bgfitfile);
     const double midX = (xBin.maxX + xBin.minX)/2.;
+    //std::cout << "midX: " << midX << std::endl;
     const double midPU = (eventrq.maxPU + eventrq.minPU)/2.;
+    //std::cout << "midPU: " << midPU << std::endl;
     bg.setBackground(midX, midPU, usePhiStar); // TODO: Fill in pt, pu
+    //std::cout << usePhiStar << std::endl;
+    //bg.print();
     if (bg.current == 0){
         std::cout << "Failed to get background model." <<std::endl;
         // No background for your area.
@@ -405,8 +415,8 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
         const double PU = zes->reco.nverts;
         const double MZ = zes->reco.mz;
         if (  // Right number of PU, MZ
-                eventrq.minPU <= PU && PU <= eventrq.maxPU
-                && eventrq.minMZ <= MZ && MZ <= eventrq.maxMZ
+                eventrq.minPU <= PU && PU <= eventrq.maxPU 
+                && eventrq.minMZ <= MZ && MZ <= eventrq.maxMZ 
                 && 20. <= zes->reco.pt[0] && 20. <= zes->reco.pt[1]
            ){
             /* We set try either electron as the "probe", since this is MC either can be the "tag" */
@@ -439,12 +449,12 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
                 // Now we make sure exactly one e passes the tag region, and one the probe region requirements
                 if ( xBin.minX <= eX1 && eX1 <= xBin.maxX && probeX <= eX1){
                     probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
-                }
+                } 
                 if ( probeMatch && tagX <= eX0 ){
                     tagMatch = inAcceptance(tagLoc, zes->reco.eta[i]);
                 }
                 // Base Cuts, and Post Cuts which are a strict subset
-                if ( tagMatch && probeMatch ){
+                if ( tagMatch && probeMatch ){ 
                     GLOBAL.signalHisto->Fill(MZ);
                     break;
                 }
@@ -504,26 +514,22 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
         /* Select a reproducably random tag and probe */
         int tagNumber;
         int probeNumber;
-        if ( !inAcceptance(HF, ze->reco.eta[1])){ // EB HF case, no flop needed
-            if (flop) {
-                tagNumber = 0;
-                probeNumber = 1;
-                flop = false;
-            } else {
-                tagNumber = 1;
-                probeNumber = 0;
-                flop = true;
-            }
-        } else {
+        if (flop) {
             tagNumber = 0;
             probeNumber = 1;
+            flop = false;
+        } else {
+            tagNumber = 1;
+            probeNumber = 0;
+            flop = true;
         }
 
         ze->Entries();
         const double PU = ze->reco.nverts;
-        /* Correct HF pt, and recalculate MZ */
+        /** Adjust Pt via smearing and HF correction **/
         double pt0 = -1.;
         double pt1 = -1.;
+        /* Correct HF pt */
         if (3.1 < fabs(ze->reco.eta[tagNumber]) && fabs(ze->reco.eta[tagNumber]) < 4.6){
             pt0 = ze->reco.pt[tagNumber] - PU * getHFSlope(ze->reco.eta[tagNumber]);
         } else {
@@ -534,13 +540,24 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
         } else {
             pt1 = ze->reco.pt[probeNumber];
         }
-        //std::cout << pt0 << std::endl;
-        //std::cout << pt1 << std::endl;
+        /* Smear Pt */
+        if (smear && !usePhiStar){
+            if (inAcceptance(EB, ze->reco.eta[0])){
+                const double mean = 0.995;
+                const double sigma = 0.007;
+                pt0 *= ( trand->Gaus(mean,sigma) );
+            } else if (inAcceptance(EB, ze->reco.eta[0])){
+                const double mean = 0.976;
+                const double sigma = 0.013;
+                pt0 *= ( trand->Gaus(mean,sigma) );
+            } 
+        }
+        /* Recalculate MZ */
         TLorentzVector e0lv;
         TLorentzVector e1lv;
-        TLorentzVector Zlv;
-        e0lv.SetPtEtaPhiM(pt0, ze->reco.eta[tagNumber], ze->reco.phi[tagNumber], 5.109989e-4);
-        e1lv.SetPtEtaPhiM(pt1, ze->reco.eta[probeNumber], ze->reco.phi[probeNumber], 5.109989e-4);
+        TLorentzVector Zlv; 
+        e0lv.SetPtEtaPhiM(pt0, ze->reco.eta[tagNumber], ze->reco.phi[tagNumber], 5.109989e-4); // Boy I hope Bryan finds this someday...
+        e1lv.SetPtEtaPhiM(pt1, ze->reco.eta[probeNumber], ze->reco.phi[probeNumber], 5.109989e-4); 
         Zlv = e0lv + e1lv;
         const double MZ = Zlv.M(); // Get the invarient mass from the Z
 
@@ -563,7 +580,11 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
                 eXCut0 = tagXCutPt;
                 eXCut1 = probeXCutPt;
             }
-            /* Check cuts */
+            /* Check cuts */ 
+            //std::cout << ze->reco.mz << ' ' << MZ << std::endl;
+            //std::cout << "\t" << eXCut0 << " <= " << eX0 << " && " << eXCut1 << " <= " << eX1 << std::endl;
+            //std::cout << "\t" << xBin.minX << " <= " << eX0 << " && " << eX0 << " <= " << xBin.maxX << std::endl;
+            //std::cout << "\tHLT-GSF " <<  ze->reco.isSelected(0,"HLT-GSF") << " && WP80 " << ze->reco.isSelected(0,"WP80") << std::endl;
             if (    eXCut0 <= eX0 && eXCut1 <= eX1  // Both Es pass min pt/phistar
                     && xBin.minX <= eX1 && eX1 <= xBin.maxX // Probe in pt bin
                     && ze->reco.isSelected(tagNumber, "HLT-GSF") // Tag is HLT-GSF
@@ -595,20 +616,19 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
                         case HF:
                         case HFp:
                         case HFm:
-                            //if (ze->reco.isSelected(probeNumber,"HFSuperCluster-Et")){
-                            //    basePass = true;
-                            //}
-                            basePass = true;
+                            if (ze->reco.isSelected(probeNumber,"HFSuperCluster-Et")){
+                                basePass = true;
+                            }
                             break;
                     }
                 }
-            }
+            } 
             // In numerator?
             if (ze->reco.isSelected(probeNumber,probeWP)){
                 postPass = true;
             }
             // Base Cuts, and Post Cuts which are a strict subset
-            if ( basePass ){
+            if ( basePass ){ 
                 baseHisto->Fill(MZ);
                 if ( postPass ){ // Tag passed all cuts
                     postcutHisto->Fill(MZ);
@@ -658,7 +678,7 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
     effs countEff = effFromCounting(baseHisto, postcutHisto, GLOBAL.backgroundHisto, GLOBAL.backgroundHisto, baseFitFunc->GetParameter(0), baseFitFunc->GetParError(0), postFitFunc->GetParameter(0), postFitFunc->GetParError(0));
     effs sigEff = effFromSignal( GLOBAL.signalHisto, GLOBAL.signalHisto, baseFitFunc->GetParameter(1), baseFitFunc->GetParError(1), postFitFunc->GetParameter(1), postFitFunc->GetParError(1));
     //std::cout << "COUNT EFF: " << countEff.eff << " SIG EFF: " << sigEff.eff << std::endl;
-
+    
     canvas->cd(0);
 
     const std::string name(outFile.begin(), outFile.end()-5);
@@ -799,15 +819,14 @@ int main(int argc, char* argv[]){
                 probeWP = "WP80";
                 break;
             case NT: // No NT case?
-            case NTp:
-            case NTm:
+            case NTp: 
+            case NTm: 
                 probeWP = "NTTightElectronId-EtaDet";
                 break;
             case HF:
             case HFp:
             case HFm:
-                //probeWP = "HFTID";
-                probeWP = "HFElectronId-EtaDet";
+                probeWP = "HFTID";
                 break;
         }
 
@@ -834,5 +853,5 @@ int main(int argc, char* argv[]){
 }
 
 /* Compile time notes:
- *    g++ -O2 -o fitEffAcc_trigger_with_inbuilt_hf_correction.exe fitEffAcc.cc ZEffTree.cc Background.cc `root-config --cflags --libs`
+ *    g++ -O2 -o fitEffAcc_trigger_with_inbuilt_hf_correction_with_smearing.exe fitEffAcc.cc ZEffTree.cc Background.cc `root-config --cflags --libs` 
  */
