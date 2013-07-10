@@ -1,5 +1,6 @@
-#include "Background.h"
-#include "ZEffTree.h"
+#include "../Background/Background.h"
+#include "../ElectronLocation/ElectronLocation.h"
+#include "../../MakeZEffTree/src/ZEffTree.h"
 
 #include <string>
 #include <sstream>
@@ -32,23 +33,6 @@ struct global{
     double gamma;
     double delta;
 } GLOBAL;
-
-
-enum electronLocation{
-    EB,
-    EE,
-    NT,
-    HF,
-    ET,
-    EBp,
-    EBm,
-    EEp,
-    EEm,
-    NTp,
-    NTm,
-    HFp,
-    HFm
-};
 
 struct eventRequirements{
     int minPU;
@@ -290,78 +274,6 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
     cout << left << setw(9) << avg-diff;
     cout << left << setw(8) << denom;
     cout << left << setw(8) << usePhiStar << endl;
-}
-
-bool inAcceptance(const electronLocation Loc, const double eta){
-    const double feta = fabs(eta);
-    bool accepted = false;
-    switch (Loc){
-        case EB:
-            if ( feta < 1.4442 ){
-                accepted = true;
-            }
-            break;
-        case EBp:
-            if ( 0. < eta && eta < 1.4442 ){
-                accepted = true;
-            }
-        case EBm:
-            if ( 0. > eta && eta > -1.4442 ){
-                accepted = true;
-            }
-        case EE:
-            if (1.566 < feta && feta < 2.5 ){
-                accepted = true;
-            }
-            break;
-        case EEp:
-            if (1.566 < eta && eta < 2.5 ){
-                accepted = true;
-            }
-            break;
-        case EEm:
-            if (-1.566 > eta && eta > -2.5 ){
-                accepted = true;
-            }
-            break;
-        case ET:
-            if ( (feta < 1.4442) || (1.566 < feta && feta < 2.5) ){
-                accepted = true;
-            }
-            break;
-        case NT:
-            if (2.5 < feta && feta < 2.850 ){
-                accepted = true;
-            }
-            break;
-        case NTp:
-            if (2.5 < eta && eta < 2.850 ){
-                accepted = true;
-            }
-            break;
-        case NTm:
-            if (-2.5 > eta && eta > -2.850 ){
-                accepted = true;
-            }
-            break;
-        case HF:
-            if (3.1 < feta && feta < 4.6 ){
-                accepted = true;
-            }
-            break;
-        case HFp:
-            if (3.1 < eta && eta < 4.6 ){
-                accepted = true;
-            }
-            break;
-        case HFm:
-            if (-3.1 > eta && eta > -4.6 ){
-                accepted = true;
-            }
-            break;
-    }
-
-    return accepted;
 }
 
 int fitDistributions(std::string bgfitfile, std::string signalFile, std::string ZEffFile, std::string outFile, std::string tagWP, std::string probeWP, electronLocation tagLoc, electronLocation probeLoc, eventRequirements eventrq, bin xBin, bool usePhiStar=false){
