@@ -6,7 +6,7 @@ signal="/local/cms/user/gude/kevin_mc_smearing/FullSimSmeared_effac_ZEffTree_wit
 #zefftree="/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120827/DoubleElectron_ele27/res/ "
 zefftree="/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120914/2012_kevin_thesis_trigger_eff_with_charge/SingleElectron_ele27/res/SingleElectron_ele27_summed.root"
 
-#Mass_Z 
+#Mass_Z
 mz_low=60
 mz_high=150
 

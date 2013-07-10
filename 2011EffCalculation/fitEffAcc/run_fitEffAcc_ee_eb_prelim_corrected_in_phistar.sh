@@ -6,7 +6,7 @@ signal="/local/cms/user/gude/kevin_mc_smearing/FullSimSmeared_effac_ZEffTree_wit
 ## Uncorrected, correction applied in the code
 zefftree="/local/cms/user/gude/2012_kevin_thesis_eff/gsf_gsf_march_21_update/gsf_gsf_march_21_update_summed.root"
 
-#Mass_Z 
+#Mass_Z
 mz_low=60
 mz_high=150
 
@@ -22,7 +22,7 @@ probe="EB"
 pu_low=0
 pu_high=4
 
-x_low=0 
+x_low=0
 x_high=0.05
 outfile="${outdir}/ele27_${tag}_${probe}_mz_${mz_low}_${mz_high}_pu_${pu_low}_${pu_high}_x_${x_low}_${x_high}_phistar_${usePhiStar}.root"
 ./fitEffAcc_trigger_with_inbuilt_hf_correction.exe $fits $signal $zefftree $outfile $tag $probe $pu_low $pu_high $mz_low $mz_high $x_low $x_high $usePhiStar
@@ -131,7 +131,7 @@ probe="HFp"
 pu_low=0
 pu_high=4
 
-x_low=0 
+x_low=0
 x_high=0.05
 outfile="${outdir}/ele27_${tag}_${probe}_mz_${mz_low}_${mz_high}_pu_${pu_low}_${pu_high}_x_${x_low}_${x_high}_phistar_${usePhiStar}.root"
 ./fitEffAcc_trigger_with_inbuilt_hf_correction.exe $fits $signal $zefftree $outfile $tag $probe $pu_low $pu_high $mz_low $mz_high $x_low $x_high $usePhiStar
@@ -182,7 +182,7 @@ probe="HFm"
 pu_low=0
 pu_high=4
 
-x_low=0 
+x_low=0
 x_high=0.05
 outfile="${outdir}/ele27_${tag}_${probe}_mz_${mz_low}_${mz_high}_pu_${pu_low}_${pu_high}_x_${x_low}_${x_high}_phistar_${usePhiStar}.root"
 ./fitEffAcc_trigger_with_inbuilt_hf_correction.exe $fits $signal $zefftree $outfile $tag $probe $pu_low $pu_high $mz_low $mz_high $x_low $x_high $usePhiStar

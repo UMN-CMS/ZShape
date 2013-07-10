@@ -34,8 +34,8 @@ struct global{
 } GLOBAL;
 
 
-enum electronLocation{ 
-    EB, 
+enum electronLocation{
+    EB,
     EE,
     NT,
     HF,
@@ -136,7 +136,7 @@ double getHFSlope( const double eta ){
     /* Corrections: 29, 30, ..., 41 for positive and negative ieta */
     static const double starts[arraySize] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
     static const double ends[arraySize] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
-    
+
     /* MC */
     //static const double main_cor = 0.0785;
     //static const double ieta_30_cor = 0.1516;
@@ -182,7 +182,7 @@ double getHFSlope( const double eta ){
 }
 
 effs effFromCounting(TH1F* baseData, TH1F* postData, TH1F* baseBG, TH1F* postBG, const double baseP, const double baseE, const double postP, const double postE, const double minMZ=60., const double maxMZ=120.){
-    /* 
+    /*
      * postD = postData count
      * postP = postData param
      * postB = postBackground count
@@ -206,9 +206,9 @@ effs effFromCounting(TH1F* baseData, TH1F* postData, TH1F* baseBG, TH1F* postBG,
 
     tmp.eff = (postD - (postP*postB)) / (baseD - (baseP*baseB));
     /* Note: dEff = Eff * Sqrt((da^2+db^2)/(a-b)^2 + (dc^2-dd^2)/(c-d)^2) */
-    tmp.err = tmp.eff * sqrt( 
-            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postP * postB ) * ( postD - postP * postB ) ) 
-            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseP * baseB ) * ( baseD - baseP * baseB ) ) 
+    tmp.err = tmp.eff * sqrt(
+            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postP * postB ) * ( postD - postP * postB ) )
+            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseP * baseB ) * ( baseD - baseP * baseB ) )
             );
 
     return tmp;
@@ -226,7 +226,7 @@ effs effFromSignal(TH1F* baseSig, TH1F* postSig, const double baseP, const doubl
     tmp.err = tmp.eff * sqrt( (baseE * baseE)/(( baseS * baseP )*( baseS * baseP )) + (postE * postE) / (( postS * postP )*( postS * postP )) );
 
 
-    // TODO: Double check formula 
+    // TODO: Double check formula
     return tmp;
 }
 
@@ -234,7 +234,7 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
     /* Prints probewp ptmin ptmax etamin etamax pumin pumax sigeff sigerr counteff counterr */
     using namespace std;
     cout << "#XMin XMax EtaMin  EtaMax  PUMin PUMax NumParms eff      systp    systm    den     phistar" << endl;
-    cout << left << setw(6) << xBin.minX; 
+    cout << left << setw(6) << xBin.minX;
     cout << left << setw(5) << xBin.maxX ;
     switch (probeLoc){
         case EB:
@@ -307,66 +307,66 @@ bool inAcceptance(const electronLocation Loc, const double eta){
     bool accepted = false;
     switch (Loc){
         case EB:
-            if ( feta < 1.4442 ){ 
-                accepted = true; 
+            if ( feta < 1.4442 ){
+                accepted = true;
             }
             break;
         case EBp:
             if ( 0. < eta && eta < 1.4442 ){
-                accepted = true; 
+                accepted = true;
             }
         case EBm:
             if ( 0. > eta && eta > -1.4442 ){
-                accepted = true; 
+                accepted = true;
             }
         case EE:
-            if (1.566 < feta && feta < 2.5 ){ 
-                accepted = true; 
+            if (1.566 < feta && feta < 2.5 ){
+                accepted = true;
             }
             break;
         case EEp:
-            if (1.566 < eta && eta < 2.5 ){ 
-                accepted = true; 
+            if (1.566 < eta && eta < 2.5 ){
+                accepted = true;
             }
             break;
         case EEm:
-            if (-1.566 > eta && eta > -2.5 ){ 
-                accepted = true; 
+            if (-1.566 > eta && eta > -2.5 ){
+                accepted = true;
             }
             break;
         case ET:
-            if ( (feta < 1.4442) || (1.566 < feta && feta < 2.5) ){ 
-                accepted = true; 
+            if ( (feta < 1.4442) || (1.566 < feta && feta < 2.5) ){
+                accepted = true;
             }
             break;
         case NT:
-            if (2.5 < feta && feta < 2.850 ){ 
-                accepted = true; 
+            if (2.5 < feta && feta < 2.850 ){
+                accepted = true;
             }
             break;
         case NTp:
-            if (2.5 < eta && eta < 2.850 ){ 
-                accepted = true; 
+            if (2.5 < eta && eta < 2.850 ){
+                accepted = true;
             }
             break;
         case NTm:
-            if (-2.5 > eta && eta > -2.850 ){ 
-                accepted = true; 
+            if (-2.5 > eta && eta > -2.850 ){
+                accepted = true;
             }
             break;
         case HF:
             if (3.1 < feta && feta < 4.6 ){
-                accepted = true; 
+                accepted = true;
             }
             break;
         case HFp:
             if (3.1 < eta && eta < 4.6 ){
-                accepted = true; 
+                accepted = true;
             }
             break;
         case HFm:
             if (-3.1 > eta && eta > -4.6 ){
-                accepted = true; 
+                accepted = true;
             }
             break;
     }
@@ -421,8 +421,8 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
         const double PU = zes->reco.nverts;
         const double MZ = zes->reco.mz;
         if (  // Right number of PU, MZ
-                eventrq.minPU <= PU && PU <= eventrq.maxPU 
-                && eventrq.minMZ <= MZ && MZ <= eventrq.maxMZ 
+                eventrq.minPU <= PU && PU <= eventrq.maxPU
+                && eventrq.minMZ <= MZ && MZ <= eventrq.maxMZ
                 && 20. <= zes->reco.pt[0] && 20. <= zes->reco.pt[1]
            ){
             /* Do Delta R matching */
@@ -465,20 +465,20 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
                     probeX = probeXCutPt;
                 }
                 // Now we make sure exactly one e passes the tag region, and one the probe region requirements
-                if ( 
+                if (
                         xBin.minX <= eX1 && eX1 <= xBin.maxX && probeX <= eX1
                         && zes->reco.isSelected(j,"Supercluster-Eta") && zes->reco.isSelected(j,"GsfTrack-EtaDet")
                    ){
                     probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
-                } 
-                if ( 
-                        probeMatch && tagX <= eX0 
+                }
+                if (
+                        probeMatch && tagX <= eX0
                         && zes->reco.isSelected(i,"WP80") && zes->reco.isSelected(j, "HLT-GSF")
                         ){
                     tagMatch = inAcceptance(tagLoc, zes->reco.eta[i]);
                 }
                 // Base Cuts, and Post Cuts which are a strict subset
-                if ( tagMatch && probeMatch ){ 
+                if ( tagMatch && probeMatch ){
                     GLOBAL.signalHisto->Fill(MZ);
                     break;
                 }
@@ -569,9 +569,9 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
         /* Recalculate MZ */
         TLorentzVector e0lv;
         TLorentzVector e1lv;
-        TLorentzVector Zlv; 
+        TLorentzVector Zlv;
         e0lv.SetPtEtaPhiM(pt0, ze->reco.eta[tagNumber], ze->reco.phi[tagNumber], 5.109989e-4); // Boy I hope Bryan finds this someday...
-        e1lv.SetPtEtaPhiM(pt1, ze->reco.eta[probeNumber], ze->reco.phi[probeNumber], 5.109989e-4); 
+        e1lv.SetPtEtaPhiM(pt1, ze->reco.eta[probeNumber], ze->reco.phi[probeNumber], 5.109989e-4);
         Zlv = e0lv + e1lv;
         const double MZ = Zlv.M(); // Get the invarient mass from the Z
 
@@ -595,7 +595,7 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
                 eXCut0 = tagXCutPt;
                 eXCut1 = probeXCutPt;
             }
-            /* Check cuts */ 
+            /* Check cuts */
             //std::cout << ze->reco.mz << ' ' << MZ << std::endl;
             //std::cout << "\t" << eXCut0 << " <= " << eX0 << " && " << eXCut1 << " <= " << eX1 << std::endl;
             //std::cout << "\t" << xBin.minX << " <= " << eX0 << " && " << eX0 << " <= " << xBin.maxX << std::endl;
@@ -637,13 +637,13 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
                             break;
                     }
                 }
-            } 
+            }
             // In numerator?
             if (ze->reco.isSelected(probeNumber,probeWP)){
                 postPass = true;
             }
             // Base Cuts, and Post Cuts which are a strict subset
-            if ( basePass ){ 
+            if ( basePass ){
                 baseHisto->Fill(MZ);
                 if ( postPass ){ // Tag passed all cuts
                     postcutHisto->Fill(MZ);
@@ -693,7 +693,7 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
     effs countEff = effFromCounting(baseHisto, postcutHisto, GLOBAL.backgroundHisto, GLOBAL.backgroundHisto, baseFitFunc->GetParameter(0), baseFitFunc->GetParError(0), postFitFunc->GetParameter(0), postFitFunc->GetParError(0));
     effs sigEff = effFromSignal( GLOBAL.signalHisto, GLOBAL.signalHisto, baseFitFunc->GetParameter(1), baseFitFunc->GetParError(1), postFitFunc->GetParameter(1), postFitFunc->GetParError(1));
     //std::cout << "COUNT EFF: " << countEff.eff << " SIG EFF: " << sigEff.eff << std::endl;
-    
+
     canvas->cd(0);
 
     const std::string name(outFile.begin(), outFile.end()-5);
@@ -834,8 +834,8 @@ int main(int argc, char* argv[]){
                 probeWP = "WP80";
                 break;
             case NT: // No NT case?
-            case NTp: 
-            case NTm: 
+            case NTp:
+            case NTm:
                 probeWP = "NTTightElectronId-EtaDet";
                 break;
             case HF:
@@ -868,5 +868,5 @@ int main(int argc, char* argv[]){
 }
 
 /* Compile time notes:
- *    g++ -O2 -o closure_data_side_without_smearing.exe closure_data_side_without_smearing.cc ZEffTree.cc Background.cc `root-config --cflags --libs` 
+ *    g++ -O2 -o closure_data_side_without_smearing.exe closure_data_side_without_smearing.cc ZEffTree.cc Background.cc `root-config --cflags --libs`
  */

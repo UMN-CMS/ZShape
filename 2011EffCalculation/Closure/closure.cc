@@ -40,8 +40,8 @@ struct global{
     double delta;
 } GLOBAL;
 
-enum electronLocation{ 
-    EB, 
+enum electronLocation{
+    EB,
     EE,
     NT,
     HF,
@@ -78,7 +78,7 @@ double getHFSlope( const double eta ){
     /* Corrections: 29, 30, ..., 41 for positive and negative ieta */
     static const double starts[arraySize] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
     static const double ends[arraySize] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
-    
+
     /* MC */
     //static const double main_cor = 0.0785;
     //static const double ieta_30_cor = 0.1516;
@@ -124,7 +124,7 @@ double getHFSlope( const double eta ){
 }
 
 effs effFromCounting(TH1F* baseData, TH1F* postData, TH1F* baseBG, TH1F* postBG, const double baseP, const double baseE, const double postP, const double postE, const double minMZ=60., const double maxMZ=120.){
-    /* 
+    /*
      * postD = postData count
      * postP = postData param
      * postB = postBackground count
@@ -148,9 +148,9 @@ effs effFromCounting(TH1F* baseData, TH1F* postData, TH1F* baseBG, TH1F* postBG,
 
     tmp.eff = (postD - (postP*postB)) / (baseD - (baseP*baseB));
     /* Note: dEff = Eff * Sqrt((da^2+db^2)/(a-b)^2 + (dc^2-dd^2)/(c-d)^2) */
-    tmp.err = tmp.eff * sqrt( 
-            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postP * postB ) * ( postD - postP * postB ) ) 
-            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseP * baseB ) * ( baseD - baseP * baseB ) ) 
+    tmp.err = tmp.eff * sqrt(
+            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postP * postB ) * ( postD - postP * postB ) )
+            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseP * baseB ) * ( baseD - baseP * baseB ) )
             );
 
     return tmp;
@@ -168,7 +168,7 @@ effs effFromSignal(TH1F* baseSig, TH1F* postSig, const double baseP, const doubl
     tmp.err = tmp.eff * sqrt( (baseE * baseE)/(( baseS * baseP )*( baseS * baseP )) + (postE * postE) / (( postS * postP )*( postS * postP )) );
 
 
-    // TODO: Double check formula 
+    // TODO: Double check formula
     return tmp;
 }
 
@@ -176,7 +176,7 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
     /* Prints probewp ptmin ptmax etamin etamax pumin pumax sigeff sigerr counteff counterr */
     using namespace std;
     cout << "#XMin XMax EtaMin  EtaMax  PUMin PUMax NumParms eff      systp    systm    den     phistar" << endl;
-    cout << left << setw(6) << xBin.minX; 
+    cout << left << setw(6) << xBin.minX;
     cout << left << setw(5) << xBin.maxX ;
     switch (probeLoc){
         case EB:
@@ -249,66 +249,66 @@ bool inAcceptance(const electronLocation Loc, const double eta){
     bool accepted = false;
     switch (Loc){
         case EB:
-            if ( feta < 1.4442 ){ 
-                accepted = true; 
+            if ( feta < 1.4442 ){
+                accepted = true;
             }
             break;
         case EBp:
             if ( 0. < eta && eta < 1.4442 ){
-                accepted = true; 
+                accepted = true;
             }
         case EBm:
             if ( 0. > eta && eta > -1.4442 ){
-                accepted = true; 
+                accepted = true;
             }
         case EE:
-            if (1.566 < feta && feta < 2.5 ){ 
-                accepted = true; 
+            if (1.566 < feta && feta < 2.5 ){
+                accepted = true;
             }
             break;
         case EEp:
-            if (1.566 < eta && eta < 2.5 ){ 
-                accepted = true; 
+            if (1.566 < eta && eta < 2.5 ){
+                accepted = true;
             }
             break;
         case EEm:
-            if (-1.566 > eta && eta > -2.5 ){ 
-                accepted = true; 
+            if (-1.566 > eta && eta > -2.5 ){
+                accepted = true;
             }
             break;
         case ET:
-            if ( (feta < 1.4442) || (1.566 < feta && feta < 2.5) ){ 
-                accepted = true; 
+            if ( (feta < 1.4442) || (1.566 < feta && feta < 2.5) ){
+                accepted = true;
             }
             break;
         case NT:
-            if (2.5 < feta && feta < 2.850 ){ 
-                accepted = true; 
+            if (2.5 < feta && feta < 2.850 ){
+                accepted = true;
             }
             break;
         case NTp:
-            if (2.5 < eta && eta < 2.850 ){ 
-                accepted = true; 
+            if (2.5 < eta && eta < 2.850 ){
+                accepted = true;
             }
             break;
         case NTm:
-            if (-2.5 > eta && eta > -2.850 ){ 
-                accepted = true; 
+            if (-2.5 > eta && eta > -2.850 ){
+                accepted = true;
             }
             break;
         case HF:
             if (3.1 < feta && feta < 4.6 ){
-                accepted = true; 
+                accepted = true;
             }
             break;
         case HFp:
             if (3.1 < eta && eta < 4.6 ){
-                accepted = true; 
+                accepted = true;
             }
             break;
         case HFm:
             if (-3.1 > eta && eta > -4.6 ){
-                accepted = true; 
+                accepted = true;
             }
             break;
     }
@@ -388,8 +388,8 @@ int fitDistributions(std::string ZEffFile, std::string outFile, std::string elec
         const double PU = zes->reco.nverts;
         const double MZ = zes->reco.mz;
         if (  // Right number of PU, MZ
-                eventrq.minPU <= PU && PU <= eventrq.maxPU 
-                && eventrq.minMZ <= MZ && MZ <= eventrq.maxMZ 
+                eventrq.minPU <= PU && PU <= eventrq.maxPU
+                && eventrq.minMZ <= MZ && MZ <= eventrq.maxMZ
            ){
             /* Do Delta R matching */
             // Require one electron < 0.1 from reco.
@@ -414,7 +414,7 @@ int fitDistributions(std::string ZEffFile, std::string outFile, std::string elec
                     eX0 = zes->reco.pt[i];
                 }
                 if ( // Right value of our cut, and in the acceptance
-                        xBin.minX < eX0 && eX0 < xBin.maxX 
+                        xBin.minX < eX0 && eX0 < xBin.maxX
                         && inAcceptance( eLoc, zes->reco.eta[i])
                     ){
                     ++eDenom;
@@ -437,7 +437,7 @@ int fitDistributions(std::string ZEffFile, std::string outFile, std::string elec
     //effs countEff = effFromCounting(baseHisto, postcutHisto, GLOBAL.backgroundHisto, GLOBAL.backgroundHisto, baseFitFunc->GetParameter(0), baseFitFunc->GetParError(0), postFitFunc->GetParameter(0), postFitFunc->GetParError(0));
     //effs sigEff = effFromSignal( GLOBAL.signalHisto, GLOBAL.signalHisto, baseFitFunc->GetParameter(1), baseFitFunc->GetParError(1), postFitFunc->GetParameter(1), postFitFunc->GetParError(1));
     //std::cout << "COUNT EFF: " << countEff.eff << " SIG EFF: " << sigEff.eff << std::endl;
-    
+
     //canvas->cd(0);
 
     //const std::string name(outFile.begin(), outFile.end()-5);
@@ -550,5 +550,5 @@ int main(int argc, char* argv[]){
 }
 
 /* Compile time notes:
- *    g++ -O2 -o closure.exe closure.cc ZEffTree.cc Background.cc `root-config --cflags --libs` 
+ *    g++ -O2 -o closure.exe closure.cc ZEffTree.cc Background.cc `root-config --cflags --libs`
  */

@@ -6,7 +6,7 @@ signal="/local/cms/user/gude/kevin_mc_smearing/FullSimSmeared_effac_ZEffTree/Ful
 #zefftree="/local/cms/user/gude/zshape/makezefftree_skimReReco_20120229/makezefftree_skimReReco_20120229_summed.root"
 zefftree="/local/cms/user/gude/2012_kevin_thesis_eff/double_electron_trigger_matched/double_electron_trigger_matched_summed.root"
 
-#Mass_Z 
+#Mass_Z
 mz_low=50
 mz_high=150
 

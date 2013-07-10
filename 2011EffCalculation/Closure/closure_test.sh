@@ -8,7 +8,7 @@ signal="/local/cms/user/gude/2012_kevin_thesis_eff/gsf_gsf_mc/gsf_gsf_mc_summed.
 ## Uncorrected, correction applied in the code
 zefftree="/local/cms/user/gude/2012_kevin_thesis_eff/gsf_gsf_mc/gsf_gsf_mc_summed.root"
 
-#Mass_Z 
+#Mass_Z
 mz_low=60
 mz_high=150
 

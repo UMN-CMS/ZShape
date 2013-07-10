@@ -39,9 +39,9 @@ void Background::setBackground(const double X, const double pu, const bool usePh
     current = NULL;
     for (std::vector<bgNum>::iterator i = values_.begin(); i != values_.end(); ++i){
         bgNum& bgn = *i;
-        if ( 
-                bgn.minX <= X && X <= bgn.maxX 
-                && bgn.minPU <= pu && pu <= bgn.maxPU 
+        if (
+                bgn.minX <= X && X <= bgn.maxX
+                && bgn.minPU <= pu && pu <= bgn.maxPU
                 && bgn.isPhiStar == usePhiStar
            ){
             current = &*i;
@@ -97,5 +97,5 @@ void Background::print(const bool printAll){
 }
 
 /* Compile time notes:
- *    g++ -O2 -o Background.exe Background.cc `root-config --cflags --libs` 
+ *    g++ -O2 -o Background.exe Background.cc `root-config --cflags --libs`
  */
