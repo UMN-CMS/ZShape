@@ -52,12 +52,12 @@ struct effs{
 };
 
 
-double bgFunc(double x, double alpha, double gamma, double delta){
+double bgFunc(const double x, const double alpha, const double gamma, const double delta){
     double fitval = TMath::Erfc((alpha-x)/delta) * TMath::Exp(-gamma*x);
     return fitval;
 }
 
-double functiontofit(double *x, double *par) {
+double functiontofit(const double *x, const double *par) {
     // Generate values for our signal and our background
     double backgroundVal = par[0] * GLOBAL.backgroundHisto->GetBinContent(GLOBAL.signalHisto->FindBin(x[0]));
     double signalVal = par[1] * GLOBAL.signalHisto->GetBinContent(GLOBAL.signalHisto->FindBin(x[0]));
@@ -265,7 +265,7 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
             break;
     }
     cout << left << setw(6) << eventrq.minPU;
-    cout << left << setw(6) << eventrq.maxPU;
+    cout << left << setw(6) << eventrq.maxPU + 1; // Kevin's Code requires 0-4 inclusive to report 0-5
     cout << left << setw(9) << "5"; // Number of params
     const double diff = fabs(sigeff - counteff)/2.;
     const double avg = fabs(sigeff + counteff)/2.;
@@ -276,24 +276,20 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
     cout << left << setw(8) << usePhiStar << endl;
 }
 
-int fitDistributions(std::string bgfitfile, std::string signalFile, std::string ZEffFile, std::string outFile, std::string tagWP, std::string probeWP, electronLocation tagLoc, electronLocation probeLoc, eventRequirements eventrq, bin xBin, bool usePhiStar=false){
+int fitDistributions(const std::string bgfitfile, const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const eventRequirements eventrq, const bin xBin, const bool usePhiStar=false){
     // Some commont variables
     const double tagXCutPt = 20.;
     const double probeXCutPt = 20.;
     // Smearing
-    const bool smear = true;
-    int randSeed=123456; //using constant seed for reproducibility
+    const bool smear = false;
+    const int randSeed = 123456; //using constant seed for reproducibility
     TRandom3* trand = new TRandom3(randSeed);
 
     // Get our background and set variables
     Background bg(bgfitfile);
     const double midX = (xBin.maxX + xBin.minX)/2.;
-    //std::cout << "midX: " << midX << std::endl;
     const double midPU = (eventrq.maxPU + eventrq.minPU)/2.;
-    //std::cout << "midPU: " << midPU << std::endl;
     bg.setBackground(midX, midPU, usePhiStar); // TODO: Fill in pt, pu
-    //std::cout << usePhiStar << std::endl;
-    //bg.print();
     if (bg.current == 0){
         std::cout << "Failed to get background model." <<std::endl;
         // No background for your area.
@@ -422,18 +418,24 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
     // Loop over events to create the distributions to fit
     bool run2 = true;
     bool flop = true;
+
     while (run2){
         /* Select a reproducably random tag and probe */
         int tagNumber;
         int probeNumber;
-        if (flop) {
+        if ( !inAcceptance(HF, ze->reco.eta[1])){ // EB HF case, no flop needed
+            if (flop) {
+                tagNumber = 0;
+                probeNumber = 1;
+                flop = false;
+            } else {
+                tagNumber = 1;
+                probeNumber = 0;
+                flop = true;
+            }
+        } else {
             tagNumber = 0;
             probeNumber = 1;
-            flop = false;
-        } else {
-            tagNumber = 1;
-            probeNumber = 0;
-            flop = true;
         }
 
         ze->Entries();
@@ -468,7 +470,7 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
         TLorentzVector e0lv;
         TLorentzVector e1lv;
         TLorentzVector Zlv;
-        e0lv.SetPtEtaPhiM(pt0, ze->reco.eta[tagNumber], ze->reco.phi[tagNumber], 5.109989e-4); // Boy I hope Bryan finds this someday...
+        e0lv.SetPtEtaPhiM(pt0, ze->reco.eta[tagNumber], ze->reco.phi[tagNumber], 5.109989e-4);
         e1lv.SetPtEtaPhiM(pt1, ze->reco.eta[probeNumber], ze->reco.phi[probeNumber], 5.109989e-4);
         Zlv = e0lv + e1lv;
         const double MZ = Zlv.M(); // Get the invarient mass from the Z
@@ -528,9 +530,10 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
                         case HF:
                         case HFp:
                         case HFm:
-                            if (ze->reco.isSelected(probeNumber,"HFSuperCluster-Et")){
-                                basePass = true;
-                            }
+                            //if (ze->reco.isSelected(probeNumber,"HFSuperCluster-Et")){
+                            //    basePass = true;
+                            //}
+                            basePass = true;
                             break;
                     }
                 }
@@ -738,7 +741,8 @@ int main(int argc, char* argv[]){
             case HF:
             case HFp:
             case HFm:
-                probeWP = "HFTID";
+                //probeWP = "HFTID";
+                probeWP = "HFElectronId-EtaDet";
                 break;
         }
 
