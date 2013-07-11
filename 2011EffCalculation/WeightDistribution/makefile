@@ -6,24 +6,23 @@ ROOT_ALL=`root-config --cflags --libs`
 CC=g++ -O2
 CCC=${CC} -c
 
-all: fitEffAcc_trigger_with_inbuilt_hf_correction_with_smearing.exe 
+all: WeightDistribution.exe
 	
-fitEffAcc_trigger_with_inbuilt_hf_correction_with_smearing.exe: ZEffTree.o Background.o ElectronLocation.o
-	${CC} -o fitEffAcc_trigger_with_inbuilt_hf_correction_with_smearing.exe \
-	fitEffAcc.cc \
+WeightDistribution.exe: ZEffTree.o ElectronLocation.o EfficiencyTable.o
+	${CC} -o WeightDistribution.exe WeightDistribution.cc \
 	ZEffTree.o \
-	Background.o \
 	ElectronLocation.o \
+	EfficiencyTable.o \
 	${ROOT_ALL}
 
 ZEffTree.o: ../../MakeZEffTree/src/ZEffTree.h ../../MakeZEffTree/src/ZEffTree.cc
 	${CCC} ../../MakeZEffTree/src/ZEffTree.cc ${ROOT_INCLUDES}
 
-Background.o: ../Background/Background.h ../Background/Background.cc
-	${CCC} ../Background/Background.cc ${ROOT_INCLUDES}
-
 ElectronLocation.o: ../ElectronLocation/ElectronLocation.h ../ElectronLocation/ElectronLocation.cc
 	${CCC} ../ElectronLocation/ElectronLocation.cc
 
+EfficiencyTable.o: ../EfficiencyTable/EfficiencyTable.h ../EfficiencyTable/EfficiencyTable.cc
+	${CCC} ../EfficiencyTable/EfficiencyTable.cc
+
 clean:
-	rm -f ZEffTree.o Background.o ElectronLocation.o
+	rm -f ZEffTree.o ElectronLocation.o EfficiencyTable.o
