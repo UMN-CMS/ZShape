@@ -3,7 +3,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <TF1.h>
 #include <TMath.h>
 
 struct bgNum{
@@ -21,11 +20,11 @@ struct bgNum{
     bool isPhiStar;
 };
 
-class Background {
+class BackgroundTable {
   public:
-    Background(const std::string textFile);
+    BackgroundTable(const std::string textFile);
     void setBackground(const double X, const double pu,const  bool usePhiStar);
-    Double_t bgFunc(Double_t *v, Double_t *par);
+    double bgFunc(const double *v, const double *par);
     void print(const bool printAll=true);
     bgNum* current;
 

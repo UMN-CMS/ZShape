@@ -1,6 +1,6 @@
-#include "Background.h"
+#include "BackgroundTable.h"
 
-Background::Background(const std::string textFile){
+BackgroundTable::BackgroundTable(const std::string textFile){
     /* Open file */
     std::ifstream inFile(textFile.c_str());
     std::string line;
@@ -33,7 +33,7 @@ Background::Background(const std::string textFile){
     inFile.close();
 }
 
-void Background::setBackground(const double X, const double pu, const bool usePhiStar=false){
+void BackgroundTable::setBackground(const double X, const double pu, const bool usePhiStar=false){
     // Loops through loaded backgrounds, if the requested X pu points
     //  exists within one, set that as the current background.
     current = NULL;
@@ -50,12 +50,11 @@ void Background::setBackground(const double X, const double pu, const bool usePh
     }
 }
 
-Double_t Background::bgFunc(Double_t *v, Double_t *par){
-    Double_t fitval = TMath::Erfc((par[0]-v[0])/par[3]) * par[1] * TMath::Exp(-par[2]*v[0]);
-    return fitval;
+double BackgroundTable::bgFunc(const double *v, const double *par){
+    return TMath::Erfc((par[0]-v[0])/par[3]) * par[1] * TMath::Exp(-par[2]*v[0]);
 }
 
-void Background::print(const bool printAll){
+void BackgroundTable::print(const bool printAll){
     if (printAll){
         int j = 0;
         for (std::vector<bgNum>::iterator i = values_.begin(); i != values_.end(); ++i){
@@ -95,7 +94,3 @@ void Background::print(const bool printAll){
         }
     }
 }
-
-/* Compile time notes:
- *    g++ -O2 -o Background.exe Background.cc `root-config --cflags --libs`
- */

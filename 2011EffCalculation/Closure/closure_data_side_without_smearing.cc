@@ -1,4 +1,4 @@
-#include "Background.h"
+#include "../BackgroundTable/BackgroundTable.h"
 #include "ZEffTree.h"
 
 #include <string>
@@ -380,7 +380,7 @@ int fitDistributions(std::string bgfitfile, std::string signalFile, std::string 
     const double probeXCutPt = 20.;
 
     // Get our background and set variables
-    Background bg(bgfitfile);
+    BackgroundTable bg(bgfitfile);
     const double midX = (xBin.maxX + xBin.minX)/2.;
     //std::cout << "midX: " << midX << std::endl;
     const double midPU = (eventrq.maxPU + eventrq.minPU)/2.;

@@ -1,4 +1,4 @@
-#include "../Background/Background.h"
+#include "../BackgroundTable/BackgroundTable.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
 
@@ -286,7 +286,7 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
     TRandom3* trand = new TRandom3(randSeed);
 
     // Get our background and set variables
-    Background bg(bgfitfile);
+    BackgroundTable bg(bgfitfile);
     const double midX = (xBin.maxX + xBin.minX)/2.;
     const double midPU = (eventrq.maxPU + eventrq.minPU)/2.;
     bg.setBackground(midX, midPU, usePhiStar); // TODO: Fill in pt, pu
@@ -767,7 +767,3 @@ int main(int argc, char* argv[]){
                 );
     }
 }
-
-/* Compile time notes:
- *    g++ -O2 -o fitEffAcc_trigger_with_inbuilt_hf_correction_with_smearing.exe fitEffAcc.cc ZEffTree.cc Background.cc `root-config --cflags --libs`
- */
