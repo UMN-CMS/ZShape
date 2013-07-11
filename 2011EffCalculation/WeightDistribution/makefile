@@ -25,4 +25,4 @@ EfficiencyTable.o: ../EfficiencyTable/EfficiencyTable.h ../EfficiencyTable/Effic
 	${CCC} ../EfficiencyTable/EfficiencyTable.cc
 
 clean:
-	rm -f ZEffTree.o ElectronLocation.o EfficiencyTable.o
+	rm -f ZEffTree.o ElectronLocation.o EfficiencyTable.o WeightDistribution.exe

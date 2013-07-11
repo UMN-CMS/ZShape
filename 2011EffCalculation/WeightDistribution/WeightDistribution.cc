@@ -34,9 +34,9 @@ int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::stri
     /* Prepare the histogram to put the data in */
     //const int nbins = 9;
     //const double lowedges[nbins+1] = {20., 25., 30., 35., 40., 45., 50., 55., 60., 70.};
-    const int nbins = 100;
-    const double lowedge = 0.;
-    const double highedge = 1.;
+    const int nbins = 105;
+    const double lowedge = -0.05;
+    const double highedge = 1.05;
 
     TH1D* EBHisto = new TH1D("EBHisto", "EB", nbins, lowedge, highedge);
     TH1D* EEHisto = new TH1D("EEHisto", "EE", nbins, lowedge, highedge);
