@@ -1,21 +1,13 @@
 #include "../../MakeZEffTree/src/ZEffTree.h"
 
-#include <TTree.h>
 #include <TFile.h>
-#include <TBranch.h>
-#include <TH1.h>
 #include <TH1F.h>
 #include <TF1.h>
 #include <TMath.h>
 #include <TCanvas.h>
 
 #include <iostream>
-#include <stdio.h>
 #include <string>
-#include <math.h>
-#include <time.h>
-#include <stdlib.h>
-#include <snprintf.h>
 
 struct tagCuts{
     int minMZ;
@@ -44,8 +36,6 @@ int fitBackground(TFile *file, const std::string &outname, const std::string &ta
     TCanvas *canvas = new TCanvas;
     TH1F *histoToFit;
 
-    //snprintf(buff,1000,"Pt for e0 that passes %s",probepass.c_str());
-    //char buff[1000];
     const int nBins = cuts.maxMZ - cuts.minMZ;
     histoToFit = new TH1F("histoToFit", "Z Mass", nBins, cuts.minMZ, cuts.maxMZ);
 
