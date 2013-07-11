@@ -8,17 +8,15 @@
 #include <iomanip>
 #include <map>
 #include <vector>
-#include <math.h>
 
-#include "TH1.h"
-#include "TF1.h"
-#include "TFile.h"
-#include "TAxis.h"
-#include "TObject.h"
-#include "TCanvas.h"
+#include <TH1.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TAxis.h>
+#include <TObject.h>
+#include <TCanvas.h>
 #include <TROOT.h>
 #include <TStyle.h>
-#include <TLatex.h>
 #include <TRandom3.h>
 #include <TLorentzVector.h>
 
