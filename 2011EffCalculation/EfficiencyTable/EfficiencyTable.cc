@@ -25,6 +25,11 @@ EfficiencyTable::EfficiencyTable(const std::string textFile){
             ss >> value.systm;
             ss >> value.den;
             ss >> value.phistar;
+
+            // Kevin's code requires that we add an extra 1 to the ending PU,
+            // so we subtract it off here.
+            value.pumax -= 1; 
+
             values_.push_back(value);
         }
     }
