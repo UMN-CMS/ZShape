@@ -9,8 +9,7 @@
 
 class ZEffTree {
     public:
-
-        ZEffTree(TFile& f, bool writable);
+        ZEffTree(TFile& f, const bool writable);
 
         static int cutToBit(const std::string& cut);
 
@@ -21,8 +20,8 @@ class ZEffTree {
             float mz, yz, qtz;
             int bits[2];
             int nverts;
-            bool isSelected(int ielec, const std::string& bitname) const;
-            void setBit(int ielec, const std::string& bitname, bool val);
+            bool isSelected(const int ielec, const std::string& bitname) const;
+            void setBit(const int ielec, const std::string& bitname, const bool val);
             int charge[2];
             float phistar;
         } gen, reco;
@@ -87,17 +86,17 @@ class ZEffTree {
         int nevt;
         TBranch* br_gen, *br_reco;
 
-        void makeBranches(bool writable) {
+        void makeBranches(const bool writable) {
             nevt=0;
             if (writable) {
                 m_file.cd();
-                m_tree=new TTree("ZEffs","Minnesota ZEffs");
-                br_gen=m_tree->Branch("gen",&gen,"eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:qtz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
-                br_reco=m_tree->Branch("reco",&reco,"eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:qtz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
+                m_tree=new TTree("ZEffs", "Minnesota ZEffs");
+                br_gen=m_tree->Branch("gen", &gen, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:qtz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
+                br_reco=m_tree->Branch("reco", &reco, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:qtz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
             } else {
                 m_tree=(TTree*)m_file.Get("ZEffs");
-                m_tree->SetBranchAddress("gen",&gen);
-                m_tree->SetBranchAddress("reco",&reco);
+                m_tree->SetBranchAddress("gen", &gen);
+                m_tree->SetBranchAddress("reco", &reco);
             }
         }
 

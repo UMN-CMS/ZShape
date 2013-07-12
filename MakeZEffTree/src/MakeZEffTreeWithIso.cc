@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MakeZEffTree
-// Class:      MakeZEffTree
+// Package:    MakeZEffTreeWithIso
+// Class:      MakeZEffTreeWithIso
 // 
-/**\class MakeZEffTree MakeZEffTree.cc ZShape/MakeZEffTree/src/MakeZEffTree.cc
+/**\class MakeZEffTreeWithIso MakeZEffTreeWithIso.cc ZShape/MakeZEffTreeWithIso/src/MakeZEffTreeWithIso.cc
 
 Description: [one line class summary]
 
@@ -28,6 +28,8 @@ Implementation:
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -61,10 +63,10 @@ Implementation:
 // class declaration
 //
 
-class MakeZEffTree : public edm::EDAnalyzer {
+class MakeZEffTreeWithIso : public edm::EDAnalyzer {
     public:
-        explicit MakeZEffTree(const edm::ParameterSet&);
-        ~MakeZEffTree();
+        explicit MakeZEffTreeWithIso(const edm::ParameterSet&);
+        ~MakeZEffTreeWithIso();
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -105,7 +107,7 @@ class MakeZEffTree : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
+MakeZEffTreeWithIso::MakeZEffTreeWithIso(const edm::ParameterSet& iConfig) {
     //now do what ever initialization is needed
     edm::Service<TFileService> ts;
     TFile &f = ts->file();
@@ -113,8 +115,10 @@ MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
     m_ze = new ZEffTree(f, writable);
 
     tnpProducer_ = iConfig.getUntrackedParameter<edm::InputTag > ("TagProbeProducer");
+    photTag_ = iConfig.getParameter< edm::InputTag > ("photonTag");
     std::vector< edm::InputTag > defaultPassProbeCandTags;
     passProbeCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >("passProbeCandTags", defaultPassProbeCandTags);
+    photTag_ = iConfig.getParameter< edm::InputTag > ("photonTag");
 
     delRMatchingCut_ = iConfig.getUntrackedParameter<double>("dRMatchCut", 0.2);
     delPtRelMatchingCut_ = iConfig.getUntrackedParameter<double>("dPtMatchCut", 15.0);
@@ -123,7 +127,7 @@ MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
 }
 
 
-MakeZEffTree::~MakeZEffTree() {
+MakeZEffTreeWithIso::~MakeZEffTreeWithIso() {
     // do anything here that needs to be done at desctruction time
     // (e.g. close files, deallocate resources etc.)
     //m_ze->Write();
@@ -136,7 +140,7 @@ MakeZEffTree::~MakeZEffTree() {
 //
 
 // ------------ method called for each event  ------------
-void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void MakeZEffTreeWithIso::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     using namespace edm;
 
     m_ze->Clear();
@@ -209,7 +213,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         m_ze->gen.yz = 0.5*log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
         m_ze->gen.qtz = Z->momentum().perp();
         m_ze->gen.nverts = npv;
-        m_ze->gen.phistar = MakeZEffTree::getPhiStar( m_ze->gen.eta[0], m_ze->gen.phi[0], m_ze->gen.charge[0], m_ze->gen.eta[1], m_ze->gen.phi[1]);
+        m_ze->gen.phistar = MakeZEffTreeWithIso::getPhiStar( m_ze->gen.eta[0], m_ze->gen.phi[0], m_ze->gen.charge[0], m_ze->gen.eta[1], m_ze->gen.phi[1]);
     }
 
     /* Data */
@@ -221,7 +225,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         if (tagprobes.isValid()){
             /* Pick T&P pair */
             const int tpsize = tagprobes->size();
-            if (tpsize == 0) {
+            if (iEvent.isRealData() && tpsize == 0) {
                 return; // No second electron
             }
             // We select "randomly" by using the event ID
@@ -243,33 +247,76 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             m_ze->reco.mz = tpP4.M();
             m_ze->reco.yz = tpP4.Rapidity();
             m_ze->reco.qtz = tpP4.pt();
+            /* Computing ix and iy */
+            // Barrel
+            if (fabs(m_ze->reco.eta[0]) < 1.4442 ){
+                const double theta = 2*atan( exp( 1.566 ) );
+                const double phi = m_ze->reco.phi[0];
+                m_ze->reco.ix[0] = (int)(3.154*tan(theta)*cos(phi)/0.03);
+                m_ze->reco.iy[0] = (int)(3.154*tan(theta)*sin(phi)/0.03);
+                // Tracked Endcap
+            } else if (fabs(m_ze->reco.eta[0]) > 1.566 && fabs(m_ze->reco.eta[0]) < 2.5){ 
+                const double theta = 2*atan( exp( m_ze->reco.eta[0]) );
+                const double phi = m_ze->reco.phi[0];
+                m_ze->reco.ix[0] = (int)(3.154*tan(theta)*cos(phi)/0.03);
+                m_ze->reco.iy[0] = (int)(3.154*tan(theta)*sin(phi)/0.03);
+            }
 
             /* Use the electron that we have a charge for to set the PhiStar */
             if (m_ze->reco.charge[0] == 1 || m_ze->reco.charge[0] == -1){
-                m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.charge[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
+                m_ze->reco.phistar = MakeZEffTreeWithIso::getPhiStar( m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.charge[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
             } else if (m_ze->reco.charge[1] == 1 || m_ze->reco.charge[1] == -1){
-                m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.charge[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
+                m_ze->reco.phistar = MakeZEffTreeWithIso::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.charge[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
             } else {
-                m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
+                m_ze->reco.phistar = MakeZEffTreeWithIso::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
             }
 
-            /* Fill cuts */
+
             for (int itype = 0; itype < (int) passProbeCandTags_.size(); ++itype){
                 edm::Handle<reco::CandidateView> passprobes;
                 if (!iEvent.getByLabel(passProbeCandTags_[itype], passprobes)){
                     LogWarning("ZFromData") << "Could not extract tag candidates with input tag " << passProbeCandTags_[itype];
                     std::cout << "Didn't get the tag..... " << std::endl;
-                } else {
-                    m_ze->reco.setBit(0, cutName_[itype],ProbePassProbeOverlap(tag, passprobes));
-                    m_ze->reco.setBit(1, cutName_[itype],ProbePassProbeOverlap(vprobes, passprobes));
                 }
+
+                edm::Handle< reco::PhotonCollection > NTprobes;
+                iEvent.getByLabel(photTag_, NTprobes);
+                //reco::Photon *thePhot = 0;
+                for(reco::PhotonCollection::const_iterator pit = NTprobes->begin(); pit != NTprobes->end(); pit++) {	
+                    const double tEta = vprobes->p4().eta();
+                    const double tPhi = vprobes->p4().phi();
+                    const double tPt = vprobes->p4().pt();
+                    const double pEta = pit->p4().eta();
+                    const double pPhi = pit->p4().phi();
+                    const double pPt = pit->p4().pt();
+
+                    double dRval = deltaR(tEta, tPhi, pEta, pPhi);
+                    double dPtRel = 999.0;
+                    if (tPt > 0.0){
+                        dPtRel = fabs(pPt - tPt) / tPt;
+                    }
+                    if( dRval < delRMatchingCut_ && dPtRel < delPtRelMatchingCut_ ) {
+                        m_ze->reco.Eiso[1] = pit->ecalRecHitSumEtConeDR03()/pit->p4().Pt();
+                        m_ze->reco.Hiso[1] = pit->hcalTowerSumEtConeDR03()/pit->p4().Pt();
+                        m_ze->reco.RNine[1] = pit->r9();
+                        m_ze->reco.HoEM[1] = pit->hadronicOverEm();
+                        m_ze->reco.Sieie[1] = pit->sigmaIetaIeta();
+                        DetId xtalId = pit->superCluster()->seed()->seed();
+                        EEDetId eeId(xtalId);
+                        m_ze->reco.ix[1] = eeId.ix();
+                        m_ze->reco.iy[1] = eeId.iy();
+                    }
+                }
+
+                m_ze->reco.setBit(0,cutName_[itype],ProbePassProbeOverlap(tag, passprobes));
+                m_ze->reco.setBit(1,cutName_[itype],ProbePassProbeOverlap(vprobes, passprobes));
             }
 
             /* Find the number of vertices */
             edm::Handle<reco::VertexCollection> recVtxs;
             iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
             int nvert = 0;
-            for(unsigned int ind=0; ind < recVtxs->size(); ind++) {
+            for(unsigned int ind=0;ind<recVtxs->size();ind++) {
                 if (    
                         !((*recVtxs)[ind].isFake()) 
                         && ((*recVtxs)[ind].ndof()>4)
@@ -294,25 +341,44 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     
 
 // ------------ method called once each job just before starting event loop  ------------
-void MakeZEffTree::beginJob(){ }
+    void 
+MakeZEffTreeWithIso::beginJob()
+{
+}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void MakeZEffTree::endJob(){ }
+    void 
+MakeZEffTreeWithIso::endJob() 
+{
+}
 
 // ------------ method called when starting to processes a run  ------------
-void MakeZEffTree::beginRun(edm::Run const&, edm::EventSetup const&){ }
+    void 
+MakeZEffTreeWithIso::beginRun(edm::Run const&, edm::EventSetup const&)
+{
+}
 
 // ------------ method called when ending the processing of a run  ------------
-void MakeZEffTree::endRun(edm::Run const&, edm::EventSetup const&){ }
+    void 
+MakeZEffTreeWithIso::endRun(edm::Run const&, edm::EventSetup const&)
+{
+}
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void MakeZEffTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
+    void 
+MakeZEffTreeWithIso::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void MakeZEffTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
+    void 
+MakeZEffTreeWithIso::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void MakeZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+void
+MakeZEffTreeWithIso::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     //The following says we do not know what parameters are allowed so do no validation
     // Please change this to state exactly what you do use, even if it is no parameters
     edm::ParameterSetDescription desc;
@@ -320,36 +386,80 @@ void MakeZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions
     descriptions.addDefault(desc);
 }
 
-bool MakeZEffTree::ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, edm::Handle<reco::CandidateView>& passprobes) {
+bool MakeZEffTreeWithIso::ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, edm::Handle<reco::CandidateView>& passprobes) {
+    bool ppass = 0;
     if (passprobes.isValid()) {
-        for (int ipp = 0; ipp < (int)passprobes->size(); ++ipp) {
-            if (MatchObjects(&((*passprobes)[ipp]), probe)){
-                return true;
+        for (int ipp = 0; ipp < (int) passprobes->size(); ++ipp) {
+            bool isOverlap = MatchObjects(&((*passprobes)[ipp]), probe);
+            if (isOverlap) {
+                ppass = 1;
+                break;
             }
+
+            /*reco::SuperClusterRef probeSC; //this stuff does not do anything, as it turns out!
+            reco::SuperClusterRef passprobeSC;
+
+            if (not probe.isNull()) {
+                probeSC = probe->get<reco::SuperClusterRef > ();
+            }
+
+            reco::CandidateBaseRef ref = passprobes->refAt(ipp);
+            if (not ref.isNull()) {
+                passprobeSC = ref->get<reco::SuperClusterRef > ();
+            }
+
+            isOverlap = isOverlap && (probeSC == passprobeSC);
+
+            if (isOverlap) {
+                ppass = 1;
+            }*/
         }
     }
-    return false;
+    return ppass;
 }
 
-bool MakeZEffTree::MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj) {
-    const double tEta = tagObj->eta();
-    const double tPhi = tagObj->phi();
-    const double tPt = tagObj->pt();
-    const double hEta = hltObj->eta();
-    const double hPhi = hltObj->phi();
-    const double hPt = hltObj->pt();
+bool MakeZEffTreeWithIso::MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj) {
+    double tEta = tagObj->eta();
+    double tPhi = tagObj->phi();
+    double tPt = tagObj->pt();
+    double hEta = hltObj->eta();
+    double hPhi = hltObj->phi();
+    double hPt = hltObj->pt();
 
-    const double dRval = deltaR(tEta, tPhi, hEta, hPhi);
+    double dRval = deltaR(tEta, tPhi, hEta, hPhi);
     double dPtRel = 999.0;
     if (tPt > 0.0){
         dPtRel = fabs(hPt - tPt) / tPt;
     }
 
+    // If we are comparing two objects for which the candidates should
+    // be exactly the same, cut hard. Otherwise take cuts from user.
+    //std::cout << " tEta " << tEta << " tPhi " << tPhi << " tPt " << tPt << " hEta " <<  hEta << " hPhi " << hPhi << " hPt " << hPt << std::endl;
     return ( dRval < delRMatchingCut_ && dPtRel < delPtRelMatchingCut_);
 }
 
 
-double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const int charge0, const double eta1, const double phi1){
+double MakeZEffTreeWithIso::getPhiStar(const double eta0, const double phi0, const int charge0, const double eta1, const double phi1){
+    /* Calculate phi star */
+    //typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > PtEtaPhiMLorentzVector;
+    //typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > XYZVector;
+
+    //double m_e = 5.10998928e-4; // GeV from 2012 pdg
+
+    /* We make LorentzVectors to recover the coordinates, and use these to make normal 3 Vectors. */
+    //PtEtaPhiMLorentzVector e0lv(pt1, eta0, phi0, m_e);
+    //PtEtaPhiMLorentzVector e1lv(pt1, eta1, phi1, m_e);
+    //XYZVector test0(e0lv.X(), e0lv.Y(), 0);
+    //XYZVector test1(e1lv.X(), e1lv.Y(), 0);
+
+    //XYZVector Ptp = (test0 + test1);
+    //XYZVector Ptm = (test0 - test1);
+
+    //Ptm = Ptm * (1.0/(Ptm.r()));
+
+    //double a_t = (Ptp.Cross(Ptm)).r();
+    //double a_l = Ptp.Dot(Ptm);
+
     /* Calculate dPhi, stolen from Kevin's code */
     const double pi = 3.14159265;
     double dPhi=phi0-phi1;
@@ -364,14 +474,15 @@ double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const int 
     }
 
     /* Theta* */
-    const double thetaStar = acos( tanh( -0.5 * ( (charge0 * eta0) - (charge0 * eta1) ) ) );
+    double thetaStar = acos( tanh( -0.5 * ( (charge0 * eta0) - (charge0 * eta1) ) ) );
 
     /* PhiStar */
-    const double phiStar = tan( (pi - dPhi)/2. ) * sin( thetaStar );
+    double phiStar = tan( (pi - dPhi)/2. ) * sin( thetaStar );
+
     return phiStar;
 }
 
-double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
+double MakeZEffTreeWithIso::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
     /* Calculate phi star */
 
     /* Calculate dPhi, stolen from Kevin's code */
@@ -387,12 +498,14 @@ double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const doub
         }
     }
 
-    const double dEta = eta0 - eta1;
+    double dEta = eta0 - eta1;
 
     /* PhiStar */
-    const double phiStar = ( 1 / cosh( dEta / 2 ) ) * (1 / tan( dPhi / 2 ) );
+    double phiStar = ( 1 / cosh( dEta / 2 ) ) * (1 / tan( dPhi / 2 ) );
+
     return phiStar;
 }
 
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(MakeZEffTree);
+DEFINE_FWK_MODULE(MakeZEffTreeWithIso);

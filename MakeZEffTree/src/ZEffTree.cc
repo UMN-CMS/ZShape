@@ -1,6 +1,6 @@
 #include "ZEffTree.h"
 
-ZEffTree::ZEffTree(TFile& f, bool writable) : m_file(f) { 
+ZEffTree::ZEffTree(TFile& f, const bool writable) : m_file(f) { 
     makeBranches(writable); 
     prepBitmap();
 }
@@ -11,7 +11,7 @@ int ZEffTree::cutToBit(const std::string& cut) {
 }
 
 
-bool ZEffTree::ZInfo::isSelected(int ielec, const std::string& bitname) const {
+bool ZEffTree::ZInfo::isSelected(const int ielec, const std::string& bitname) const {
     int ibit=ZEffTree::cutToBit(bitname);
     if (ibit<0 || ielec<0 || ielec>=2){
         return false;
@@ -19,13 +19,17 @@ bool ZEffTree::ZInfo::isSelected(int ielec, const std::string& bitname) const {
     return ((bits[ielec] & (1 << ibit)) != 0);
 }
 
-void ZEffTree::ZInfo::setBit(int ielec, const std::string& bitname, bool val){
-    int ibit=ZEffTree::cutToBit(bitname);
+void ZEffTree::ZInfo::setBit(const int ielec, const std::string& bitname, const bool val){
+    const int ibit=ZEffTree::cutToBit(bitname);
     if (ibit<0 || ielec<0 || ielec>=2){
         return; 
     }
-    int mask = 1 << ibit;
-    bits[ielec] = val ? (bits[ielec] | mask) : (bits[ielec] & ~mask);
+    const int mask = 1 << ibit;
+    if (val){
+        bits[ielec] = (bits[ielec] | mask);
+    } else {
+        bits[ielec] = (bits[ielec] & ~mask);
+    }
 }
 
 /* Map from names to bitnums  */
