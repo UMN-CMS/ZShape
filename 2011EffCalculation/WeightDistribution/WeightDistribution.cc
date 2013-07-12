@@ -16,13 +16,6 @@
 //#include "TCanvas.h"
 #include <TROOT.h>
 
-struct eventRequirements{
-    int minPU;
-    int maxPU;
-    double minMZ;
-    double maxMZ;
-};
-
 int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::string outFile){
     // Root style
     gROOT->SetStyle("Plain");
@@ -53,7 +46,7 @@ int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::stri
     //gStyle->SetOptStat(11111);
     //gStyle->SetCanvasBorderMode(0);
 
-    // Get our background and set variables
+    // Get our efficiency and set variables
     EfficiencyTable es(EfficiencyTableFile);
     //es.print();
 
@@ -124,10 +117,10 @@ int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::stri
 int main(int argc, char* argv[]){
     const short argcCorrect = 4;
     if (argc < argcCorrect) {
-        std::cout<<"Not enough arguments. Use:\nmake_Weight_Distributions.exe ZEffFile EfficiencyTableFile outFile\n";
+        std::cout<<"Not enough arguments. Use:\nWeightDistribution.exe ZEffFile EfficiencyTableFile outFile\n";
         return 1;
     } else if (argc > argcCorrect){
-        std::cout<<"Too many arguments. Use:\nmake_Weight_Distributions.exe ZEffFile EfficiencyTableFile outFile\n";
+        std::cout<<"Too many arguments. Use:\nWeightDistribution.exe ZEffFile EfficiencyTableFile outFile\n";
         return 1;
     } else {
         // Read in arguments
