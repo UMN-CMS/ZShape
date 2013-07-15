@@ -25,8 +25,6 @@ int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::stri
     outfile = new TFile(outFile.c_str(),"RECREATE");
 
     /* Prepare the histogram to put the data in */
-    //const int nbins = 9;
-    //const double lowedges[nbins+1] = {20., 25., 30., 35., 40., 45., 50., 55., 60., 70.};
     const int nbins = 105;
     const double lowedge = -0.05;
     const double highedge = 1.05;
@@ -37,11 +35,11 @@ int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::stri
     EBHisto->SetDirectory(outfile);
     EEHisto->SetDirectory(outfile);
     // XAxis
-    EBHisto->GetXaxis()->SetTitle("p_{T} [GeV/c^{2}]");
-    EEHisto->GetXaxis()->SetTitle("p_{T} [GeV/c^{2}]");
+    EBHisto->GetXaxis()->SetTitle("Efficiency");
+    EEHisto->GetXaxis()->SetTitle("Efficiency");
     // YAxis
-    EBHisto->GetYaxis()->SetTitle("Count/GeV");
-    EEHisto->GetYaxis()->SetTitle("Count/GeV");
+    EBHisto->GetYaxis()->SetTitle("Count");
+    EEHisto->GetYaxis()->SetTitle("Count");
     //gStyle->SetOptFit();
     //gStyle->SetOptStat(11111);
     //gStyle->SetCanvasBorderMode(0);
