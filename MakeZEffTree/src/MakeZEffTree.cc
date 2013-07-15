@@ -81,7 +81,6 @@ class MakeZEffTree : public edm::EDAnalyzer {
 
         bool ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, const edm::Handle<reco::CandidateView>& passprobes);
         bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
-        double getPhiStar( const double eta0, const double phi0, const int charge0, const double eta1, const double phi1);
         double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
         // ----------member data ---------------------------
         ZEffTree *m_ze;
@@ -209,7 +208,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         m_ze->gen.yz = 0.5*log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
         m_ze->gen.qtz = Z->momentum().perp();
         m_ze->gen.nverts = npv;
-        m_ze->gen.phistar = MakeZEffTree::getPhiStar( m_ze->gen.eta[0], m_ze->gen.phi[0], m_ze->gen.charge[0], m_ze->gen.eta[1], m_ze->gen.phi[1]);
+        m_ze->gen.phistar = MakeZEffTree::getPhiStar( m_ze->gen.eta[0], m_ze->gen.phi[0], m_ze->gen.eta[1], m_ze->gen.phi[1]);
     }
 
     /* Data */
@@ -245,13 +244,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             m_ze->reco.qtz = tpP4.pt();
 
             /* Use the electron that we have a charge for to set the PhiStar */
-            if (m_ze->reco.charge[0] == 1 || m_ze->reco.charge[0] == -1){
-                m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.charge[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
-            } else if (m_ze->reco.charge[1] == 1 || m_ze->reco.charge[1] == -1){
-                m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.charge[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
-            } else {
-                m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
-            }
+            m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
 
             /* Fill cuts */
             // We iterate over the list of cuts as supplied by ZEffTree, where
@@ -362,35 +355,7 @@ bool MakeZEffTree::MatchObjects(const reco::Candidate *hltObj, const reco::Candi
     return (dRval < delRMatchingCut_ && dPtRel < delPtRelMatchingCut_);
 }
 
-
-double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const int charge0, const double eta1, const double phi1){
-    // This calculation sometimes returns numbers > 1 or < 0, which is
-    // incorrect. TODO: Fix
-    /* Calculate dPhi, stolen from Kevin's code */
-    const double pi = 3.14159265;
-    double dPhi=phi0-phi1;
-
-    if (dPhi < 0){
-        if (dPhi > -pi){
-            dPhi = fabs(dPhi);
-        }
-        if (dPhi < -pi) {
-            dPhi += 2*pi;
-        }
-    }
-
-    /* Theta* */
-    const double thetaStar = acos( tanh( -0.5 * ( (charge0 * eta0) - (charge0 * eta1) ) ) );
-
-    /* PhiStar */
-    const double phiStar = tan( (pi - dPhi)/2. ) * sin( thetaStar );
-    return phiStar;
-}
-
 double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
-    // This calculation sometimes returns numbers > 1 or < 0, which is
-    // incorrect. TODO: Fix
-    
     /* Calculate phi star */
 
     /* Calculate dPhi, stolen from Kevin's code */
@@ -405,8 +370,11 @@ double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const doub
             dPhi += 2*pi;
         }
     }
+    if (dPhi > pi){
+        dPhi = 2*pi - dPhi;
+    }
 
-    const double dEta = eta0 - eta1;
+    const double dEta = fabs(eta0 - eta1);
 
     /* PhiStar */
     const double phiStar = ( 1 / cosh( dEta / 2 ) ) * (1 / tan( dPhi / 2 ) );
