@@ -79,7 +79,7 @@ class MakeZEffTree : public edm::EDAnalyzer {
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-        bool ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, edm::Handle<reco::CandidateView>& passprobes);
+        bool ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, const edm::Handle<reco::CandidateView>& passprobes);
         bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
         double getPhiStar( const double eta0, const double phi0, const int charge0, const double eta1, const double phi1);
         double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
@@ -143,7 +143,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     /* MC */
     if (!iEvent.isRealData()) {
         Handle<edm::HepMCProduct> HepMC;
-        iEvent.getByLabel("generator",HepMC);
+        iEvent.getByLabel("generator", HepMC);
         const HepMC::GenEvent* genE=HepMC->GetEvent();
 
         // Read through the MC, looking for Z -> ee
@@ -254,20 +254,25 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             }
 
             /* Fill cuts */
+            // We iterate over the list of cuts as supplied by ZEffTree, where
+            // each number is assigned a cut. We then make a list of these
+            // objects that pass the cut, called passprobes. We then delta R
+            // match our objects to these, and if there is a match we say that
+            // our object passed.
             for (int itype = 0; itype < (int) passProbeCandTags_.size(); ++itype){
                 edm::Handle<reco::CandidateView> passprobes;
                 if (!iEvent.getByLabel(passProbeCandTags_[itype], passprobes)){
-                    LogWarning("ZFromData") << "Could not extract tag candidates with input tag " << passProbeCandTags_[itype];
-                    std::cout << "Didn't get the tag..... " << std::endl;
+                    LogWarning("ZFromData") << "Could not extract tag candidates with input tag." << passProbeCandTags_[itype];
+                    std::cout << "Didn't get the tag. " << std::endl;
                 } else {
-                    m_ze->reco.setBit(0, cutName_[itype],ProbePassProbeOverlap(tag, passprobes));
-                    m_ze->reco.setBit(1, cutName_[itype],ProbePassProbeOverlap(vprobes, passprobes));
+                    m_ze->reco.setBit(0, cutName_[itype], ProbePassProbeOverlap(tag, passprobes));
+                    m_ze->reco.setBit(1, cutName_[itype], ProbePassProbeOverlap(vprobes, passprobes));
                 }
             }
 
             /* Find the number of vertices */
             edm::Handle<reco::VertexCollection> recVtxs;
-            iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+            iEvent.getByLabel("offlinePrimaryVertices", recVtxs);
             int nvert = 0;
             for(unsigned int ind=0; ind < recVtxs->size(); ind++) {
                 if (    
@@ -283,11 +288,12 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             m_ze->reco.nverts = nvert;
 
         } else {
-            std::cout << "Not Valid!" << std::endl;
+            std::cout << "Tagprobes not valid!" << std::endl;
         }
     }
 
     if (m_ze->reco.mz > 0){
+        // A last filter on events
         m_ze->Fill();
     }
 }
@@ -320,10 +326,10 @@ void MakeZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions
     descriptions.addDefault(desc);
 }
 
-bool MakeZEffTree::ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, edm::Handle<reco::CandidateView>& passprobes) {
+bool MakeZEffTree::ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, const edm::Handle<reco::CandidateView>& passprobes) {
     if (passprobes.isValid()) {
-        for (int ipp = 0; ipp < (int)passprobes->size(); ++ipp) {
-            if (MatchObjects(&((*passprobes)[ipp]), probe)){
+        for (int i = 0; i < (int)passprobes->size(); ++i) {
+            if (MatchObjects(&((*passprobes)[i]), probe)){
                 return true;
             }
         }
@@ -332,24 +338,34 @@ bool MakeZEffTree::ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, ed
 }
 
 bool MakeZEffTree::MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj) {
+    /* Check dR */
     const double tEta = tagObj->eta();
     const double tPhi = tagObj->phi();
-    const double tPt = tagObj->pt();
     const double hEta = hltObj->eta();
     const double hPhi = hltObj->phi();
-    const double hPt = hltObj->pt();
 
     const double dRval = deltaR(tEta, tPhi, hEta, hPhi);
-    double dPtRel = 999.0;
-    if (tPt > 0.0){
-        dPtRel = fabs(hPt - tPt) / tPt;
+    if (dRval > delRMatchingCut_){
+        return false;
     }
 
-    return ( dRval < delRMatchingCut_ && dPtRel < delPtRelMatchingCut_);
+    /* Check dPt */
+    const double tPt = tagObj->pt();
+    const double hPt = hltObj->pt();
+    double dPtRel;
+    if (tPt > 0.0){
+        dPtRel = fabs(hPt - tPt) / tPt;
+    } else {
+        return false;
+    }
+
+    return (dRval < delRMatchingCut_ && dPtRel < delPtRelMatchingCut_);
 }
 
 
 double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const int charge0, const double eta1, const double phi1){
+    // This calculation sometimes returns numbers > 1 or < 0, which is
+    // incorrect. TODO: Fix
     /* Calculate dPhi, stolen from Kevin's code */
     const double pi = 3.14159265;
     double dPhi=phi0-phi1;
@@ -372,6 +388,9 @@ double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const int 
 }
 
 double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
+    // This calculation sometimes returns numbers > 1 or < 0, which is
+    // incorrect. TODO: Fix
+    
     /* Calculate phi star */
 
     /* Calculate dPhi, stolen from Kevin's code */
