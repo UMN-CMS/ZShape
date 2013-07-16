@@ -17,7 +17,7 @@ class ZEffTree {
             float eta[2];
             float phi[2];
             float pt[2];
-            float mz, yz, qtz;
+            float mz, yz, ptz;
             int bits[2];
             int nverts;
             bool isSelected(const int ielec, const std::string& bitname) const;
@@ -56,7 +56,7 @@ class ZEffTree {
             gen.pt[1] = -1;
             gen.mz = -1;
             gen.yz = -100;
-            gen.qtz = -100;
+            gen.ptz = -100;
             gen.bits[0] = 0;
             gen.bits[1] = 0;
             gen.nverts = -1;
@@ -71,7 +71,7 @@ class ZEffTree {
             reco.pt[1] = -1;
             reco.mz = -1;
             reco.yz = -100;
-            reco.qtz = -100;
+            reco.ptz = -100;
             reco.bits[0] = 0;
             reco.bits[1] = 0;
             reco.nverts = -1;
@@ -91,8 +91,8 @@ class ZEffTree {
             if (writable) {
                 m_file.cd();
                 m_tree=new TTree("ZEffs", "Minnesota ZEffs");
-                br_gen=m_tree->Branch("gen", &gen, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:qtz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
-                br_reco=m_tree->Branch("reco", &reco, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:qtz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
+                br_gen=m_tree->Branch("gen", &gen, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
+                br_reco=m_tree->Branch("reco", &reco, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f");
             } else {
                 m_tree=(TTree*)m_file.Get("ZEffs");
                 m_tree->SetBranchAddress("gen", &gen);

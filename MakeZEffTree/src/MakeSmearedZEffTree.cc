@@ -180,7 +180,7 @@ void MakeSmearedZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetu
         m_ze->reco.charge[1] = me[1]->charge();
         m_ze->reco.mz = Zp4.M();
         m_ze->reco.yz = Zp4.Rapidity();
-        m_ze->reco.qtz = Zp4.pt();
+        m_ze->reco.ptz = Zp4.pt();
         m_ze->reco.nverts = npv;
         m_ze->reco.phistar = getPhiStar(m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.charge[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
         /* Apply HF correction if required */

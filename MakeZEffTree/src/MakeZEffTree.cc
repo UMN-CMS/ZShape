@@ -206,7 +206,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         }
         m_ze->gen.mz = Z->momentum().m();
         m_ze->gen.yz = 0.5*log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
-        m_ze->gen.qtz = Z->momentum().perp();
+        m_ze->gen.ptz = Z->momentum().perp();
         m_ze->gen.nverts = npv;
         m_ze->gen.phistar = MakeZEffTree::getPhiStar( m_ze->gen.eta[0], m_ze->gen.phi[0], m_ze->gen.eta[1], m_ze->gen.phi[1]);
     }
@@ -241,7 +241,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             m_ze->reco.charge[1] = vprobes->charge();
             m_ze->reco.mz = tpP4.M();
             m_ze->reco.yz = tpP4.Rapidity();
-            m_ze->reco.qtz = tpP4.pt();
+            m_ze->reco.ptz = tpP4.pt();
 
             /* Use the electron that we have a charge for to set the PhiStar */
             m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
