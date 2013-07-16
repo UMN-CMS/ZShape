@@ -59,7 +59,6 @@ int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::stri
         ze->Entries();
         int tagNumber;
         int probeNumber;
-        bool isHighPU;
         const electronLocation tagLoc = EB;
         const electronLocation probeLoc = EE;
         const double MZ = ze->reco.mz;
