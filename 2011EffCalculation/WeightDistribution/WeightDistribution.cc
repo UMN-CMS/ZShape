@@ -87,10 +87,10 @@ int makeWeights(std::string ZEffFile, std::string EfficiencyTableFile, std::stri
                     && ze->reco.isSelected(probeNumber, "GsfTrack-EtaDet")
                ){
                 // EE is split in two, and each side has a measured Eff
-                if ( inAcceptance(EEp, ze->reco.eta[tagNumber]) ){
+                if ( inAcceptance(EEp, ze->reco.eta[probeNumber]) ){
                     const double probeEff = es.getEff(probePT, EEp, PU);
                     EEHisto->Fill(probeEff);
-                } else if ( inAcceptance(EEm, ze->reco.eta[tagNumber]) ){
+                } else if ( inAcceptance(EEm, ze->reco.eta[probeNumber]) ){
                     const double probeEff = es.getEff(probePT, EEm, PU);
                     EEHisto->Fill(probeEff);
                 }
