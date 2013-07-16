@@ -39,6 +39,38 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
     Z0RapidityHisto->SetDirectory(outfile);
     Z0RapidityHisto->GetXaxis()->SetTitle("Y_{ee}");
     Z0RapidityHisto->GetYaxis()->SetTitle("Counts");
+    // Z pt
+    TH1I* Z0ptHisto = new TH1I("Z0_pt", "Z0_pt", 200, 0, 400);
+    Z0ptHisto->SetDirectory(outfile);
+    Z0ptHisto->GetXaxis()->SetTitle("p_{T,Z} [GeV]");
+    Z0ptHisto->GetYaxis()->SetTitle("Counts/Gev");
+    // e pt
+    TH1I* e0ptHisto = new TH1I("e0_pt", "e0_pt", 200, 0, 400);
+    e0ptHisto->SetDirectory(outfile);
+    e0ptHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e0ptHisto->GetYaxis()->SetTitle("Counts/Gev");
+    TH1I* e1ptHisto = new TH1I("e1_pt", "e1_pt", 200, 0, 400);
+    e1ptHisto->SetDirectory(outfile);
+    e1ptHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e1ptHisto->GetYaxis()->SetTitle("Counts/Gev");
+    // e phi
+    TH1I* e0phiHisto = new TH1I("e0_phi", "e0_phi", 60, -3.14, 3.14);
+    e0phiHisto->SetDirectory(outfile);
+    e0phiHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e0phiHisto->GetYaxis()->SetTitle("Counts/Gev");
+    TH1I* e1phiHisto = new TH1I("e1_phi", "e1_phi", 60, -3.14, 3.14);
+    e1phiHisto->SetDirectory(outfile);
+    e1phiHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e1phiHisto->GetYaxis()->SetTitle("Counts/Gev");
+    // e eta
+    TH1I* e0etaHisto = new TH1I("e0_eta", "e0_eta", 50, -5., 5.);
+    e0etaHisto->SetDirectory(outfile);
+    e0etaHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e0etaHisto->GetYaxis()->SetTitle("Counts/Gev");
+    TH1I* e1etaHisto = new TH1I("e1_eta", "e1_eta", 50, -5., 5.);
+    e1etaHisto->SetDirectory(outfile);
+    e1etaHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e1etaHisto->GetYaxis()->SetTitle("Counts/Gev");
 
     // Open file to fit, and make histograms
     TFile ZEffFile(inputFile.c_str(), "READ");
@@ -77,9 +109,19 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
                     /* WP80 */
                     if ( ze->reco.isSelected(0, "WP80") && ze->reco.isSelected(1, "WP80") ){
                         if ( 60 <= MZ && MZ <= 120 ){
+                            // Z
                             Z0MassHisto->Fill(MZ);
                             Z0MassFineHisto->Fill(MZ);
                             Z0RapidityHisto->Fill(ze->reco.yz);
+                            Z0ptHisto->Fill(ze->reco.ptz);
+                            // e0
+                            e0ptHisto->Fill(ze->reco.pt[0]);
+                            e0etaHisto->Fill(ze->reco.eta[0]);
+                            e0phiHisto->Fill(ze->reco.phi[0]);
+                            // e1
+                            e1ptHisto->Fill(ze->reco.pt[1]);
+                            e1etaHisto->Fill(ze->reco.eta[1]);
+                            e1phiHisto->Fill(ze->reco.phi[1]);
                         }
                     }
                 }
