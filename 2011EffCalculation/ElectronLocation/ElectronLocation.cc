@@ -1,8 +1,8 @@
 #include "ElectronLocation.h"
 
-bool inAcceptance(const electronLocation Loc, const double eta){
+bool inAcceptance(const electronLocation loc, const double eta){
     const double feta = fabs(eta);
-    switch (Loc){
+    switch (loc){
         case EB:
             if (feta < 1.4442){
                 return true; 
@@ -70,4 +70,36 @@ bool inAcceptance(const electronLocation Loc, const double eta){
             break;
     }
     return false;
+}
+
+std::string electronLocationToString(const electronLocation loc){
+    switch (loc){
+        case EB:
+            return "EB"; 
+        case EBp:
+            return "EBp";
+        case EBm:
+            return "EBm";
+        case EE:
+            return "EE";
+        case EEp:
+            return "EEp";
+        case EEm:
+            return "EEm";
+        case ET:
+            return "ET";
+        case NT:
+            return "NT";
+        case NTp:
+            return "NTp";
+        case NTm:
+            return "NTm";
+        case HF:
+            return "HF";
+        case HFp:
+            return "HFp";
+        case HFm:
+            return "HFm";
+    }
+    return "Invalid Location";
 }

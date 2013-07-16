@@ -1,4 +1,5 @@
 #include <math.h>
+#include <string>
 
 #ifndef ELECTRONLOCATION_H
 #define ELECTRONLOCATION_H
@@ -19,6 +20,8 @@ enum electronLocation{
     HFm
 };
 
-bool inAcceptance(const electronLocation Loc, const double eta);
+bool inAcceptance(const electronLocation loc, const double eta);
+
+std::string electronLocationToString(const electronLocation loc);
 
 #endif
