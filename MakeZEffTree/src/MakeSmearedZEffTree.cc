@@ -81,7 +81,7 @@ class MakeSmearedZEffTree : public edm::EDAnalyzer {
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-        float getPhiStar( float eta0, float phi0, int charge0, float eta1, float phi1);
+        double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
         bool inHF( double eta );
         int getHFTower( double eta );
         double getHFSlope( double eta );
@@ -182,7 +182,7 @@ void MakeSmearedZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetu
         m_ze->reco.yz = Zp4.Rapidity();
         m_ze->reco.ptz = Zp4.pt();
         m_ze->reco.nverts = npv;
-        m_ze->reco.phistar = getPhiStar(m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.charge[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
+        m_ze->reco.phistar = getPhiStar(m_ze->reco.eta[0], m_ze->reco.phi[0], m_ze->reco.eta[1], m_ze->reco.phi[1]);
         /* Apply HF correction if required */
         if ( doHFCor_ && inHF(me[0]->momentum().Eta()) ){
             double hfcorrection = (npv - 1) * getHFSlope(me[0]->momentum().Eta());
@@ -202,44 +202,25 @@ void MakeSmearedZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetu
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-    void 
-MakeSmearedZEffTree::beginJob()
-{
-}
+void MakeZEffTree::beginJob(){ }
 
 // ------------ method called once each job just after ending the event loop  ------------
-    void 
-MakeSmearedZEffTree::endJob() 
-{
-}
+void MakeZEffTree::endJob(){ }
 
 // ------------ method called when starting to processes a run  ------------
-    void 
-MakeSmearedZEffTree::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
+void MakeZEffTree::beginRun(edm::Run const&, edm::EventSetup const&){ }
 
 // ------------ method called when ending the processing of a run  ------------
-    void 
-MakeSmearedZEffTree::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
+void MakeZEffTree::endRun(edm::Run const&, edm::EventSetup const&){ }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-    void 
-MakeSmearedZEffTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
+void MakeZEffTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-    void 
-MakeSmearedZEffTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
+void MakeZEffTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-MakeSmearedZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MakeZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
     //The following says we do not know what parameters are allowed so do no validation
     // Please change this to state exactly what you do use, even if it is no parameters
     edm::ParameterSetDescription desc;
@@ -247,10 +228,12 @@ MakeSmearedZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     descriptions.addDefault(desc);
 }
 
-float MakeSmearedZEffTree::getPhiStar(float eta0, float phi0, int charge0, float eta1, float phi1){
+double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
+    /* Calculate phi star */
+
     /* Calculate dPhi, stolen from Kevin's code */
     const double pi = 3.14159265;
-    float dPhi=phi0-phi1;
+    double dPhi=phi0-phi1;
 
     if (dPhi < 0){
         if (dPhi > -pi){
@@ -260,18 +243,19 @@ float MakeSmearedZEffTree::getPhiStar(float eta0, float phi0, int charge0, float
             dPhi += 2*pi;
         }
     }
+    if (dPhi > pi){
+        dPhi = 2*pi - dPhi;
+    }
 
-    /* Theta* */
-    float thetaStar = acos( tanh( -0.5 * ( (charge0 * eta0) - (charge0 * eta1) ) ) );
+    const double dEta = fabs(eta0 - eta1);
 
     /* PhiStar */
-    float phiStar = tan( (pi - dPhi)/2. ) * sin( thetaStar );
-
+    const double phiStar = ( 1 / cosh( dEta / 2 ) ) * (1 / tan( dPhi / 2 ) );
     return phiStar;
 }
 
 bool MakeSmearedZEffTree::inHF( double eta ){
-    double feta = fabs(eta);
+    const double feta = fabs(eta);
     if ( fabs(2.853) < feta && feta < fabs(5.191) ){
         return true;
     } else {
