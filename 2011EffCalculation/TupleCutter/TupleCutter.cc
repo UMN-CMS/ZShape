@@ -47,30 +47,30 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
     // e pt
     TH1I* e0ptHisto = new TH1I("e0_pt", "e0_pt", 200, 0, 400);
     e0ptHisto->SetDirectory(outfile);
-    e0ptHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e0ptHisto->GetXaxis()->SetTitle("p_{T,e_{0}} [GeV]");
     e0ptHisto->GetYaxis()->SetTitle("Counts/Gev");
     TH1I* e1ptHisto = new TH1I("e1_pt", "e1_pt", 200, 0, 400);
     e1ptHisto->SetDirectory(outfile);
-    e1ptHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
+    e1ptHisto->GetXaxis()->SetTitle("p_{T,e_{1}} [GeV]");
     e1ptHisto->GetYaxis()->SetTitle("Counts/Gev");
     // e phi
     TH1I* e0phiHisto = new TH1I("e0_phi", "e0_phi", 60, -3.14, 3.14);
     e0phiHisto->SetDirectory(outfile);
-    e0phiHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
-    e0phiHisto->GetYaxis()->SetTitle("Counts/Gev");
+    e0phiHisto->GetXaxis()->SetTitle("#phi_{e_{0}}");
+    e0phiHisto->GetYaxis()->SetTitle("Counts");
     TH1I* e1phiHisto = new TH1I("e1_phi", "e1_phi", 60, -3.14, 3.14);
     e1phiHisto->SetDirectory(outfile);
-    e1phiHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
-    e1phiHisto->GetYaxis()->SetTitle("Counts/Gev");
+    e1phiHisto->GetXaxis()->SetTitle("#phi_{e_{1}}");
+    e1phiHisto->GetYaxis()->SetTitle("Counts");
     // e eta
     TH1I* e0etaHisto = new TH1I("e0_eta", "e0_eta", 50, -5., 5.);
     e0etaHisto->SetDirectory(outfile);
-    e0etaHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
-    e0etaHisto->GetYaxis()->SetTitle("Counts/Gev");
+    e0etaHisto->GetXaxis()->SetTitle("#eta_{e_{0}}");
+    e0etaHisto->GetYaxis()->SetTitle("Counts");
     TH1I* e1etaHisto = new TH1I("e1_eta", "e1_eta", 50, -5., 5.);
     e1etaHisto->SetDirectory(outfile);
-    e1etaHisto->GetXaxis()->SetTitle("p_{T} [GeV]");
-    e1etaHisto->GetYaxis()->SetTitle("Counts/Gev");
+    e1etaHisto->GetXaxis()->SetTitle("#eta_{e_{1}}");
+    e1etaHisto->GetYaxis()->SetTitle("Counts");
 
     // Open file to fit, and make histograms
     TFile ZEffFile(inputFile.c_str(), "READ");
@@ -115,13 +115,13 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
                             Z0RapidityHisto->Fill(ze->reco.yz);
                             Z0ptHisto->Fill(ze->reco.ptz);
                             // e0
-                            e0ptHisto->Fill(ze->reco.pt[0]);
-                            e0etaHisto->Fill(ze->reco.eta[0]);
-                            e0phiHisto->Fill(ze->reco.phi[0]);
+                            e0ptHisto->Fill(ze->reco.pt[EBElectron]);
+                            e0etaHisto->Fill(ze->reco.eta[EBElectron]);
+                            e0phiHisto->Fill(ze->reco.phi[EBElectron]);
                             // e1
-                            e1ptHisto->Fill(ze->reco.pt[1]);
-                            e1etaHisto->Fill(ze->reco.eta[1]);
-                            e1phiHisto->Fill(ze->reco.phi[1]);
+                            e1ptHisto->Fill(ze->reco.pt[EEElectron]);
+                            e1etaHisto->Fill(ze->reco.eta[EEElectron]);
+                            e1phiHisto->Fill(ze->reco.phi[EEElectron]);
                         }
                     }
                 }
