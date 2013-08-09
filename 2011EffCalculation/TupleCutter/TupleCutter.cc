@@ -139,6 +139,9 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         // the cut by cut steps done in Kevin's code, and so when someone
         // (inevitably) says "please add in histograms at each steps" it is
         // literally a drop in fix.
+        //
+        // For the record, someone said "please add in histograms at each
+        // step!" and so now we have them
         histos[0].Z0Mass->Fill(MZ);
         histos[0].Z0MassFine->Fill(MZ);
         histos[0].Z0Rapidity->Fill(ze->reco.yz);
@@ -224,10 +227,10 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
 int main(int argc, char* argv[]){
     const short argcCorrect = 3;
     if (argc < argcCorrect) {
-        std::cout<<"Not enough arguments. Use:\nWeightDistribution.exe ZEffFile outputFile\n";
+        std::cout<<"Not enough arguments. Use:\nTupleCutter.exe ZEffFile outputFile\n";
         return 1;
     } else if (argc > argcCorrect){
-        std::cout<<"Too many arguments. Use:\nWeightDistribution.exe ZEffFile outFile\n";
+        std::cout<<"Too many arguments. Use:\nTupleCutter.exe ZEffFile outFile\n";
         return 1;
     } else {
         // Read in arguments
