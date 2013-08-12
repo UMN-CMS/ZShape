@@ -13,19 +13,6 @@
 #include <sstream>
 #include <vector>
 
-struct analysisHistograms{
-    TH1I* Z0Mass;
-    TH1I* Z0MassFine;
-    TH1I* Z0Rapidity;
-    TH1I* Z0pt;
-    TH1I* e0pt;
-    TH1I* e1pt;
-    TH1I* e0eta;
-    TH1I* e1eta;
-    TH1I* e0phi;
-    TH1I* e1phi;
-};
-
 int makeCombinedPlots(const std::string cutFile, const std::string zFromDataFile, const std::string kevinFile, const std::string outFile){
     // Root style
     gROOT->SetStyle("Plain");
