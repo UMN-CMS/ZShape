@@ -1,6 +1,7 @@
 #include "TFile.h"
 #include "TBranch.h"
 #include "TTree.h"
+#include <iostream>
 #include <map>
 #include <string>
 
@@ -26,28 +27,28 @@ class ZEffTree {
             float phistar;
         } gen, reco;
 
-        void Fill() { 
+        void Fill() {
             m_tree->Fill();
         }
 
-        void Write() { 
+        void Write() {
             m_file.Write();
         }
 
-        int Entries() { 
-            return m_tree->GetEntries(); 
+        int Entries() {
+            return m_tree->GetEntries();
         }
 
         bool GetNextEvent() {
             if (nevt==Entries()) {
-                return false; 
+                return false;
             }
-            m_tree->GetEntry(nevt); 
-            nevt++; 
-            return true; 
+            m_tree->GetEntry(nevt);
+            nevt++;
+            return true;
         }
 
-        void Clear() { 
+        void Clear() {
             gen.eta[0] = -10;
             gen.eta[1] = -10;
             gen.phi[0] = -10;
@@ -79,6 +80,8 @@ class ZEffTree {
             reco.charge[1] = 0;
             reco.phistar = -999.;
         }
+
+        void Print();
 
     private:
         TFile& m_file;

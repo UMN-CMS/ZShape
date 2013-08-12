@@ -1,7 +1,7 @@
 #include "ZEffTree.h"
 
-ZEffTree::ZEffTree(TFile& f, const bool writable) : m_file(f) { 
-    makeBranches(writable); 
+ZEffTree::ZEffTree(TFile& f, const bool writable) : m_file(f) {
+    makeBranches(writable);
     prepBitmap();
 }
 
@@ -22,13 +22,61 @@ bool ZEffTree::ZInfo::isSelected(const int ielec, const std::string& bitname) co
 void ZEffTree::ZInfo::setBit(const int ielec, const std::string& bitname, const bool val){
     const int ibit=ZEffTree::cutToBit(bitname);
     if (ibit<0 || ielec<0 || ielec>=2){
-        return; 
+        return;
     }
     const int mask = 1 << ibit;
     if (val){
         bits[ielec] = (bits[ielec] | mask);
     } else {
         bits[ielec] = (bits[ielec] & ~mask);
+    }
+}
+
+// Print all the contents
+void ZEffTree::Print(){
+    std::cout << "ZEffTreeEntry:" << std::cout;
+    std::cout << "\tgen.eta[0]: " << gen.eta[0] << std::endl;
+    std::cout << "\tgen.eta[1]: " << gen.eta[1] << std::endl;
+    std::cout << "\tgen.phi[0]: " << gen.phi[0] << std::endl;
+    std::cout << "\tgen.phi[1]: " << gen.phi[1] << std::endl;
+    std::cout << "\tgen.pt[0]: " << gen.pt[0] << std::endl;
+    std::cout << "\tgen.pt[1]: " << gen.pt[1] << std::endl;
+    std::cout << "\tgen.mz: " << gen.mz << std::endl;
+    std::cout << "\tgen.yz: " << gen.yz << std::endl;
+    std::cout << "\tgen.ptz: " << gen.ptz << std::endl;
+    std::cout << "\tgen.bits[0]: " << gen.bits[0] << std::endl;
+    std::cout << "\tgen.bits[1]: " << gen.bits[1] << std::endl;
+    std::cout << "\tgen.nverts: " << gen.nverts << std::endl;
+    std::cout << "\tgen.charge[0]: " << gen.charge[0] << std::endl;
+    std::cout << "\tgen.charge[1]: " << gen.charge[1] << std::endl;
+    std::cout << "\tgen.phistar: " << gen.phistar << std::endl;
+    std::cout << "\treco.eta[0]: " << reco.eta[0] << std::endl;
+    std::cout << "\treco.eta[1]: " << reco.eta[1] << std::endl;
+    std::cout << "\treco.phi[0]: " << reco.phi[0] << std::endl;
+    std::cout << "\treco.phi[1]: " << reco.phi[1] << std::endl;
+    std::cout << "\treco.pt[0]: " << reco.pt[0] << std::endl;
+    std::cout << "\treco.pt[1]: " << reco.pt[1] << std::endl;
+    std::cout << "\treco.mz: " << reco.mz << std::endl;
+    std::cout << "\treco.yz: " << reco.yz << std::endl;
+    std::cout << "\treco.ptz: " << reco.ptz << std::endl;
+    std::cout << "\treco.nverts: " << reco.nverts << std::endl;
+    std::cout << "\treco.charge[0]: " << reco.charge[0] << std::endl;
+    std::cout << "\treco.charge[1]: " << reco.charge[1] << std::endl;
+    std::cout << "\treco.phistar: " << reco.phistar << std::endl;
+
+    // Loop over all the cuts
+    std::cout << "\tCuts:" << std::endl;
+    typedef std::map<std::string, int>::const_iterator map_it;
+    for (map_it i = cutToBits_.begin(); i != cutToBits_.end(); ++i){
+        std::cout << "\t\t" << i->first << std::endl;
+        std::cout << "\t\t\t";
+        std::cout << "Gen e0: " << gen.isSelected(0, i->first);
+        std::cout << " e1: " << gen.isSelected(1, i->first);
+        std::cout << std::endl;
+        std::cout << "\t\t\t";
+        std::cout << "Reco e0: " << reco.isSelected(0, i->first);
+        std::cout << " e1: " << reco.isSelected(1, i->first);
+        std::cout << std::endl;
     }
 }
 
