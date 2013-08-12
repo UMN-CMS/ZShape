@@ -34,7 +34,7 @@ void ZEffTree::ZInfo::setBit(const int ielec, const std::string& bitname, const 
 
 // Print all the contents
 void ZEffTree::Print(){
-    std::cout << "ZEffTreeEntry:" << std::cout;
+    std::cout << "ZEffTreeEntry:" << std::endl;
     std::cout << "\tgen.eta[0]: " << gen.eta[0] << std::endl;
     std::cout << "\tgen.eta[1]: " << gen.eta[1] << std::endl;
     std::cout << "\tgen.phi[0]: " << gen.phi[0] << std::endl;
