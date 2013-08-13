@@ -153,7 +153,7 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         histos[0].e1eta->Fill(ze->reco.eta[EEElectron]);
         histos[0].e1phi->Fill(ze->reco.phi[EEElectron]);
         /* Check minimum pt */
-        if ( ze->reco.pt[0] > 20. && ze->reco.pt[1]){
+        if ( ze->reco.pt[0] > 20. && ze->reco.pt[1] > 20.){
             histos[1].Z0Mass->Fill(MZ);
             histos[1].Z0MassFine->Fill(MZ);
             histos[1].Z0Rapidity->Fill(ze->reco.yz);
