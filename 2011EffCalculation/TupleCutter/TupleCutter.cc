@@ -124,7 +124,7 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         const double MZ = ze->reco.mz;
         const short PU = ze->reco.nverts;
         /* Assign Electron 0 and 1 */
-        if ( inAcceptance(EB, ze->reco.eta[0]) && inAcceptance(EE, ze->reco.eta[0])){
+        if ( inAcceptance(EB, ze->reco.eta[0]) && inAcceptance(EE, ze->reco.eta[1])){
             EBElectron = 0;
             EEElectron = 1;
         } else if ( inAcceptance(EB, ze->reco.eta[1]) && inAcceptance(EE, ze->reco.eta[0])){
