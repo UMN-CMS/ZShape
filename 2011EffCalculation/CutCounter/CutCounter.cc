@@ -6,6 +6,7 @@
 #include "TH1.h"
 #include "TFile.h"
 #include <TROOT.h>
+#include "TCanvas.h"
 
 // STD
 #include <string>
@@ -168,6 +169,70 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         run = ze->GetNextEvent();
     }
     outfile->Write();
+
+    /* Write PNGs */
+    for (short i=0; i < 2; i++){
+        // Convert i to string
+        std::string istr;
+        std::ostringstream convert;
+        convert << i;
+        istr = convert.str();
+
+        const std::string Z0MassName = "Z0_mass_" + istr + ".png";
+        TCanvas* Z0MassNameCanvas = new TCanvas(Z0MassName.c_str(), Z0MassName.c_str(), 1280, 640);
+        histos[i].Z0Mass->Draw();
+        Z0MassNameCanvas->Print(Z0MassName.c_str());
+
+        const std::string Z0MassFineName = "Z0_mass_fine_" + istr + ".png";
+        TCanvas* Z0MassFineNameCanvas = new TCanvas(Z0MassFineName.c_str(), Z0MassFineName.c_str(), 1280, 640);
+        histos[i].Z0MassFine->Draw();
+        Z0MassFineNameCanvas->Print(Z0MassFineName.c_str());
+
+        const std::string Z0RapidityName = "Z0_rapidity_" + istr + ".png";
+        TCanvas* Z0RapidityNameCanvas = new TCanvas(Z0RapidityName.c_str(), Z0RapidityName.c_str(), 1280, 640);
+        histos[i].Z0Rapidity->Draw();
+        Z0RapidityNameCanvas->Print(Z0RapidityName.c_str());
+
+        const std::string Z0ptName = "Z0_pt_" + istr + ".png";
+        TCanvas* Z0ptNameCanvas = new TCanvas(Z0ptName.c_str(), Z0ptName.c_str(), 1280, 640);
+        histos[i].Z0pt->Draw();
+        Z0ptNameCanvas->Print(Z0ptName.c_str());
+
+        const std::string e0ptName = "e0_pt_" + istr + ".png";
+        TCanvas* e0ptNameCanvas = new TCanvas(e0ptName.c_str(), e0ptName.c_str(), 1280, 640);
+        histos[i].e0pt->Draw();
+        e0ptNameCanvas->Print(e0ptName.c_str());
+
+        const std::string e0etaName = "e0_eta_" + istr + ".png";
+        TCanvas* e0etaNameCanvas = new TCanvas(e0etaName.c_str(), e0etaName.c_str(), 1280, 640);
+        histos[i].e0eta->Draw();
+        e0etaNameCanvas->Print(e0etaName.c_str());
+
+        const std::string e0phiName = "e0_phi_" + istr + ".png";
+        TCanvas* e0phiNameCanvas = new TCanvas(e0phiName.c_str(), e0phiName.c_str(), 1280, 640);
+        histos[i].e0phi->Draw();
+        e0phiNameCanvas->Print(e0phiName.c_str());
+
+        const std::string e1ptName = "e1_pt_" + istr + ".png";
+        TCanvas* e1ptNameCanvas = new TCanvas(e1ptName.c_str(), e1ptName.c_str(), 1280, 640);
+        histos[i].e1pt->Draw();
+        e1ptNameCanvas->Print(e1ptName.c_str());
+
+        const std::string e1etaName = "e1_eta_" + istr + ".png";
+        TCanvas* e1etaNameCanvas = new TCanvas(e1etaName.c_str(), e1etaName.c_str(), 1280, 640);
+        histos[i].e1eta->Draw();
+        e1etaNameCanvas->Print(e1etaName.c_str());
+
+        const std::string e1phiName = "e1_phi_" + istr + ".png";
+        TCanvas* e1phiNameCanvas = new TCanvas(e1phiName.c_str(), e1phiName.c_str(), 1280, 640);
+        histos[i].e1phi->Draw();
+        e1phiNameCanvas->Print(e1phiName.c_str());
+
+        const std::string phistarName = "phistar_" + istr + ".png";
+        TCanvas* phistarNameCanvas = new TCanvas(phistarName.c_str(), phistarName.c_str(), 1280, 640);
+        histos[i].phistar->Draw();
+        phistarNameCanvas->Print(phistarName.c_str());
+    }
 
     return 0;
 }
