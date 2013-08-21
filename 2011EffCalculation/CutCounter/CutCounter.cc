@@ -4,10 +4,7 @@
 
 // Root
 #include "TH1.h"
-#include "TF1.h"
 #include "TFile.h"
-#include "TAxis.h"
-#include "TObject.h"
 #include <TROOT.h>
 
 // STD
@@ -26,6 +23,7 @@ struct analysisHistograms{
     TH1I* e1eta;
     TH1I* e0phi;
     TH1I* e1phi;
+    TH1I* phistar;
 };
 
 int makeTupleCuts(const std::string inputFile, const std::string outFile){
@@ -106,6 +104,12 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         histo.e1eta->SetDirectory(outfile);
         histo.e1eta->GetXaxis()->SetTitle("#eta_{e_{0}}");
         histo.e1eta->GetYaxis()->SetTitle("Counts");
+        // Phistar
+        const std::string phistarName = "phistar_" + istr;
+        histo.phistar = new TH1I(phistarName.c_str(), phistarName.c_str(), 1000, 0., 1.);
+        histo.phistar->SetDirectory(outfile);
+        histo.phistar->GetXaxis()->SetTitle("#phi^{*}");
+        histo.phistar->GetYaxis()->SetTitle("Counts");
 
         // Add the histogram to the vector
         histos.push_back(histo);
@@ -146,6 +150,7 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         histos[0].e1pt->Fill(ze->reco.pt[HFElectron]);
         histos[0].e1eta->Fill(ze->reco.eta[HFElectron]);
         histos[0].e1phi->Fill(ze->reco.phi[HFElectron]);
+        histos[0].phistar->Fill(ze->reco.phistar);
         /* Check minimum pt */
         if (ze->reco.isSelected(HFElectron, "HFTID")){
             histos[1].Z0Mass->Fill(MZ);
@@ -158,6 +163,7 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
             histos[1].e1pt->Fill(ze->reco.pt[HFElectron]);
             histos[1].e1eta->Fill(ze->reco.eta[HFElectron]);
             histos[1].e1phi->Fill(ze->reco.phi[HFElectron]);
+            histos[1].phistar->Fill(ze->reco.phistar);
         }
         run = ze->GetNextEvent();
     }
