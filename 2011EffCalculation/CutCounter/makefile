@@ -6,12 +6,13 @@ ROOT_ALL=`root-config --cflags --libs`
 CC=g++ -O2
 CCC=${CC} -c
 
-all: CutCounter.exe
+all: PostCutPlotter.exe
 
-CutCounter.exe: ZEffTree.o ElectronLocation.o
-	${CC} -o CutCounter.exe CutCounter.cc \
+PostCutPlotter.exe: ZEffTree.o ElectronLocation.o HistoMaker.o
+	${CC} -o PostCutPlotter.exe PostCutPlotter.cc \
 	ZEffTree.o \
 	ElectronLocation.o \
+	HistoMaker.o \
 	${ROOT_ALL}
 
 ZEffTree.o: ../../MakeZEffTree/src/ZEffTree.h ../../MakeZEffTree/src/ZEffTree.cc
@@ -20,5 +21,8 @@ ZEffTree.o: ../../MakeZEffTree/src/ZEffTree.h ../../MakeZEffTree/src/ZEffTree.cc
 ElectronLocation.o: ../ElectronLocation/ElectronLocation.h ../ElectronLocation/ElectronLocation.cc
 	${CCC} ../ElectronLocation/ElectronLocation.cc
 
+HistoMaker.o: HistoMaker.h HistoMaker.cc
+	${CCC} HistoMaker.cc ${ROOT_INCLUDES}
+
 clean:
-	rm -f ZEffTree.o ElectronLocation.o CutCounter.exe
+	rm -f ZEffTree.o ElectronLocation.o HistoMaker.o PostCutPlotter.exe
