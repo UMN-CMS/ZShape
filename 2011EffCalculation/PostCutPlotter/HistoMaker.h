@@ -39,6 +39,7 @@ class MakeHistograms{
         TH1I* e0phi;
         TH1I* e1phi;
         TH1I* phistar;
+        TH1I* pileup;
 };
 
 #endif

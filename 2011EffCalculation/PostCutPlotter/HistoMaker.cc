@@ -57,6 +57,11 @@ MakeHistograms::MakeHistograms(TDirectory* td){
     phistar->SetDirectory(tdir);
     phistar->GetXaxis()->SetTitle("#phi^{*}");
     phistar->GetYaxis()->SetTitle("Counts");
+    // Pileup
+    pileup = new TH1I("pileup", "pileup", 20, 0., 20.);
+    pileup->SetDirectory(tdir);
+    pileup->GetXaxis()->SetTitle("Pile Up");
+    pileup->GetYaxis()->SetTitle("Counts");
 }
 
 void MakeHistograms::fill(const ZEffTree::ZInfo* zi, const int e0, const int e1){
@@ -72,6 +77,7 @@ void MakeHistograms::fill(const ZEffTree::ZInfo* zi, const int e0, const int e1)
     e1eta->Fill(zi->eta[e1]);
     e1phi->Fill(zi->phi[e1]);
     phistar->Fill(zi->phistar);
+    pileup->Fill(zi->nverts);
 }
 
 void MakeHistograms::print(){
@@ -134,4 +140,9 @@ void MakeHistograms::print(){
     TCanvas* phistarC = new TCanvas(phistarStr.c_str(), phistarStr.c_str(), 1280, 640);
     phistar->Draw();
     phistarC->Print(phistarStr.c_str());
+
+    std::string pileupStr = basename + "_pileup.png";
+    TCanvas* pileupC = new TCanvas(pileupStr.c_str(), pileupStr.c_str(), 1280, 640);
+    pileup->Draw();
+    pileupC->Print(pileupStr.c_str());
 }
