@@ -13,7 +13,7 @@ if ($handle = opendir('.')) {
         $ext = end(explode('.', $file));
         if($ext == "jpg" || $ext == "png") {
             echo "$file";
-            echo "<img src=\"$file\" alt=\"Image\" />";
+            echo "<img src=\\"$file\\" alt=\\"Image\\" />";
         }
     }
     closedir($handle);
