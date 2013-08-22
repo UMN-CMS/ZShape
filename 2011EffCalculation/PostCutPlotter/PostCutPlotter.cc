@@ -50,7 +50,7 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         for (int j = 0; j < puLen; ++j){
             std::string name = std::string("2_") 
                 + NumberToString(phistarLow[i])
-                + std::string("_phistar_")
+                + std::string("_ps_")
                 + NumberToString(phistarHigh[i])
                 + std::string("_and_")
                 + NumberToString(puLow[j])
