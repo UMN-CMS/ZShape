@@ -1,0 +1,93 @@
+// ZShape Code
+#include "../src/ZEffTree.h"
+#include "../../2011EffCalculation/ElectronLocation/ElectronLocation.h"
+
+// Root
+#include "TH1.h"
+#include "TFile.h"
+#include "TCanvas.h"
+#include <TROOT.h>  // Pulls in gROOT
+#include <TStyle.h>  // Pulls in gStyle
+
+// STD
+#include <string>
+#include <sstream>
+
+int makeTupleCuts(const std::string inputFile, const std::string outFile){
+    // Root style
+    gROOT->SetStyle("Plain");
+    gStyle->SetOptTitle(0);  // Remove title
+    gStyle->SetOptStat(0);  // Remove Stats Box
+
+    TCanvas* canvas = new TCanvas("ZPeak", "ZPeak", 1200, 900);
+
+    /* Prepare the histogram to put the data in */
+    const std::string Z0MassName = "Z0_mass";
+    TH1I* Z0Mass = new TH1I(Z0MassName.c_str(), Z0MassName.c_str(), 100, 50., 150.);
+    Z0Mass->GetXaxis()->SetTitle("m_{ee} [GeV]");
+    Z0Mass->GetYaxis()->SetTitle("Counts/GeV");
+
+    // Open file to fit, and make histograms
+    TFile ZEffFile(inputFile.c_str(), "READ");
+    ZEffTree* ze;
+    ze = new ZEffTree(ZEffFile, false);
+
+    bool run = true;
+    while (run){
+        ze->Entries();
+        int ETElectron;
+        int HFElectron;
+        const double MZ = ze->reco.mz;
+        const short PU = ze->reco.nverts;
+        /* Assign Electron 0 and 1 */
+        if ( inAcceptance(ET, ze->reco.eta[0]) && inAcceptance(HF, ze->reco.eta[1])){
+            ETElectron = 0;
+            HFElectron = 1;
+        } else if ( inAcceptance(HF, ze->reco.eta[1]) && inAcceptance(ET, ze->reco.eta[0])){
+            ETElectron = 1;
+            HFElectron = 0;
+        } else {
+            run = ze->GetNextEvent();
+            continue;
+        }
+
+        /* Cuts */
+        if ( ze->reco.pt[0] > 20. && ze->reco.pt[1] > 20.){
+            if ( ze->reco.isSelected(ETElectron, "WP80") && ze->reco.isSelected(HFElectron, "HFTightElectronId-EtaDet" )){
+                Z0Mass->Fill(MZ);
+            }
+        }
+        run = ze->GetNextEvent();
+    }
+
+    Z0Mass->Draw();
+    canvas->Print(outFile.c_str());
+
+    return 0;
+}
+
+int main(int argc, char* argv[]){
+    const short argcCorrect = 3;
+    if (argc < argcCorrect) {
+        std::cout<<"Not enough arguments. Use:\nPlotZPeak.exe ZEffFile outputFile\n";
+        return 1;
+    } else if (argc > argcCorrect){
+        std::cout<<"Too many arguments. Use:\nPlotZPeak.exe ZEffFile outputFile\n";
+        return 1;
+    } else {
+        // Read in arguments
+        std::istringstream inStream;
+
+        std::string inputFile;
+        inStream.str(argv[1]);
+        inStream >> inputFile;
+        inStream.clear();
+
+        std::string outFile;
+        inStream.str(argv[2]);
+        inStream >> outFile;
+        inStream.clear();
+
+        return makeTupleCuts(inputFile, outFile);
+    }
+}
