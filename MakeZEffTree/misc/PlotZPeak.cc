@@ -31,13 +31,17 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
     // CMS Preliminary
     //TLatex* cmsPrelim = new TLatex(0.12, 0.97, "CMS Preliminary");
     //cmsPrelim->SetTextAlign(13);  // Align by top left of the words
-    TLatex* cmsPrelim = new TLatex(0.97, 0.97, "CMS Preliminary");
+    TLatex* cmsPrelim = new TLatex(0.95, 0.95, "CMS Preliminary");
     cmsPrelim->SetTextAlign(33);  // Align by top left of the words
     cmsPrelim->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
+    // Luminosity
+    TLatex* luminosity = new TLatex(0.95, 0.90, "5.5 fb^{-1} at 7 TeV");
+    luminosity->SetTextAlign(33);  // Align by top left of the words
+    luminosity->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
     // Plot Title
-    TLatex* plotTitle = new TLatex(0.97, 0.97, "ECAL-HF Invarient Mass");
-    plotTitle->SetTextAlign(33);  // Align by top left of the words
-    plotTitle->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
+    //TLatex* plotTitle = new TLatex(0.97, 0.97, "ECAL-HF Invarient Mass");
+    //plotTitle->SetTextAlign(33);  // Align by top left of the words
+    //plotTitle->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
 
     /* Prepare the histogram to put the data in */
     const std::string Z0MassName = "Z0_mass";
@@ -46,6 +50,8 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
     Z0Mass->GetYaxis()->SetTitle("Counts/GeV");
     Z0Mass->GetYaxis()->SetTitleOffset(1.3);  // Move axis title away from side to avoid clipping
     Z0Mass->GetYaxis()->SetTitleSize(0.04);  // Make Axis title larger
+    Z0Mass->SetMarkerStyle(20);  // Use black circles for points
+    Z0Mass->SetMarkerSize(0.5);  // Make markers half the normal size
 
     // Open file to fit, and make histograms
     TFile ZEffFile(inputFile.c_str(), "READ");
@@ -74,14 +80,17 @@ int makeTupleCuts(const std::string inputFile, const std::string outFile){
         /* Cuts */
         if ( ze->reco.pt[0] > 20. && ze->reco.pt[1] > 20.){
             if ( ze->reco.isSelected(ETElectron, "WP80") && ze->reco.isSelected(HFElectron, "HFTightElectronId-EtaDet" )){
+            //if ( ze->reco.isSelected(ETElectron, "WP80")){
                 Z0Mass->Fill(MZ);
             }
         }
         run = ze->GetNextEvent();
     }
 
-    Z0Mass->Draw();
+    Z0Mass->Draw("E");
     cmsPrelim->Draw();
+    luminosity->Draw();
+    //plotTitle->Draw();
     //plotTitle->Draw();
     canvas->Print(outFile.c_str());
 
