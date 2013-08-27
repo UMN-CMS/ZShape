@@ -33,6 +33,7 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     cmsPrelim->SetTextAlign(33);  // Align by top left of the words
     cmsPrelim->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
     // Luminosity
+    // We had 5.49799553508 recorded, 5.72404865529 delivered according to lumiCalc
     TLatex* luminosity = new TLatex(0.95, 0.90, "5.5 fb^{-1} at 7 TeV");
     luminosity->SetTextAlign(33);
     luminosity->SetNDC();
