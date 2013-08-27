@@ -15,7 +15,7 @@ MakeHistograms::MakeHistograms(TDirectory* td){
     Z0MassFine->SetDirectory(tdir);
     Z0MassFine->GetXaxis()->SetTitle("m_{ee} [GeV]");
     Z0MassFine->GetYaxis()->SetTitle("Counts/GeV");
-    // Z Mass Fine
+    // Z Rapidity
     Z0Rapidity = new TH1I("Z0_rapidity", "Z0_rapidity", 100, -5., 5.);
     Z0Rapidity->SetDirectory(tdir);
     Z0Rapidity->GetXaxis()->SetTitle("Y_{ee}");
@@ -85,64 +85,68 @@ void MakeHistograms::print(){
     std::string basename;
     basename.assign(tdir->GetName());
 
+    // Set Image Sizes
+    const int XSIZE = 1280;
+    const int YSIZE = 640;
+
     // Write PNGs
     std::string Z0MassStr = basename + "_Z0Mass.png";
-    TCanvas* Z0MassC = new TCanvas(Z0MassStr.c_str(), Z0MassStr.c_str(), 1280, 640);
+    TCanvas* Z0MassC = new TCanvas(Z0MassStr.c_str(), Z0MassStr.c_str(), XSIZE, YSIZE);
     Z0Mass->Draw();
     Z0MassC->Print(Z0MassStr.c_str());
 
     std::string Z0MassFineStr = basename + "_Z0MassFine.png";
-    TCanvas* Z0MassFineC = new TCanvas(Z0MassFineStr.c_str(), Z0MassFineStr.c_str(), 1280, 640);
+    TCanvas* Z0MassFineC = new TCanvas(Z0MassFineStr.c_str(), Z0MassFineStr.c_str(), XSIZE, YSIZE);
     Z0MassFine->Draw();
     Z0MassFineC->Print(Z0MassFineStr.c_str());
 
     std::string Z0RapidityStr = basename + "_Z0Rapidity.png";
-    TCanvas* Z0RapidityC = new TCanvas(Z0RapidityStr.c_str(), Z0RapidityStr.c_str(), 1280, 640);
+    TCanvas* Z0RapidityC = new TCanvas(Z0RapidityStr.c_str(), Z0RapidityStr.c_str(), XSIZE, YSIZE);
     Z0Rapidity->Draw();
     Z0RapidityC->Print(Z0RapidityStr.c_str());
 
     std::string Z0ptStr = basename + "_Z0pt.png";
-    TCanvas* Z0ptC = new TCanvas(Z0ptStr.c_str(), Z0ptStr.c_str(), 1280, 640);
+    TCanvas* Z0ptC = new TCanvas(Z0ptStr.c_str(), Z0ptStr.c_str(), XSIZE, YSIZE);
     Z0pt->Draw();
     Z0ptC->Print(Z0ptStr.c_str());
 
     std::string e0ptStr = basename + "_e0pt.png";
-    TCanvas* e0ptC = new TCanvas(e0ptStr.c_str(), e0ptStr.c_str(), 1280, 640);
+    TCanvas* e0ptC = new TCanvas(e0ptStr.c_str(), e0ptStr.c_str(), XSIZE, YSIZE);
     e0pt->Draw();
     e0ptC->Print(e0ptStr.c_str());
 
     std::string e1ptStr = basename + "_e1pt.png";
-    TCanvas* e1ptC = new TCanvas(e1ptStr.c_str(), e1ptStr.c_str(), 1280, 640);
+    TCanvas* e1ptC = new TCanvas(e1ptStr.c_str(), e1ptStr.c_str(), XSIZE, YSIZE);
     e1pt->Draw();
     e1ptC->Print(e1ptStr.c_str());
 
     std::string e0etaStr = basename + "_e0eta.png";
-    TCanvas* e0etaC = new TCanvas(e0etaStr.c_str(), e0etaStr.c_str(), 1280, 640);
+    TCanvas* e0etaC = new TCanvas(e0etaStr.c_str(), e0etaStr.c_str(), XSIZE, YSIZE);
     e0eta->Draw();
     e0etaC->Print(e0etaStr.c_str());
 
     std::string e1etaStr = basename + "_e1eta.png";
-    TCanvas* e1etaC = new TCanvas(e1etaStr.c_str(), e1etaStr.c_str(), 1280, 640);
+    TCanvas* e1etaC = new TCanvas(e1etaStr.c_str(), e1etaStr.c_str(), XSIZE, YSIZE);
     e1eta->Draw();
     e1etaC->Print(e1etaStr.c_str());
 
     std::string e0phiStr = basename + "_e0phi.png";
-    TCanvas* e0phiC = new TCanvas(e0phiStr.c_str(), e0phiStr.c_str(), 1280, 640);
+    TCanvas* e0phiC = new TCanvas(e0phiStr.c_str(), e0phiStr.c_str(), XSIZE, YSIZE);
     e0phi->Draw();
     e0phiC->Print(e0phiStr.c_str());
 
     std::string e1phiStr = basename + "_e1phi.png";
-    TCanvas* e1phiC = new TCanvas(e1phiStr.c_str(), e1phiStr.c_str(), 1280, 640);
+    TCanvas* e1phiC = new TCanvas(e1phiStr.c_str(), e1phiStr.c_str(), XSIZE, YSIZE);
     e1phi->Draw();
     e1phiC->Print(e1phiStr.c_str());
 
     std::string phistarStr = basename + "_phistar.png";
-    TCanvas* phistarC = new TCanvas(phistarStr.c_str(), phistarStr.c_str(), 1280, 640);
+    TCanvas* phistarC = new TCanvas(phistarStr.c_str(), phistarStr.c_str(), XSIZE, YSIZE);
     phistar->Draw();
     phistarC->Print(phistarStr.c_str());
 
     std::string pileupStr = basename + "_pileup.png";
-    TCanvas* pileupC = new TCanvas(pileupStr.c_str(), pileupStr.c_str(), 1280, 640);
+    TCanvas* pileupC = new TCanvas(pileupStr.c_str(), pileupStr.c_str(), XSIZE, YSIZE);
     pileup->Draw();
     pileupC->Print(pileupStr.c_str());
 }

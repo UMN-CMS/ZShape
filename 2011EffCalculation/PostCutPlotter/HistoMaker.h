@@ -23,7 +23,6 @@ class MakeHistograms{
 
         // Add events
         void fill(const ZEffTree::ZInfo* zi, const int e0 = 0, const int e1 = 1);
-        void book();
         void print();
 
     private:
