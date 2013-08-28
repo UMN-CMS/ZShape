@@ -9,10 +9,14 @@
 #include "TLatex.h"  // Used to draw text on the plot
 #include <TROOT.h>  // Pulls in gROOT
 #include <TStyle.h>  // Pulls in gStyle
+#include <TRandom3.h>  // Needed to generate random numbers for smearing
+#include <TLorentzVector.h>  // Used to recalculate MZ after smearing
 
 // STD
 #include <string>
 #include <sstream>
+#include <iostream>  // cout
+
 
 int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, const std::string outFile){
     // Root style
@@ -74,8 +78,6 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
         ze->Entries();
         int ETElectron;
         int HFElectron;
-        const double MZ = ze->reco.mz;
-        const short PU = ze->reco.nverts;
         /* Assign Electron 0 and 1 */
         if ( inAcceptance(ET, ze->reco.eta[0]) && inAcceptance(HF, ze->reco.eta[1])){
             ETElectron = 0;
@@ -91,7 +93,7 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
         /* Cuts */
         if ( ze->reco.pt[0] > 20. && ze->reco.pt[1] > 20.){
             if ( ze->reco.isSelected(ETElectron, "WP80") && ze->reco.isSelected(HFElectron, "HFTightElectronId-EtaDet" )){
-                Z0Mass->Fill(MZ);
+                Z0Mass->Fill(ze->reco.mz);
             }
         }
         runMC = ze->GetNextEvent();
@@ -102,13 +104,16 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     ZEffTree* zemc;
     zemc = new ZEffTree(ZEffMCFile, false);
 
+    // Smearing MC
+    const bool doSmear = true;
+    const int randSeed = 123456; //using constant seed for reproducibility
+    TRandom3* trand = new TRandom3(randSeed);
+
     bool run = true;
     while (run){
         zemc->Entries();
         int ETElectron;
         int HFElectron;
-        const double MZ = zemc->reco.mz;
-        const short PU = zemc->reco.nverts;
         /* Assign Electron 0 and 1 */
         if ( inAcceptance(ET, zemc->reco.eta[0]) && inAcceptance(HF, zemc->reco.eta[1])){
             ETElectron = 0;
@@ -121,8 +126,48 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
             continue;
         }
 
+        /* Smearing */
+        double MZ = zemc->reco.mz;
+        double ptET = zemc->reco.pt[ETElectron];
+        double ptHF = zemc->reco.pt[HFElectron];
+
+        if (doSmear){
+            double meanHF = 1.;
+            double sigmaHF = 0.;
+            if ( inAcceptance(HFp, zemc->reco.eta[HFElectron]) ){
+                meanHF = 1.007;
+                sigmaHF = 0.107;
+            } else if ( inAcceptance(HFm, zemc->reco.eta[HFElectron]) ){
+                meanHF = 0.981;
+                sigmaHF = 0.092;
+            }
+            double meanET = 1.;
+            double sigmaET = 0.;
+            if ( inAcceptance(EB, zemc->reco.eta[ETElectron]) ){
+                meanET = 0.995;
+                sigmaET = 0.007;
+            } else if ( inAcceptance(EE, zemc->reco.eta[ETElectron]) ){
+                meanET = 0.976;
+                sigmaET = 0.013;
+            }
+            ptET *= trand->Gaus(meanET, sigmaET);
+            ptHF *= trand->Gaus(meanHF, sigmaHF);
+
+            /* Recalculate MZ */
+            TLorentzVector eET;
+            TLorentzVector eHF;
+            TLorentzVector Z;
+            //std::cout << "ET: " << zemc->reco.pt[ETElectron] << " " << ptET << std::endl;
+            //std::cout << "HT: " << zemc->reco.pt[HFElectron] << " " << ptHF << std::endl;
+            eET.SetPtEtaPhiM(ptET, zemc->reco.eta[ETElectron], zemc->reco.phi[ETElectron], 5.109989e-4);
+            eHF.SetPtEtaPhiM(ptHF, zemc->reco.eta[HFElectron], zemc->reco.phi[HFElectron], 5.109989e-4);
+            Z = eET + eHF;
+            //std::cout << "MZ: " << MZ << " " << Z.M() << std::endl;
+            MZ = Z.M(); // Get the invarient mass from the Z
+        }
+
         /* Cuts */
-        if ( zemc->reco.pt[0] > 20. && zemc->reco.pt[1] > 20.){
+        if ( ptET > 20. && ptHF > 20.){
             if ( zemc->reco.isSelected(ETElectron, "WP80") && zemc->reco.isSelected(HFElectron, "HFTightElectronId-EtaDet" )){
                 Z0MassMC->Fill(MZ);
             }
