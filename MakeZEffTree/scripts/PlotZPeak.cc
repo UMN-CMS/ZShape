@@ -11,6 +11,7 @@
 #include <TStyle.h>  // Pulls in gStyle
 #include <TRandom3.h>  // Needed to generate random numbers for smearing
 #include <TLorentzVector.h>  // Used to recalculate MZ after smearing
+#include <TLegend.h>  // Legend
 
 // STD
 #include <string>
@@ -27,19 +28,21 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
 
     /* Canvas */
     TCanvas* canvas = new TCanvas("ZPeak", "ZPeak", 1200, 900);
-    //canvas->SetLeftMargin(0.25);
     canvas->SetRightMargin(0.03);
-    canvas->SetTopMargin(0.02);
+    canvas->SetTopMargin(0.07);
+
 
     /* Text */
     // CMS Preliminary
-    TLatex* cmsPrelim = new TLatex(0.95, 0.95, "CMS Preliminary");
-    cmsPrelim->SetTextAlign(33);  // Align by top left of the words
+    //TLatex* cmsPrelim = new TLatex(0.95, 0.95, "CMS Preliminary");
+    TLatex* cmsPrelim = new TLatex(0.10, 0.935, "CMS Preliminary");
+    cmsPrelim->SetTextAlign(11);  // Align by top left of the words
     cmsPrelim->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
     // Luminosity
     // We had 5.49799553508 recorded, 5.72404865529 delivered according to lumiCalc
-    TLatex* luminosity = new TLatex(0.95, 0.90, "5.5 fb^{-1} at 7 TeV");
-    luminosity->SetTextAlign(33);
+    //TLatex* luminosity = new TLatex(0.95, 0.90, "5.5 fb^{-1} at 7 TeV");
+    TLatex* luminosity = new TLatex(0.97, 0.935, "5.5 fb^{-1} at 7 TeV");
+    luminosity->SetTextAlign(31);
     luminosity->SetNDC();
     // Plot Title
     //TLatex* plotTitle = new TLatex(0.97, 0.97, "ECAL-HF Invarient Mass");
@@ -55,7 +58,7 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     Z0Mass->GetYaxis()->SetTitleOffset(1.3);  // Move axis title away from side to avoid clipping
     Z0Mass->GetYaxis()->SetTitleSize(0.04);  // Make Axis title larger
     Z0Mass->SetMarkerStyle(20);  // Use black circles for points
-    Z0Mass->SetMarkerSize(0.5);  // Make markers half the normal size
+    Z0Mass->SetMarkerSize(1);  // Make markers half the normal size
     // MC
     const std::string Z0MassMCName = "Z0_mass_MC";
     TH1I* Z0MassMC = new TH1I(Z0MassMCName.c_str(), Z0MassMCName.c_str(), 100, 50., 150.);
@@ -63,9 +66,19 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     Z0MassMC->GetYaxis()->SetTitle("Counts/GeV");
     Z0MassMC->GetYaxis()->SetTitleOffset(1.3);  // Move axis title away from side to avoid clipping
     Z0MassMC->GetYaxis()->SetTitleSize(0.04);  // Make Axis title larger
-    Z0MassMC->SetMarkerStyle(20);  // Use black circles for points
-    Z0MassMC->SetMarkerSize(0.5);  // Make markers half the normal size
-    Z0MassMC->SetMarkerColor(2);  // Make markers half the normal size
+    //Z0MassMC->SetMarkerStyle(21);  // Use black circles for points
+    //Z0MassMC->SetMarkerSize(1);  // Make markers half the normal size
+    //Z0MassMC->SetMarkerColor(2);  // Make markers red
+    Z0MassMC->SetLineStyle(2);  // Dotted line
+    Z0MassMC->SetLineColor(2);  // Red line
+
+    /* Legend */
+    TLegend* legend = new TLegend(0.82, 0.77, 0.97, .925);
+    legend->AddEntry(Z0Mass, " Data");
+    legend->AddEntry(Z0MassMC, " MC");
+    legend->SetFillColor(0);  // White background
+    legend->SetBorderSize(0);  // Remove border
+    legend->SetTextSize(.06);  // Make text bigger
 
     // Open file to fit, and make histograms
     // Data
@@ -174,10 +187,11 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     const double areaMC = Z0MassMC->Integral(Z0MassMC->FindBin(50), Z0MassMC->FindBin(150));
     Z0MassMC->Scale(areaData/areaMC);
 
-    Z0MassMC->Draw("E");
-    Z0Mass->Draw("E Same");
+    Z0Mass->Draw("E");
+    Z0MassMC->Draw("Hist Same");
     cmsPrelim->Draw();
     luminosity->Draw();
+    legend->Draw();
     //plotTitle->Draw();
     //plotTitle->Draw();
     canvas->Print(outFile.c_str());
