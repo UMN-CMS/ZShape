@@ -131,26 +131,18 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
         double ptET = zemc->reco.pt[ETElectron];
         double ptHF = zemc->reco.pt[HFElectron];
 
-        if (doSmear){
+        if (doSmear){ // Smear only HF
             double meanHF = 1.;
             double sigmaHF = 0.;
-            if ( inAcceptance(HFp, zemc->reco.eta[HFElectron]) ){
-                meanHF = 1.007;
-                sigmaHF = 0.107;
-            } else if ( inAcceptance(HFm, zemc->reco.eta[HFElectron]) ){
-                meanHF = 0.981;
-                sigmaHF = 0.092;
-            }
-            double meanET = 1.;
-            double sigmaET = 0.;
-            if ( inAcceptance(EB, zemc->reco.eta[ETElectron]) ){
-                meanET = 0.995;
-                sigmaET = 0.007;
-            } else if ( inAcceptance(EE, zemc->reco.eta[ETElectron]) ){
-                meanET = 0.976;
-                sigmaET = 0.013;
-            }
-            ptET *= trand->Gaus(meanET, sigmaET);
+            //if ( inAcceptance(HFp, zemc->reco.eta[HFElectron]) ){
+            //    meanHF = 1.007;
+            //    sigmaHF = 0.107;
+            //} else if ( inAcceptance(HFm, zemc->reco.eta[HFElectron]) ){
+            //    meanHF = 0.981;
+            //    sigmaHF = 0.092;
+            //}
+            meanHF = .92;
+            sigmaHF = 0.13;
             ptHF *= trand->Gaus(meanHF, sigmaHF);
 
             /* Recalculate MZ */
