@@ -33,6 +33,24 @@ double functiontofit(const double *x, const double *par) {
     return backgroundVal + signalVal;
 }
 
+TH1D* makeCombinedHisto(const double alpha, const double gamma, const double delta, const double bgAmp, const double mcAmp, const TH1D* mcHisto){
+    TH1D* toReturn = (TH1D*)mcHisto->Clone("combo");
+    // Turn our analytic function into a histogram
+    for ( int i = 1; i <= toReturn->GetNbinsX(); ++i) {
+        const double xval = toReturn->GetBinCenter(i);
+        const double binVal = bgAmp * bgFunc(xval, alpha, gamma, delta);
+        const double mcVal = mcAmp * mcHisto->GetBinContent(i);
+        toReturn->SetBinContent(i, binVal + mcVal);
+    }
+
+    return toReturn;
+}
+TH1D* returnSmearedHisto(const std::string inputMCFile, const double mean, const double sigma){
+            TRandom3* rand3 = new TRandom3();
+            double num = rand3->Rndm();
+            TH1D* smearedHisto = new TH1D("", "", 100, 50., 150.);
+}
+
 //TH1D* returnBGHisto(const double alpha, const double gamma, const double delta, const TH1D* histoToClone){
 //    // Copy the binning of the signal histo
 //    TH1D* bgHisto = (TH1D*)histoToClone->Clone("bgHisto");
@@ -48,15 +66,15 @@ double functiontofit(const double *x, const double *par) {
 double compareTH1Ds(const TH1D* h0, const TH1D* h1){
     double chi2 = 0.;
 
-    const int startPT = 50;
-    const int endPT = 150;
+    const int startPT = 75;
+    const int endPT = 105;
     // Normalize the two histograms to 1 
     TH1D* hc0 = (TH1D*)h0->Clone("hc0");
     hc0->Scale(1. / hc0->Integral(hc0->FindBin(startPT), hc0->FindBin(endPT)));
     hc0->Sumw2();
     TH1D* hc1 = (TH1D*)h1->Clone("hc1");
     hc1->Scale(1. / hc1->Integral(hc1->FindBin(startPT), hc1->FindBin(endPT)));
-    hc1->Sumw2();
+    //hc1->Sumw2();
 
     // Loop
     const int n0 = hc0->GetNbinsX();  // Number of bins
@@ -99,8 +117,8 @@ int IterateSmearing(const std::string inputFile, const std::string inputMCFile){
         // Skip everyother event
         if (flop){
             flop = false;
-            run = ze->GetNextEvent();
-            continue;
+         //   run = ze->GetNextEvent();
+         //   continue;
         } else {
             flop = true;
         }
@@ -135,8 +153,8 @@ int IterateSmearing(const std::string inputFile, const std::string inputMCFile){
 
     double meanHF;
     double sigmaHF;
-    for ( meanHF = 0.85; meanHF < 0.95; meanHF += 0.001){
-        for ( sigmaHF = .12; sigmaHF < 0.16; sigmaHF += 0.0001){
+    for ( meanHF = 0.9; meanHF < 0.95; meanHF += 0.01){
+        for ( sigmaHF = .01; sigmaHF < 0.10; sigmaHF += 0.001){
             // MC
             TH1D* HMC = new TH1D("hmc", "hmc", 100, 50., 150.);
 
@@ -196,19 +214,27 @@ int IterateSmearing(const std::string inputFile, const std::string inputMCFile){
             /* Now add a background and fit it */
             GLOBAL.signalHisto = HMC;
             TF1* baseFitFunc = new TF1("baseFitFunc", functiontofit, 50., 150., 5);
-            baseFitFunc->SetParLimits(0, 0., 10000.);
-            baseFitFunc->SetParLimits(1, 0., 100000.);
-            baseFitFunc->SetParLimits(2, 40., 80.);  // Alpha
-            baseFitFunc->SetParLimits(3, 0., 0.2); // Gamma
+            baseFitFunc->SetParLimits(0, 0., 50000.);
+            baseFitFunc->SetParLimits(1, 0., 120000.);
+            baseFitFunc->SetParLimits(2, 20., 120.);  // Alpha
+            baseFitFunc->SetParLimits(3, 0., 0.5); // Gamma
             baseFitFunc->SetParLimits(4, 1., 50.); // Delta
-            baseFitFunc->SetParameter(0, 500.);
+            baseFitFunc->SetParameter(0, 1234.);
             baseFitFunc->SetParameter(1, 50000.);
-            baseFitFunc->SetParameter(2, 50.);
+            baseFitFunc->SetParameter(2, 40.);
             baseFitFunc->SetParameter(3, 0.);
             baseFitFunc->SetParameter(4, 2.);
 
-            Hdata->Fit(baseFitFunc, "RMEWLQ");
-            std::cout << "\t" << baseFitFunc->GetChisquare();
+            Hdata->Fit(baseFitFunc, "RMEQ");
+
+            const double bgAmp = baseFitFunc->GetParameter(0);
+            const double mcAmp = baseFitFunc->GetParameter(1);
+            const double alpha = baseFitFunc->GetParameter(2);
+            const double gamma = baseFitFunc->GetParameter(3);
+            const double delta = baseFitFunc->GetParameter(4);
+            //std::cout << "\t" << baseFitFunc->GetChisquare();
+            TH1D* comboHisto = makeCombinedHisto(alpha, gamma, delta, bgAmp, mcAmp, HMC);
+            std::cout << compareTH1Ds(Hdata, comboHisto);
             std::cout << " Mean: " << meanHF;
             std::cout << " Sigma: " << sigmaHF;
             std::cout << " P0: " << baseFitFunc->GetParameter(0);
