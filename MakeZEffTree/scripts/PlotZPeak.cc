@@ -6,6 +6,8 @@
 #include "TH1.h"
 #include "TFile.h"
 #include "TCanvas.h"
+#include "TF1.h"  // BG Function
+#include <TMath.h>  // Erfc function and exp
 #include "TLatex.h"  // Used to draw text on the plot
 #include <TROOT.h>  // Pulls in gROOT
 #include <TStyle.h>  // Pulls in gStyle
@@ -18,8 +20,51 @@
 #include <sstream>
 #include <iostream>  // cout
 
+double bgFunc(const double x, const double alpha, const double gamma, const double delta){
+        return TMath::Erfc((alpha-x)/delta) * TMath::Exp(-gamma*x);
+}
+
+TH1D* makeCombinedHisto(const double alpha, const double gamma, const double delta, const double bgAmp, const double mcAmp, const TH1D* mcHisto){
+    TH1D* toReturn = (TH1D*)mcHisto->Clone("combo");
+    // Turn our analytic function into a histogram
+    for ( int i = 1; i <= toReturn->GetNbinsX(); ++i) {
+        const double xval = toReturn->GetBinCenter(i);
+        const double binVal = bgAmp * bgFunc(xval, alpha, gamma, delta);
+        const double mcVal = mcAmp * mcHisto->GetBinContent(i);
+        toReturn->SetBinContent(i, binVal + mcVal);
+    }
+
+    return toReturn;
+}
+
+TH1D* makeBGHisto(const double alpha, const double gamma, const double delta, TH1D* bgHisto){
+    // Turn our analytic function into a histogram
+    for ( int i = 1; i <= bgHisto->GetNbinsX(); ++i) {
+        const double xval = bgHisto->GetBinCenter(i);
+        const double binVal = bgFunc(xval, alpha, gamma, delta);
+        bgHisto->SetBinContent(i, binVal);
+        //std::cout << i << " " << binVal << std::endl;
+    }
+
+    return bgHisto;
+}
 
 int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, const std::string outFile){
+    /* Fit params */
+    //const double meanHF = 0.93;
+    //const double sigmaHF = 0.122;
+    //const double alpha = 54.5481;
+    //const double gamma = 0.0104657;
+    //const double delta = 8.48604;
+    //const double bgAmp = 81.5995;
+    //const double mcAmp = 52641.9;
+    const double meanHF = 0.929;
+    const double sigmaHF = 0.1205;
+    const double alpha = 55.0149;
+    const double gamma = 0.0111544;
+    const double delta = 8.9894;
+    const double bgAmp = 90.1738;
+    const double mcAmp = 52490;
     // Root style
     gROOT->SetStyle("Plain");
     gStyle->SetOptTitle(0);  // Remove title
@@ -30,7 +75,6 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     TCanvas* canvas = new TCanvas("ZPeak", "ZPeak", 1200, 900);
     canvas->SetRightMargin(0.03);
     canvas->SetTopMargin(0.07);
-
 
     /* Text */
     // CMS Preliminary
@@ -61,7 +105,7 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     Z0Mass->SetMarkerSize(1);  // Make markers half the normal size
     // MC
     const std::string Z0MassMCName = "Z0_mass_MC";
-    TH1I* Z0MassMC = new TH1I(Z0MassMCName.c_str(), Z0MassMCName.c_str(), 100, 50., 150.);
+    TH1D* Z0MassMC = new TH1D(Z0MassMCName.c_str(), Z0MassMCName.c_str(), 100, 50., 150.);
     Z0MassMC->GetXaxis()->SetTitle("m_{ee} [GeV]");
     Z0MassMC->GetYaxis()->SetTitle("Counts/GeV");
     Z0MassMC->GetYaxis()->SetTitleOffset(1.3);  // Move axis title away from side to avoid clipping
@@ -69,13 +113,20 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     //Z0MassMC->SetMarkerStyle(21);  // Use black circles for points
     //Z0MassMC->SetMarkerSize(1);  // Make markers half the normal size
     //Z0MassMC->SetMarkerColor(2);  // Make markers red
-    Z0MassMC->SetLineStyle(2);  // Dotted line
+    //Z0MassMC->SetLineStyle(2);  // Dotted line
     Z0MassMC->SetLineColor(2);  // Red line
+    // BG
+    const std::string bgName = "bg";
+    TH1D* bgHisto = new TH1D(bgName.c_str(), bgName.c_str(), 100, 50., 150.);
+    bgHisto->SetLineStyle(2);  // Dotted line
+    bgHisto->SetLineColor(2);  // Red line
 
     /* Legend */
-    TLegend* legend = new TLegend(0.82, 0.77, 0.97, .925);
+    //TLegend* legend = new TLegend(0.82, 0.77, 0.97, .925);
+    TLegend* legend = new TLegend(0.70, 0.77, 0.97, .925);
     legend->AddEntry(Z0Mass, " Data");
-    legend->AddEntry(Z0MassMC, " MC");
+    legend->AddEntry(Z0MassMC, " MC + BG");
+    legend->AddEntry(bgHisto, " BG Only");
     legend->SetFillColor(0);  // White background
     legend->SetBorderSize(0);  // Remove border
     legend->SetTextSize(.06);  // Make text bigger
@@ -145,8 +196,6 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
         double ptHF = zemc->reco.pt[HFElectron];
 
         if (doSmear){ // Smear only HF
-            double meanHF = 1.;
-            double sigmaHF = 0.;
             //if ( inAcceptance(HFp, zemc->reco.eta[HFElectron]) ){
             //    meanHF = 1.007;
             //    sigmaHF = 0.107;
@@ -154,8 +203,6 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
             //    meanHF = 0.981;
             //    sigmaHF = 0.092;
             //}
-            meanHF = .92;
-            sigmaHF = 0.13;
             ptHF *= trand->Gaus(meanHF, sigmaHF);
 
             /* Recalculate MZ */
@@ -180,15 +227,29 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
         run = zemc->GetNextEvent();
     }
 
+    // Make the combined histogram of Background + MC
+    Z0MassMC->Scale(1 / Z0MassMC->Integral(Z0MassMC->FindBin(50), Z0MassMC->FindBin(150))); // Normalize
+    TH1D* comboHisto = makeCombinedHisto(alpha, gamma, delta, bgAmp, mcAmp, Z0MassMC);
+    // Make BG Histo 
+    bgHisto = makeBGHisto(alpha, gamma, delta, bgHisto);
+
     // Scale histograms and preserve erros
     Z0Mass->Sumw2();
-    Z0MassMC->Sumw2();
     const double areaData = Z0Mass->Integral(Z0Mass->FindBin(50), Z0Mass->FindBin(150));
-    const double areaMC = Z0MassMC->Integral(Z0MassMC->FindBin(50), Z0MassMC->FindBin(150));
-    Z0MassMC->Scale(areaData/areaMC);
+    //Z0MassMC->Sumw2();
+    //const double areaMC = Z0MassMC->Integral(Z0MassMC->FindBin(50), Z0MassMC->FindBin(150));
+    //Z0MassMC->Scale(areaData/areaMC);
+    comboHisto->Sumw2();
+    const double areaMC = comboHisto->Integral(comboHisto->FindBin(50), comboHisto->FindBin(150));
+    comboHisto->Scale(areaData/areaMC);
+    //bgHisto->Scale((areaData/areaMC)*(bgAmp/mcAmp));
+    bgHisto->Scale(2 * bgAmp); // 2 is because we train the amplitude on half the data
 
     Z0Mass->Draw("E");
-    Z0MassMC->Draw("Hist Same");
+    //Z0MassMC->Draw("Hist Same");
+    bgHisto->Draw("Hist Same");
+    comboHisto->Draw("Hist Same");
+    Z0Mass->Draw("E Same"); // redraw to put it on top
     cmsPrelim->Draw();
     luminosity->Draw();
     legend->Draw();
