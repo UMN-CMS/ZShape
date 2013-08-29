@@ -14,6 +14,7 @@
 #include <TRandom3.h>  // Needed to generate random numbers for smearing
 #include <TLorentzVector.h>  // Used to recalculate MZ after smearing
 #include <TLegend.h>  // Legend
+#include <TPDF.h>  // PDF output
 
 // STD
 #include <string>
@@ -21,7 +22,7 @@
 #include <iostream>  // cout
 
 double bgFunc(const double x, const double alpha, const double gamma, const double delta){
-        return TMath::Erfc((alpha-x)/delta) * TMath::Exp(-gamma*x);
+    return TMath::Erfc((alpha-x)/delta) * TMath::Exp(-gamma*x);
 }
 
 TH1D* makeCombinedHisto(const double alpha, const double gamma, const double delta, const double bgAmp, const double mcAmp, const TH1D* mcHisto){
@@ -51,13 +52,14 @@ TH1D* makeBGHisto(const double alpha, const double gamma, const double delta, TH
 
 int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, const std::string outFile){
     /* Fit params */
-    const double meanHF = 0.95;
-    const double sigmaHF = 0.085;
-    const double bgAmp = 2259.65;
-    const double mcAmp = 47251.5;
-    const double alpha = 69.1963;
-    const double gamma = 0.0354435;
-    const double delta = 12.8511;
+    const double meanHF = 0.93;
+    const double sigmaHF = 0.097;
+    const double bgAmp = 638.778;
+    const double mcAmp = 100677;
+    const double alpha = 61.9994;
+    const double gamma = 0.0201975;
+    const double delta = 13.1204;
+
     // Root style
     gROOT->SetStyle("Plain");
     gStyle->SetOptTitle(0);  // Remove title
@@ -72,26 +74,25 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
 
     /* Text */
     // CMS Preliminary
-    //TLatex* cmsPrelim = new TLatex(0.95, 0.95, "CMS Preliminary");
     TLatex* cmsPrelim = new TLatex(0.10, 0.935, "CMS Preliminary");
     cmsPrelim->SetTextAlign(11);  // Align by top left of the words
     cmsPrelim->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
     // Luminosity
     // We had 5.49799553508 recorded, 5.72404865529 delivered according to lumiCalc
-    //TLatex* luminosity = new TLatex(0.95, 0.90, "5.5 fb^{-1} at 7 TeV");
     TLatex* luminosity = new TLatex(0.97, 0.935, "5.5 fb^{-1} at 7 TeV");
     luminosity->SetTextAlign(31);
     luminosity->SetNDC();
-    // Plot Title
-    //TLatex* plotTitle = new TLatex(0.97, 0.97, "ECAL-HF Invarient Mass");
-    //plotTitle->SetTextAlign(33);  // Align by top left of the words
-    //plotTitle->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
+    // Leptons
+    TLatex* leptons = new TLatex(0.13, 0.92, "#splitline{|#eta_{1}| < 2.5}{3.1 < |#eta_{2}| < 4.6}");
+    leptons->SetTextAlign(13);
+    leptons->SetNDC();  // Draw according to pad coordinates, not unitful coordinates
+    leptons->SetTextSize(0.05);
 
     /* Prepare the histogram to put the data in */
     // Data
     const std::string Z0MassName = "Z0_mass";
     TH1I* Z0Mass = new TH1I(Z0MassName.c_str(), Z0MassName.c_str(), 100, 50., 150.);
-    Z0Mass->GetXaxis()->SetTitle("m_{ee} [GeV]");
+    Z0Mass->GetXaxis()->SetTitle("M_{ee} [GeV]");
     Z0Mass->GetYaxis()->SetTitle("Counts/GeV");
     Z0Mass->GetYaxis()->SetTitleOffset(1.3);  // Move axis title away from side to avoid clipping
     Z0Mass->GetYaxis()->SetTitleSize(0.04);  // Make Axis title larger
@@ -100,14 +101,6 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     // MC
     const std::string Z0MassMCName = "Z0_mass_MC";
     TH1D* Z0MassMC = new TH1D(Z0MassMCName.c_str(), Z0MassMCName.c_str(), 100, 50., 150.);
-    Z0MassMC->GetXaxis()->SetTitle("m_{ee} [GeV]");
-    Z0MassMC->GetYaxis()->SetTitle("Counts/GeV");
-    Z0MassMC->GetYaxis()->SetTitleOffset(1.3);  // Move axis title away from side to avoid clipping
-    Z0MassMC->GetYaxis()->SetTitleSize(0.04);  // Make Axis title larger
-    //Z0MassMC->SetMarkerStyle(21);  // Use black circles for points
-    //Z0MassMC->SetMarkerSize(1);  // Make markers half the normal size
-    //Z0MassMC->SetMarkerColor(2);  // Make markers red
-    //Z0MassMC->SetLineStyle(2);  // Dotted line
     Z0MassMC->SetLineColor(2);  // Red line
     // BG
     const std::string bgName = "bg";
@@ -117,7 +110,7 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
 
     /* Legend */
     //TLegend* legend = new TLegend(0.82, 0.77, 0.97, .925);
-    TLegend* legend = new TLegend(0.70, 0.77, 0.97, .925);
+    TLegend* legend = new TLegend(0.70, 0.77, 0.95, .925);
     legend->AddEntry(Z0Mass, " Data");
     legend->AddEntry(Z0MassMC, " MC + BG");
     legend->AddEntry(bgHisto, " BG Only");
@@ -190,25 +183,15 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
         double ptHF = zemc->reco.pt[HFElectron];
 
         if (doSmear){ // Smear only HF
-            //if ( inAcceptance(HFp, zemc->reco.eta[HFElectron]) ){
-            //    meanHF = 1.007;
-            //    sigmaHF = 0.107;
-            //} else if ( inAcceptance(HFm, zemc->reco.eta[HFElectron]) ){
-            //    meanHF = 0.981;
-            //    sigmaHF = 0.092;
-            //}
             ptHF *= trand->Gaus(meanHF, sigmaHF);
 
             /* Recalculate MZ */
             TLorentzVector eET;
             TLorentzVector eHF;
             TLorentzVector Z;
-            //std::cout << "ET: " << zemc->reco.pt[ETElectron] << " " << ptET << std::endl;
-            //std::cout << "HT: " << zemc->reco.pt[HFElectron] << " " << ptHF << std::endl;
             eET.SetPtEtaPhiM(ptET, zemc->reco.eta[ETElectron], zemc->reco.phi[ETElectron], 5.109989e-4);
             eHF.SetPtEtaPhiM(ptHF, zemc->reco.eta[HFElectron], zemc->reco.phi[HFElectron], 5.109989e-4);
             Z = eET + eHF;
-            //std::cout << "MZ: " << MZ << " " << Z.M() << std::endl;
             MZ = Z.M(); // Get the invarient mass from the Z
         }
 
@@ -230,25 +213,19 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     // Scale histograms and preserve erros
     Z0Mass->Sumw2();
     const double areaData = Z0Mass->Integral(Z0Mass->FindBin(50), Z0Mass->FindBin(150));
-    //Z0MassMC->Sumw2();
-    //const double areaMC = Z0MassMC->Integral(Z0MassMC->FindBin(50), Z0MassMC->FindBin(150));
-    //Z0MassMC->Scale(areaData/areaMC);
     comboHisto->Sumw2();
     const double areaMC = comboHisto->Integral(comboHisto->FindBin(50), comboHisto->FindBin(150));
     comboHisto->Scale(areaData/areaMC);
-    //bgHisto->Scale((areaData/areaMC)*(bgAmp/mcAmp));
-    bgHisto->Scale(2 * bgAmp); // 2 is because we train the amplitude on half the data
+    bgHisto->Scale(bgAmp);
 
     Z0Mass->Draw("E");
-    //Z0MassMC->Draw("Hist Same");
     bgHisto->Draw("Hist Same");
     comboHisto->Draw("Hist Same");
     Z0Mass->Draw("E Same"); // redraw to put it on top
     cmsPrelim->Draw();
     luminosity->Draw();
+    leptons->Draw();
     legend->Draw();
-    //plotTitle->Draw();
-    //plotTitle->Draw();
     canvas->Print(outFile.c_str());
 
     return 0;
