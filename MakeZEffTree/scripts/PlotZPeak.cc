@@ -51,20 +51,13 @@ TH1D* makeBGHisto(const double alpha, const double gamma, const double delta, TH
 
 int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, const std::string outFile){
     /* Fit params */
-    //const double meanHF = 0.93;
-    //const double sigmaHF = 0.122;
-    //const double alpha = 54.5481;
-    //const double gamma = 0.0104657;
-    //const double delta = 8.48604;
-    //const double bgAmp = 81.5995;
-    //const double mcAmp = 52641.9;
-    const double meanHF = 0.929;
-    const double sigmaHF = 0.1205;
-    const double alpha = 55.0149;
-    const double gamma = 0.0111544;
-    const double delta = 8.9894;
-    const double bgAmp = 90.1738;
-    const double mcAmp = 52490;
+    const double meanHF = 0.95;
+    const double sigmaHF = 0.085;
+    const double bgAmp = 2259.65;
+    const double mcAmp = 47251.5;
+    const double alpha = 69.1963;
+    const double gamma = 0.0354435;
+    const double delta = 12.8511;
     // Root style
     gROOT->SetStyle("Plain");
     gStyle->SetOptTitle(0);  // Remove title
@@ -75,6 +68,7 @@ int makeTupleCuts(const std::string inputFile, const std::string inputMCFile, co
     TCanvas* canvas = new TCanvas("ZPeak", "ZPeak", 1200, 900);
     canvas->SetRightMargin(0.03);
     canvas->SetTopMargin(0.07);
+    //canvas->SetLogy();
 
     /* Text */
     // CMS Preliminary
