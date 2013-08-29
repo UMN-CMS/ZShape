@@ -135,8 +135,8 @@ int IterateSmearing(const std::string inputFile, const std::string inputMCFile){
 
     double meanHF;
     double sigmaHF;
-    for ( meanHF = 0.85; meanHF < 0.95; meanHF += 0.01){
-        for ( sigmaHF = .12; sigmaHF < 0.16; sigmaHF += 0.001){
+    for ( meanHF = 0.85; meanHF < 0.95; meanHF += 0.001){
+        for ( sigmaHF = .12; sigmaHF < 0.16; sigmaHF += 0.0001){
             // MC
             TH1D* HMC = new TH1D("hmc", "hmc", 100, 50., 150.);
 
