@@ -9,11 +9,41 @@
 #include <TStyle.h>  // Pulls in gStyle
 #include <TRandom3.h>  // Needed to generate random numbers for smearing
 #include <TLorentzVector.h>  // Used to recalculate MZ after smearing
+#include <TF1.h>  // Background function
+#include <TMath.h>  // Used to grab Erfc
 
 // STD
 #include <string>
 #include <sstream>
 #include <iostream>  // cout
+
+struct global{
+    TH1D* signalHisto;
+} GLOBAL;
+
+double bgFunc(const double x, const double alpha, const double gamma, const double delta){
+    double fitval = TMath::Erfc((alpha-x)/delta) * TMath::Exp(-gamma*x);
+    return fitval;
+}
+
+double functiontofit(const double *x, const double *par) {
+    // Generate values for our signal and our background
+    double backgroundVal = par[0] * bgFunc(x[0], par[2], par[3], par[4]);
+    double signalVal = par[1] * GLOBAL.signalHisto->GetBinContent(GLOBAL.signalHisto->FindBin(x[0]));
+    return backgroundVal + signalVal;
+}
+
+//TH1D* returnBGHisto(const double alpha, const double gamma, const double delta, const TH1D* histoToClone){
+//    // Copy the binning of the signal histo
+//    TH1D* bgHisto = (TH1D*)histoToClone->Clone("bgHisto");
+//    // Turn our analytic function into a histogram
+//    for ( int i = 1; i <= bgHisto>GetNbinsX(); ++i) {
+//        const double xval = bgHisto->GetBinCenter(i);
+//        const double binVal = bgFunc(xval, alpha, gamma, delta);
+//        bgHisto->SetBinContent(i, binVal);
+//    }
+//    return bgHisto;
+//}
 
 double compareTH1Ds(const TH1D* h0, const TH1D* h1){
     double chi2 = 0.;
@@ -159,11 +189,36 @@ int IterateSmearing(const std::string inputFile, const std::string inputMCFile){
                 runmc = zemc->GetNextEvent();
                 //std::cout << Hdata->GetEntries() << " " << HMC->GetEntries() << std::endl;
             }
+            /* Normalize our MC Histogram */
+            HMC->Scale(1. / HMC->Integral(HMC->FindBin(50.), HMC->FindBin(150.)));
+            HMC->Sumw2(); // Recompute errors
 
-            // TODO: Calculate Chisquare
-            //std::cout << Hdata->GetEntries() << " " << HMC->GetEntries() << std::endl;
-            //std::cout << "M: " << meanHF << " S: " << sigmaHF << " Chi2: " << compareTH1Ds(Hdata, HMC) << std::endl;
-            std::cout << compareTH1Ds(Hdata, HMC) << " M: " << meanHF << " S: " << sigmaHF << std::endl;
+            /* Now add a background and fit it */
+            GLOBAL.signalHisto = HMC;
+            TF1* baseFitFunc = new TF1("baseFitFunc", functiontofit, 50., 150., 5);
+            baseFitFunc->SetParLimits(0, 0., 10000.);
+            baseFitFunc->SetParLimits(1, 0., 100000.);
+            baseFitFunc->SetParLimits(2, 40., 80.);  // Alpha
+            baseFitFunc->SetParLimits(3, 0., 0.2); // Gamma
+            baseFitFunc->SetParLimits(4, 1., 50.); // Delta
+            baseFitFunc->SetParameter(0, 500.);
+            baseFitFunc->SetParameter(1, 50000.);
+            baseFitFunc->SetParameter(2, 50.);
+            baseFitFunc->SetParameter(3, 0.);
+            baseFitFunc->SetParameter(4, 2.);
+
+            Hdata->Fit(baseFitFunc, "RMEWLQ");
+            std::cout << "\t" << baseFitFunc->GetChisquare();
+            std::cout << " Mean: " << meanHF;
+            std::cout << " Sigma: " << sigmaHF;
+            std::cout << " P0: " << baseFitFunc->GetParameter(0);
+            std::cout << " P1: " << baseFitFunc->GetParameter(1);
+            std::cout << " P2: " << baseFitFunc->GetParameter(2);
+            std::cout << " P3: " << baseFitFunc->GetParameter(3);
+            std::cout << " P4: " << baseFitFunc->GetParameter(4);
+            std::cout << std::endl;
+
+            //std::cout << compareTH1Ds(Hdata, HMC) << " M: " << meanHF << " S: " << sigmaHF << std::endl;
             delete HMC;
         }
     }
