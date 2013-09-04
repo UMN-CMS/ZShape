@@ -1,8 +1,8 @@
-#include <math.h>
-#include <string>
-
 #ifndef ELECTRONLOCATION_H
 #define ELECTRONLOCATION_H
+
+#include <math.h>
+#include <string>
 
 enum electronLocation{
     ET,

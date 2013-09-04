@@ -1,3 +1,6 @@
+#ifndef HISTOMAKER_H_INCLUDED
+#define HISTOMAKER_H_INCLUDED
+
 // ZShape Code
 #include "../../MakeZEffTree/src/ZEffTree.h"
 
@@ -12,9 +15,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-
-#ifndef HISTOMAKER_H_INCLUDED
-#define HISTOMAKER_H_INCLUDED
 
 class MakeHistograms{
     public:

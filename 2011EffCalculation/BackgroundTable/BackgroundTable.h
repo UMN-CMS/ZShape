@@ -1,3 +1,6 @@
+#ifndef BACKGROUNDTABLE_H
+#define BACKGROUNDTABLE_H
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -31,3 +34,5 @@ class BackgroundTable {
   private:
     std::vector<bgNum> values_;
 };
+
+#endif
