@@ -1,4 +1,5 @@
 #include "../../MakeZEffTree/src/ZEffTree.h"
+#include "../ElectronLocation/ElectronLocation.h"  // inAcceptance
 
 #include <TFile.h>
 #include <TH1F.h>
@@ -8,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
 struct tagCuts{
     int minMZ;
@@ -25,14 +27,15 @@ double backgroundFunction(const double *v, const double *par){
     return TMath::Erfc((par[0]-v[0])/par[3])*par[1]*TMath::Exp(-par[2]*v[0]);
 }
 
-int fitBackground(TFile *file, const std::string &outname, const std::string &tagWP, const std::string &probeWP, const tagCuts &cuts, const binningDef &binDef, bool usePhiStar=false) {
+int fitBackground(const std::string &inFileName, const std::string &outFileName, const std::string &tagWP, const std::string &probeWP, const tagCuts &cuts, const binningDef &binDef, const bool usePhiStar=false) {
     /* Open the EffTree */
+    TFile ZSFile(inFileName.c_str(), "READ");
     ZEffTree *ze;
-    ze = new ZEffTree(*file,false);
+    ze = new ZEffTree(ZSFile, false);
 
     /* Create root objects: Files, Histograms */
     TFile *outfile;
-    outfile = new TFile(outname.c_str(),"recreate");
+    outfile = new TFile(outFileName.c_str(), "recreate");
     TCanvas *canvas = new TCanvas;
     TH1F *histoToFit;
 
@@ -45,8 +48,8 @@ int fitBackground(TFile *file, const std::string &outname, const std::string &ta
         if ( 
                 binDef.minPU <= ze->reco.nverts && ze->reco.nverts <= binDef.maxPU // Must be in the pile up binning window
                 && cuts.minMZ <= ze->reco.mz && ze->reco.mz <= cuts.maxMZ          // Must be near Z peak in all cases
-                && ze->reco.isSelected(0,tagWP)                                    // Tag must pass a cut
-                && !ze->reco.isSelected(1,probeWP)                                 // Probe must fail a cut
+                && ze->reco.isSelected(0, tagWP)                                    // Tag must pass a cut
+                && !ze->reco.isSelected(1, probeWP)                                 // Probe must fail a cut
            ){
             /* Use Phistar or Pt */
             double eX;
@@ -58,8 +61,7 @@ int fitBackground(TFile *file, const std::string &outname, const std::string &ta
 
             if ( 
                     binDef.minX <= eX && eX <= binDef.maxX // Must be in Pt binning window
-                    && fabs(ze->reco.eta[1] >= 3.0) // In HF
-                    //&& fabs(ze->reco.eta[1]) <= 2.5 
+                    && inAcceptance(HF, ze->reco.eta[1])
                ){ 
                 histoToFit->Fill(ze->reco.mz);
             }
@@ -84,44 +86,6 @@ int fitBackground(TFile *file, const std::string &outname, const std::string &ta
         }
     }
 
-    /* If bins have 0s, we need to rebin */
-    /*
-     *int primes[6] = {2,3,5,7,11,13};
-     *int startNBins = histoToFit->GetNbinsX();
-     *bool rebin = true;
-     *while (rebin){
-     *    int binCount = histoToFit->GetNbinsX();
-     *    // Check if we have too few bins left
-     *    if (binCount <= startNBins / 8){
-     *        rebin = false;
-     *        break;
-     *    } 
-     *    // Check for 0 bins
-     *    bool has_zero = false;
-     *    for(int i=1; i<binCount; ++i){
-     *        if (histoToFit->GetBinContent(i) <= 0){ 
-     *            has_zero = true;
-     *            break;
-     *        }
-     *    }
-     * 
-     *    // If 0s, rebin
-     *    if (has_zero){
-     *        for (int j=0; j<=5; ++j){
-     *            // Unfortunately, rebin wants an even divisor, so we check the
-     *            // first few primes, which should be good enough for us.
-     *            int div = primes[j]; 
-     *            if (binCount % div == 0){
-     *                histoToFit->Rebin(div);
-     *            }
-     *        }
-     *    } else {
-     *        rebin = false;
-     *        break;
-     *    }
-     *} // while
-     */
-
     /* Run fit */
     background->SetParameter(0, 50.);
     background->SetParLimits(0, 40., 60.);
@@ -144,7 +108,7 @@ int fitBackground(TFile *file, const std::string &outname, const std::string &ta
     histoToFit->Draw();
 
     /* Save png */
-    std::string name(outname.begin(), outname.end()-5);
+    std::string name(outFileName.begin(), outFileName.end()-5);
     std::string pngname = name + std::string(".png");
     canvas->Print(pngname.c_str(),"png");
 
@@ -159,24 +123,74 @@ int fitBackground(TFile *file, const std::string &outname, const std::string &ta
 int main(int argc, char* argv[]){
     const int argnum = 12;
     if (argc < (argnum -1) ) {
-        std::cout<<"Not enough arguments. Use:\neffFit.exe inFile outFile tagWP probeWP minX maxX minPU maxPU minMZ maxMZ [usePhiStar]\n";
+        std::cout<<"Not enough arguments. Use:\neffFit.exe inFile outFile tagWP probeWP minX maxX minPU maxPU minMZ maxMZ usePhiStar\n";
         return 1;
     } else if (argc > argnum){
-        std::cout<<"Too many arguments. Use:\neffFit.exe inFile outFile tagWP probeWP minX maxX minPU maxPU minMZ maxMZ [usePhiStar]\n";
+        std::cout<<"Too many arguments. Use:\neffFit.exe inFile outFile tagWP probeWP minX maxX minPU maxPU minMZ maxMZ usePhiStar\n";
         return 1;
     } else {
-        TFile inFile(argv[1],"READ");
-        tagCuts cuts;
-        binningDef binDef;
-        binDef.minX = atof(argv[5]);
-        binDef.maxX = atof(argv[6]);
-        binDef.minPU = atoi(argv[7]);
-        binDef.maxPU = atoi(argv[8]);
-        cuts.minMZ = atoi(argv[9]);
-        cuts.maxMZ = atoi(argv[10]);
-        bool usePhiStar = atoi(argv[11]);
+        std::istringstream inStream;
+       
+        // Input File
+        std::string inFileName;
+        inStream.str(argv[1]);
+        inStream >> inFileName;
+        inStream.clear();
 
-        fitBackground(&inFile, argv[2], argv[3], argv[4], cuts, binDef, usePhiStar);
+        // Output File
+        std::string outFileName;
+        inStream.str(argv[2]);
+        inStream >> outFileName;
+        inStream.clear();
+
+        // Working Points
+        std::string tagWP;
+        inStream.str(argv[3]);
+        inStream >> tagWP;
+        inStream.clear();
+
+        std::string probeWP;
+        inStream.str(argv[4]);
+        inStream >> tagWP;
+        inStream.clear();
+
+        // Kinematic Binning
+        binningDef binDef;
+
+        inStream.str(argv[5]);
+        inStream >> binDef.minX;
+        inStream.clear();
+
+        inStream.str(argv[6]);
+        inStream >> binDef.maxX;
+        inStream.clear();
+
+        inStream.str(argv[7]);
+        inStream >> binDef.minPU;
+        inStream.clear();
+
+        inStream.str(argv[8]);
+        inStream >> binDef.maxPU;
+        inStream.clear();
+
+        // Cuts
+        tagCuts cuts;
+
+        inStream.str(argv[9]);
+        inStream >> cuts.minMZ;
+        inStream.clear();
+
+        inStream.str(argv[10]);
+        inStream >> cuts.maxMZ;
+        inStream.clear();
+
+        // Use Phistar
+        bool usePhiStar;
+        inStream.str(argv[11]);
+        inStream >> usePhiStar;
+        inStream.clear();
+
+        fitBackground(inFileName, outFileName, tagWP, probeWP, cuts, binDef, usePhiStar);
     }
 
     return 0;
