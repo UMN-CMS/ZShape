@@ -6,6 +6,8 @@
 #include <TF1.h>
 #include <TMath.h>
 #include <TCanvas.h>
+#include <TROOT.h>  // Pulls in gROOT
+#include <TStyle.h>  // Pulls in gStyle
 
 #include <iostream>
 #include <string>
@@ -28,6 +30,12 @@ double backgroundFunction(const double *v, const double *par){
 }
 
 int fitBackground(const std::string &inFileName, const std::string &outFileName, const std::string &tagWP, const std::string &probeWP, const tagCuts &cuts, const binningDef &binDef, const bool usePhiStar=false) {
+    // Root style
+    gROOT->SetStyle("Plain");
+    gStyle->SetOptTitle(0);  // Remove title
+    gStyle->SetOptStat(0);  // Remove Stats Box
+    gStyle->SetHistLineWidth(2);  // Remove Stats Box
+
     /* Open the EffTree */
     TFile ZSFile(inFileName.c_str(), "READ");
     ZEffTree *ze;
@@ -36,16 +44,18 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     /* Create root objects: Files, Histograms */
     TFile *outfile;
     outfile = new TFile(outFileName.c_str(), "recreate");
-    TCanvas *canvas = new TCanvas;
-    TH1F *histoToFit;
+    TCanvas *canvas = new TCanvas("bg", "bg", 1200, 900);
 
+    /* Setup Histogram of background */
     const int nBins = cuts.maxMZ - cuts.minMZ;
+    TH1F *histoToFit;
     histoToFit = new TH1F("histoToFit", "Z Mass", nBins, cuts.minMZ, cuts.maxMZ);
+    histoToFit->SetMarkerStyle(20);  // Use Circles for points
 
     bool run = true;
     while (run){
         ze->Entries();
-        if ( 
+        if (
                 binDef.minPU <= ze->reco.nverts && ze->reco.nverts <= binDef.maxPU // Must be in the pile up binning window
                 && cuts.minMZ <= ze->reco.mz && ze->reco.mz <= cuts.maxMZ          // Must be near Z peak in all cases
                 && ze->reco.isSelected(0, tagWP)                                    // Tag must pass a cut
@@ -59,10 +69,10 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
                 eX = ze->reco.pt[1];
             }
 
-            if ( 
+            if (
                     binDef.minX <= eX && eX <= binDef.maxX // Must be in Pt binning window
                     && inAcceptance(HF, ze->reco.eta[1])
-               ){ 
+               ){
                 histoToFit->Fill(ze->reco.mz);
             }
         }
@@ -87,15 +97,22 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     }
 
     /* Run fit */
-    background->SetParameter(0, 50.);
-    background->SetParLimits(0, 40., 60.);
-    background->SetParameter(1, 10.);
-    background->SetParLimits(1, 0.1, 100.);
+    background->SetParameter(0, 60.);
+    background->SetParLimits(0, 40., 120.);
+    background->SetParameter(1, 100.);
+    background->SetParLimits(1, 0.1, 1000.);
     background->SetParameter(2, 0.1);
-    background->SetParLimits(2, 0.0001, 10.);
-    background->SetParameter(3, 3.);
-    background->SetParLimits(3, 1., 25.);
-    histoToFit->Fit("background","QMR");
+    background->SetParLimits(2, 0.0001, 1.);
+    background->SetParameter(3, 10.);
+    background->SetParLimits(3, 1., 40.);
+    histoToFit->Fit("background","QMRWL");
+
+    /* Run Refit */
+    //background->SetParameter(0, background->GetParameter(0));
+    //background->SetParameter(1, background->GetParameter(1));
+    //background->SetParameter(2, background->GetParameter(2));
+    //background->SetParameter(3, background->GetParameter(3));
+    //histoToFit->Fit("background","QMRWL");
 
     /* Output to stdout the parameters in order */
     std::cout << "\t" << binDef.minX << "\t" << binDef.maxX << "\t" << binDef.minPU << "\t" << binDef.maxPU << "\t" << cuts.minMZ << "\t" << cuts.maxMZ;
@@ -130,7 +147,7 @@ int main(int argc, char* argv[]){
         return 1;
     } else {
         std::istringstream inStream;
-       
+
         // Input File
         std::string inFileName;
         inStream.str(argv[1]);
@@ -151,7 +168,7 @@ int main(int argc, char* argv[]){
 
         std::string probeWP;
         inStream.str(argv[4]);
-        inStream >> tagWP;
+        inStream >> probeWP;
         inStream.clear();
 
         // Kinematic Binning

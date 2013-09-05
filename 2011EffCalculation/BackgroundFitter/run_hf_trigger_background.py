@@ -4,7 +4,7 @@ from subprocess import call  # Access external programs
 from tempfile import mkdtemp  # Secure methods of generating random directories
 
 # Input Files
-inputFile = ""
+inputFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120914/2012_kevin_thesis_trigger_eff_with_charge/SingleElectron_ele27/res/SingleElectron_ele27_summed.root"
 
 # Mass_Z
 minMZ = 50
@@ -21,12 +21,14 @@ usePhiStar = False
 exe = "./BackgroundFitter.exe"
 
 # Output dir
-outdir = mkdtemp(prefix="background_fits_")
+outdir = mkdtemp(prefix="hf_trigger_background_fits_")
 print "# Output directory: ", outdir
 
 # Bins
 PUs = ((0, 4), (5, 10), (11, 101))
+PUs = ((0, 4), (5, 101))
 Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (55, 60), (60, 500))
+Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (55, 500))
 
 for (minPU, maxPU) in PUs:
     for (minX, maxX) in Xs:
