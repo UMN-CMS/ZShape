@@ -44,13 +44,15 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     /* Create root objects: Files, Histograms */
     TFile *outfile;
     outfile = new TFile(outFileName.c_str(), "recreate");
-    TCanvas *canvas = new TCanvas("bg", "bg", 1200, 900);
+    TCanvas *canvas = new TCanvas("bg", "bg", 800, 600);
 
     /* Setup Histogram of background */
     const int nBins = cuts.maxMZ - cuts.minMZ;
     TH1F *histoToFit;
     histoToFit = new TH1F("histoToFit", "Z Mass", nBins, cuts.minMZ, cuts.maxMZ);
     histoToFit->SetMarkerStyle(20);  // Use Circles for points
+    histoToFit->GetXaxis()->SetTitle("M_{ee} [GeV]");
+    histoToFit->GetYaxis()->SetTitle("Counts / GeV");
 
     bool run = true;
     while (run){
@@ -60,6 +62,7 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
                 && cuts.minMZ <= ze->reco.mz && ze->reco.mz <= cuts.maxMZ          // Must be near Z peak in all cases
                 && ze->reco.isSelected(0, tagWP)                                    // Tag must pass a cut
                 && !ze->reco.isSelected(1, probeWP)                                 // Probe must fail a cut
+                && ze->reco.pt[0] > 27  // Trigger puts a cut on the first electron of 27
            ){
             /* Use Phistar or Pt */
             double eX;
@@ -69,8 +72,9 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
                 eX = ze->reco.pt[1];
             }
 
-            if (
+            if (    
                     binDef.minX <= eX && eX <= binDef.maxX // Must be in Pt binning window
+                    && inAcceptance(ET, ze->reco.eta[0])
                     && inAcceptance(HF, ze->reco.eta[1])
                ){
                 histoToFit->Fill(ze->reco.mz);
