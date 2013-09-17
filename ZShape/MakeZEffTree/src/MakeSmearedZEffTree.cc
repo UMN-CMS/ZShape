@@ -202,25 +202,25 @@ void MakeSmearedZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetu
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void MakeZEffTree::beginJob(){ }
+void MakeSmearedZEffTree::beginJob(){ }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void MakeZEffTree::endJob(){ }
+void MakeSmearedZEffTree::endJob(){ }
 
 // ------------ method called when starting to processes a run  ------------
-void MakeZEffTree::beginRun(edm::Run const&, edm::EventSetup const&){ }
+void MakeSmearedZEffTree::beginRun(edm::Run const&, edm::EventSetup const&){ }
 
 // ------------ method called when ending the processing of a run  ------------
-void MakeZEffTree::endRun(edm::Run const&, edm::EventSetup const&){ }
+void MakeSmearedZEffTree::endRun(edm::Run const&, edm::EventSetup const&){ }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void MakeZEffTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
+void MakeSmearedZEffTree::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void MakeZEffTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
+void MakeSmearedZEffTree::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){ }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void MakeZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+void MakeSmearedZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
     //The following says we do not know what parameters are allowed so do no validation
     // Please change this to state exactly what you do use, even if it is no parameters
     edm::ParameterSetDescription desc;
@@ -228,7 +228,7 @@ void MakeZEffTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions
     descriptions.addDefault(desc);
 }
 
-double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
+double MakeSmearedZEffTree::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
     /* Calculate phi star */
 
     /* Calculate dPhi, stolen from Kevin's code */
