@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Zefficiency")
 process.TimerService = cms.Service("TimerService")
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),

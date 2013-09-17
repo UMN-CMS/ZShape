@@ -50,41 +50,31 @@ bool EfficiencyCut::passesCut(int index, float level) const
   else randNum=level;
   lastRandomLevel_=randNum;
 
-    if ( randNum < theEfficiency ) 
-       {
-	   //std::cout << "EfficiencyCut passescut in cut: " <<  theClonedEffHisto_->GetTitle() <<  " which falls in bin: " << theBin << " and the cut was passed" 
-	  //            " (randNum: " << randNum << " eff: " << theEfficiency << ")" <<std::endl;
-	 // std::cout << " Returning TRUE " << std::endl;
-	 return true;
-       }
-   else{
-           //  std::cout << "iEfficiencyCut passescut n cut: " <<  theClonedEffHisto_->GetTitle() << " which falls in bin: " << theBin << " and the cut was not passed" 
-         //	" (randNum: " << randNum << " eff: " << theEfficiency << ")" << std::endl;
-           //   std::cout << " Returning FALSE " << std::endl;
-         return false;
+  if ( randNum < theEfficiency ) 
+    {
+      //std::cout << "EfficiencyCut passescut in cut: " <<  theClonedEffHisto_->GetTitle() <<  " which falls in bin: " << theBin << " and the cut was passed" 
+      //            " (randNum: " << randNum << " eff: " << theEfficiency << ")" <<std::endl;
+      // std::cout << " Returning TRUE " << std::endl;
+      return true;
     }
-
+  else{
+    //  std::cout << "iEfficiencyCut passescut n cut: " <<  theClonedEffHisto_->GetTitle() << " which falls in bin: " << theBin << " and the cut was not passed" 
+    //	" (randNum: " << randNum << " eff: " << theEfficiency << ")" << std::endl;
+    //   std::cout << " Returning FALSE " << std::endl;
+         return true;
+  }
+  
   std::cout << " Returning FALSE " << std::endl;
-  return false;
-
+  return true;
+  
 } 
 
 
 
 float EfficiencyCut::weightForCut(int index) const {
-  int theBin =  index + 1;
-  if (theBin <= 0 ) 
-    {
-      return false; // underflow
-    }
-  if (theBin ==  ( theClonedEffHisto_->GetNbinsX()  +1)  ) 
-    {
-      return false; // underflow
-    }
-  float theEfficiency =1.0;
-  if(!theClonedEffHisto_->GetBinContent(theBin)) theEfficiency =0;
-  else theEfficiency =theClonedEffHisto_->GetBinContent(theBin);
-  return theEfficiency;
+
+  if(index<0) return 0;
+  return theIndexer->GetEff(index);
 
 }
 
@@ -123,6 +113,6 @@ return weightForCut(indexOf(elec));
 
 
 int EfficiencyCut::indexOf( const ZShapeElectron& elec) const {
-   return theIndexer->GetBandIndex(elec.p4_.Pt(),elec.detEta_,elec.PU_);
+  return theIndexer->GetBandIndex(elec.p4_.Pt(),elec.detEta_,elec.PU_,elec.PS_);
 }
 

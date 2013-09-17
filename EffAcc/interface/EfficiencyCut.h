@@ -24,10 +24,11 @@ class EfficiencyCut
   float lastRandomLevel() const { return lastRandomLevel_; }
   float weightForCut( const ZShapeElectron& elec ) const;
   float weightForCut( const ZShapeElectron& elec, float level ) const;
+ int indexOf( const ZShapeElectron& elec) const;
  private:
   bool passesCut( int index, float level=-1 ) const;
   float weightForCut(  int index) const;
-  int indexOf( const ZShapeElectron& elec) const;
+ 
   EffTableLoader* theIndexer;
   TH1F * theClonedEffHisto_;
   mutable float lastRandomLevel_;

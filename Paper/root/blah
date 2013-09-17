@@ -1,0 +1,68 @@
+base dir is EB-EB
+syst dir is EB-EB-SysMinus_WP80
+last sig dir is C07-HLT-GSF
+last base dir is C07-HLT-GSF
+ok
+ok2
+ok   307256
+ok4
+ok5 sigma_zd0_pm0
+ok6
+ok7
+ok8
+base dir is EB-EB
+syst dir is EB-EB-SysPlus_WP80
+last sig dir is C07-HLT-GSF
+last base dir is C07-HLT-GSF
+ok
+ok2
+ok   307256
+ok4
+ok5 sigma_zd0_pm1
+ok6
+ok7
+ok8
+base dir is EE-EB
+syst dir is EE-EB-SysMinus_WP80
+last sig dir is C07-HLT-GSF
+last base dir is C07-HLT-GSF
+ok
+ok2
+ok   132085
+ok4
+ok5 sigma_zd1_pm0
+ok6
+ok7
+ok8
+base dir is EE-EB
+syst dir is EE-EB-SysPlus_WP80
+last sig dir is C07-HLT-GSF
+last base dir is C07-HLT-GSF
+ok
+ok2
+ok   132085
+ok4
+ok5 sigma_zd1_pm1
+ok6
+ok7
+ok8
+base dir is EE-HF
+syst dir is EE-HF-SysMinus_WP80
+last sig dir is C07-HLT-GSF-PT20
+last base dir is C07-HLT-GSF-PT20
+ok
+ok2
+ok   48293
+ok4
+ok5 sigma_zd2_pm0
+
+
+
+
+
+
+
+
+
+
+sleepyHadder.sh Z2EcalEffSystEB-EBDef_HLT-GSF 25; sleepyHadder.sh Z2EcalEffSystEB-EBDef_GsfTrack-EtaDet 25; sleepyHadder.sh Z2EcalEffStat100Trials_Supercluster-Eta 25; sleepyHadder.sh Z2EcalEffStat100Trials_GsfTrack-EtaDet 25; sleepyHadder.sh Z2EcalEffStat100Trials_HLT-GSF 25; sleepyHadder.sh Z2EcalEffStat100Trials_WP80 25; sleepyHadder.sh Z2EcalEffStat100Trials_HFSuperCluster-Et 25; sleepyHadder.sh Z2EcalEffStat100Trials_HFElectronId-EtaDet 25; sleepyHadder.sh

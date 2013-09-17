@@ -1,0 +1,8 @@
+#put your comments after a '#'.
+#efficiency name: GsfTrack
+#dimension: 1 
+
+
+     #PtMin      PtMax     EtaMin     EtaMax   NumParms        eff      systp      systm        den
+         15         500       -5       5          4           1.00     0.9664      0.958     683.18
+       

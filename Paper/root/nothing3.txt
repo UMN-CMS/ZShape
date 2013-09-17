@@ -1,0 +1,8 @@
+myRunMap["ZSummedQuadHist"]["Sum in Quad"]=BlkCirc;
+myRunMap["WP80.root"]["WP80"]=RedCirc;
+myRunMap["SC.root"]["Supercluster"]=OrngTri;
+myRunMap["HLT.root"]["HLT"]=MagnTri;
+myRunMap["GSF.root"]["GSF Track Match"]=BlueTri;
+TLegend *myLeg = new TLegend(0.45,0.64,0.65,0.95,"Error From");
+std::string legops = "l";
+std::string legfops = "l";

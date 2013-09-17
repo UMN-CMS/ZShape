@@ -7,8 +7,8 @@
 
 /** \class ZShapeStandardCuts
   *  
-  * $Date: 2009/04/09 19:16:45 $
-  * $Revision: 1.2 $
+  * $Date: 2011/03/09 15:08:58 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class ZShapeStandardCuts {

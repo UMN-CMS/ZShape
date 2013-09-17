@@ -1,0 +1,16 @@
+myTClass <TH1F* > mc("EffStatEB-EB");
+std::string mystr  = "FinalEffStatEB-EB";
+std::string myops  = " HIST";
+std::string my2ops = " SAME HIST";
+myCust_t BlueTri; BlueTri.color = kBlue;   BlueTri.marker = kFullTriangleDown;  BlueTri.thickness = 1.1; BlueTri.linethick = 2;
+myCust_t RedCirc; RedCirc.color = kRed;   RedCirc.marker = kFullCircle;  RedCirc.thickness = 0.9; RedCirc.linethick = 3;
+myCust_t GrnSqur; GrnSqur.color = kGreen;   GrnSqur.marker = kFullSquare;  GrnSqur.thickness = 0.6; GrnSqur.linethick = 2;
+myCust_t BlkStar; BlkStar.color = kBlack;   BlkStar.marker = kFullStar;  BlkStar.thickness = 1.6; BlkStar.linethick = 3;
+myCust_t OrngTri; OrngTri.color = kOrange;   OrngTri.marker = kOpenTriangleUp;  OrngTri.thickness = 1.3; OrngTri.linethick = 3;
+myCust_t BlkCirc; BlkCirc.color = kBlack;   BlkCirc.marker = kFullCircle;  BlkCirc.thickness = 1.0; BlkCirc.linethick = 2;
+myCust_t CynCirc; CynCirc.color = kCyan;   CynCirc.marker = kFullCircle;  CynCirc.thickness = 0.9; CynCirc.linethick = 3;
+myCust_t MagnTri; MagnTri.color = kMagenta;   MagnTri.marker = kOpenTriangleUp;  MagnTri.thickness = 1.3; MagnTri.linethick = 2;
+mc.setXYLimits(0.00001,1.0,0.00015,.1);
+mc.setPlotType(false,false,false);
+mc.setSTlab(mystr);
+mc.setIndiPlots(false);

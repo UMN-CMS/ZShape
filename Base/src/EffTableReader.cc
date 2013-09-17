@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 // Adapted From Following Description:
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: EffTableReader.cc,v 1.2 2010/10/03 19:22:08 haupt Exp $
+// $Id: EffTableReader.cc,v 1.3 2013/02/20 20:45:18 klapoet Exp $
 // Generic parameters for Jet corrections
 //----------------------------------------------------------------------------
 #include "ZShape/Base/interface/EffTableReader.h"
@@ -32,6 +32,8 @@ namespace {
   }
 }
 
+
+int EffTableReader::magic_debug=0;
 
 EffTableReader::Record::Record (const std::string& fLine) 
   : mEtaMin (0), mEtaMax (0), mEtMax(0), mEtMin(0),mPUmin(0),mPUmax(0) 
@@ -68,7 +70,12 @@ EffTableReader::Record::Record (const std::string& fLine)
       mEtaMax = getFloat (tokens[3]);
       mPUmin = getFloat (tokens[4]);
       mPUmax = getFloat (tokens[5]);
+      mEff=getFloat (tokens[7]);
       unsigned nParam = getUnsigned (tokens[6]);
+      if(tokens.size() >= 12){
+	unsigned psdo= getUnsigned (tokens[11]);
+	mDoPS=((psdo==0)?(false):(true));
+      }else{mDoPS=false;}
       if (nParam != tokens.size() - 7) {
 	throw cms::Exception ("EffTableReader") << "Actual # of parameters " 
 						<< tokens.size() - 7 
@@ -79,15 +86,18 @@ EffTableReader::Record::Record (const std::string& fLine)
 	mParameters.push_back (getFloat (tokens[i]));
       }
       
-    }//end token ==9
+    }//end token ==11
+   
     else if (tokens.size() == 9){
       // get parameters
+      mDoPS=false;
       mEtMin = getFloat (tokens[0]);
       mEtMax = getFloat (tokens[1]);
       mEtaMin = getFloat (tokens[2]);
       mEtaMax = getFloat (tokens[3]);
-      mPUmin = 1;
+      mPUmin = 0;
       mPUmax = 100;
+      mEff=getFloat (tokens[5]);
       unsigned nParam = getUnsigned (tokens[4]);
       if (nParam != tokens.size() - 5) {
 	throw cms::Exception ("EffTableReader") << "Actual # of parameters " 
@@ -119,11 +129,24 @@ EffTableReader::EffTableReader (const std::string& fFile) {
 }
 
 
-int EffTableReader::bandIndex (float fEt, float fEta, float fPU) const{
+int EffTableReader::bandIndex (float fEt, float fEta, float fPU, float fPS) const{
   int bandInd = -1; //new default value says it isn't in a band (bin)
+  float val;
   for (unsigned i = 0; i < mRecords.size(); ++i) {
-    if(fEt>=mRecords[i].EtMin() && fEt<mRecords[i].EtMax()){
+    if(mRecords[i].doPhistar()){
+      val=fPS;
+    }else{
+      val=fEt;
+    }
+
+    if (magic_debug==5) {
+      printf("%da %.2f %.2f %.2f \n",i,val,mRecords[i].EtMin(),mRecords[i].EtMax());
+    }
+
+    if(val>=mRecords[i].EtMin() && val<mRecords[i].EtMax()){
+      if (magic_debug==5) printf("%db %.2f %.2f %.2f \n",i,fEta,mRecords[i].etaMin(),mRecords[i].etaMax());
       if(fEta>=mRecords[i].etaMin() && fEta<mRecords[i].etaMax()){
+      if (magic_debug==5) printf("%dc %.2f %.2f %.2f \n",i,fPU,mRecords[i].PUmin(),mRecords[i].PUmax());
 	if(fPU>=mRecords[i].PUmin() && fPU<mRecords[i].PUmax()){
 	  bandInd=i;
 	  break;                        

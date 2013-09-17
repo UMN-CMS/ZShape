@@ -1,0 +1,4 @@
+#efficiency name: WP80
+#dimension: 1
+#XMin XMax EtaMin  EtaMax  PUMin PUMax NumParms eff      systp    systm    den     phistar
+20    500   -2.6    2.6      0     100     5        1.00     0.0     0.0       1344.09 0       

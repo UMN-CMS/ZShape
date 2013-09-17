@@ -4,17 +4,11 @@
 #include "TText.h"
 #include "TLatex.h"
 #include "TDatime.h"
-
-static bool dotime=false;
-#ifndef __CINT__ 
-static const char* y_xaxis_label __attribute__ ((unused)) ="y_{ee}" ;
-static const char* qt_xaxis_label __attribute__ ((unused)) ="p_{T,ee} [GeV/c]" ;
-static const char* qt_xaxis_ll_label __attribute__ ((unused)) ="p_{T} [GeV/c]";
-#else
-static const char* y_xaxis_label ="y_{ee}" ;
-static const char* qt_xaxis_label ="p_{T,ee} [GeV/c]" ;
-static const char* qt_xaxis_ll_label="p_{T} [GeV/c]";
-#endif
+#include "TPad.h"
+#include "TH1.h"
+#include "TCanvas.h"
+#include "TFile.h"
+// <<<<<<< zrapidityStandard.C
 
 TH1* zpt_rebinForPlot(TH1* original) {
   char name[125];
@@ -58,8 +52,8 @@ void zrap_Prelim(double px, double py, double tx=-1, double ty=-1) {
 
   
   //Then for each plot, pick a nice spot and draw
-  plabel -> DrawText(px, py, "CMS preliminary"); // 'ala VBTF'
-  if (tx>=0 && ty>=0 && dotime) {
+  plabel -> DrawText(px, py, "CMS"); // 'ala VBTF'
+  if (tx>=0 && ty>=0) {// if (tx>=0 && ty>=0 && dotime) {
     TText *tlabel = new TText();
     tlabel-> SetNDC();
     tlabel -> SetTextFont(42);
@@ -74,7 +68,7 @@ void zrap_Prelim(double px, double py, double tx=-1, double ty=-1) {
 
 void zrap_Lumi(double px, double py, int val) {
   char text[40];
-  sprintf(text,"%d pb^{-1} at #sqrt{s}=7 TeV",val);
+  sprintf(text,"#int L dt = %d pb^{-1} at #sqrt{s}=7 TeV",val);
 
   TLatex *plabel = new TLatex(px,py,text);
   plabel-> SetNDC();
@@ -113,7 +107,7 @@ void zrapPrint(TCanvas* c1, const char* fnameBase) {
   sprintf(fullname,"%s.eps",fnameBase);
   c1->Print(fullname);
   sprintf(cmd,"eps2pdf %s",fullname);
-  system(cmd);
+  //system(cmd);
 }
 
 #endif // ZRAPIDITY_STANDARD_INCLUDED

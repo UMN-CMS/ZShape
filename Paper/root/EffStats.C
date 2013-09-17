@@ -100,7 +100,7 @@ void myTClass<T>::doSummedQuad (void)
    summedT->Reset();
    summedT->SetName("newSummedQuad");
    Int_t numBins = summedT->GetNbinsX();
-   for (Int_t bin = 0 ; bin < numBins; ++bin)
+   for (Int_t bin = 1 ; bin < numBins+1; ++bin)
    {
       double x2 = 0.0;
       for (typename std::vector<T>::iterator iTvec = Tvec.begin(); iTvec != Tvec.end(); ++iTvec) 
@@ -118,47 +118,7 @@ template <class T>
 void myTClass<T>::doIndiPlots(T myp, iRunType &ir)
 {
   if (!doIndi_) return;
- //  RooWorkspace* w = new RooWorkspace();
-//   RooRealVar* mass = new RooRealVar("mass","mass", 50, 140);
-//   RooDataHist *data = new RooDataHist("data", "data", *mass, myp); 
-//   w->import(*data);
-//   std::cout << " I was here " << std::endl;
-//   w->factory("Voigtian::signal(mass, mean[91.2,85,96], width[2.495], sigma[2.3,1,9])");
-//   w->factory("EXPR::backgroundPass('(RooMath::erfc((alpha - mass) * beta))*(( (mass-peak)*gamma < -70  )* (1e20) + ( (mass-peak)*gamma > 70 )* (0.0) + ( (mass-peak)*gamma >= -70 && (mass-peak)*gamma <= 70) * exp(-(mass-peak)*gamma))',mass,peak[91.1876],gamma[0.05, 0.0, 0.1],beta[0.051,0.0,0.2],alpha[62.0,35.0,105.0])");
-  //w->factory("Voigtian::signal(mass, mean[91.2,85,96], width[2.495], sigma[7.0,1,9])");
-  //w->factory("EXPR::backgroundPass('(RooMath::erfc((alpha - mass) * beta))*(( (mass-peak)*gamma < -70  )* (1e20) + ( (mass-peak)*gamma > 70 )* (0.0) + ( (mass-peak)*gamma >= -70 && (mass-peak)*gamma <= 70) * exp(-(mass-peak)*gamma))',mass,peak[91.1876],gamma[0.05, 0.0, 0.1],beta[0.051,0.0,0.2],alpha[62.0,35.0,75.0])");
- //  w->factory("SUM::pdfPass(numSignalAll[0.,1e10]*signal, numBackgroundPass[0.,1e10]*backgroundPass)");
-//   double totPassing = w->data("data")->sumEntries();
-//   std::cout << " total is " << totPassing << std::endl;
-//   w->var("numSignalAll")->setVal(0.95*totPassing);
-//   w->var("numBackgroundPass")->setVal(0.05*totPassing);
-//   bool quiet = true;
-//   w->pdf("pdfPass")->fitTo(*data, RooFit::Save(true), RooFit::Extended(true), RooFit::NumCPU(1), RooFit::PrintLevel(quiet?-1:1), RooFit::PrintEvalErrors(quiet?-1:1), RooFit::Warnings(!quiet));
-//   w->saveSnapshot("finalState",w->components());
-
-//   std::string fullabel = legtype + ((*ir).first);
-//   std::cout << " fulllabel " << fullabel << std::endl;
-
-  
-//   TCanvas *mycc = new TCanvas("mycc","mycc",1200,700);
-//   RooPlot* frame = w->var("mass")->frame(RooFit::Title(fullabel.c_str())) ;
-//   w->data("data")->plotOn(frame);
-//   w->pdf("pdfPass")->plotOn(frame,RooFit::LineColor((*ir).second.color)) ;
-//   w->pdf("pdfPass")->plotOn(frame,RooFit::LineColor((*ir).second.color),RooFit::Components("backgroundPass"), RooFit::LineStyle(kDashed)) ;
-//   w->pdf("pdfPass")->paramOn(frame,RooFit::Label(fullabel.c_str()),RooFit::Format("NELU",RooFit::AutoPrecision(2)),RooFit::Layout(0.61, 0.98, 0.95));
-//   //w->pdf("pdfPass")->paramOn(frame, w->data("data"), (*ir).first.c_str(), 0, "NELU", 0.65, 0.98, 0.94);
-//   frame->GetYaxis()->SetTitleOffset(0.9);
-//   frame->Draw();
-
-//   //Print these out
-//   std::vector<std::string> mytype = {"png","C","root"};
-//   for (auto imytype=mytype.begin(); imytype!=mytype.end(); ++imytype)
-//   mycc->Print(Form("%s_%d.%s",stlab.c_str(),Tvec.size(),(*imytype).c_str()));
-//   delete mycc;
-//   delete w;
-//   delete mass;
-//   delete data;
-//   delete frame;
+ 
 }
 
 template <class T>
@@ -173,9 +133,7 @@ void myTClass<T>::plot (std::string myfs, RunType &myrt, std::string ops)
     TFile *myf = (stroot) ? new TFile(st.c_str()) : new TFile(myfs.c_str()) ;
     myf->cd();
     myp =  (stroot) ? ((T) myf->Get(myfs.c_str())) : ((T) myf->Get(st.c_str()));
-    //T myp;
-    //if (ops.find("SAME") == string::npos) myp =  (stroot) ? ((T) myf->Get(myfs.c_str())) : ((T) myf->Get("ZFromData/ECAL95-ECAL95/C07-HLT-GSF/Z0_Pt"));
-    //else {myp =  (stroot) ? ((T) myf->Get(myfs.c_str())) : ((T) myf->Get(st.c_str()));}
+   
     if (ops.find("SAME") == string::npos) {baseT = (T) myp->Clone("newbase"); baseT->Sumw2();} 
     if (ops.find("SAME") == string::npos) std::cout << " did I get here " << std::endl;
   }
@@ -215,7 +173,7 @@ void myTClass<T>::plot (std::string myfs, RunType &myrt, std::string ops)
 
       //myp->GetYaxis()->SetTitle("Fractional Error From Bin Correlations");
       //myp->GetYaxis()->SetTitle("Fractional Error From Efficiency Statistics");
-      myp->GetYaxis()->SetTitle("Fractional Error From Bin Correlations");
+      myp->GetYaxis()->SetTitle("Statistical Uncertainty");
       myp->GetYaxis()->SetTitleSize(0.05);
       myp->GetXaxis()->CenterTitle();
       myp->GetYaxis()->CenterTitle();

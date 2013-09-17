@@ -92,7 +92,7 @@ void MCAnalyTrial::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::cout << " The probe pt is " << mctagRef->pt() << " et: " << mctagRef->et() << " eta: " << mctagRef->eta() << std::endl;
       bool good = false;
       good = (bool) ProbePassProbeOverlap(mctagRef,sctags,false);
-      int myindex = effBinsFromTxt_->GetBandIndex(mctagRef->pt(), mctagRef->eta(),1.0);
+      int myindex = effBinsFromTxt_->GetBandIndex(mctagRef->pt(), mctagRef->eta(),1.0,0.01);
       if ( good ) Hgood_->Fill(myindex);
       Hall_->Fill(myindex);
     }
@@ -255,7 +255,7 @@ int MCAnalyTrial::ProbePassProbeOverlap( const reco::CandidateBaseRef& probe,
 	//isOverlap = isOverlap && ( probeSC == passprobeSC );
         if( isOverlap ) 
         {
-	  int myindex = effBinsFromTxt_->GetBandIndex(probe->pt(), probe->eta(),1.0);
+	  int myindex = effBinsFromTxt_->GetBandIndex(probe->pt(), probe->eta(),1.0,0.01);
             if ((myindex == 1 || myindex == 3) )  HMCptvsSCpt_->Fill(probe->pt(),(*passprobes)[ipp].et());
            SCtoMCERatio_[myindex]->Fill(((*passprobes)[ipp].et())/(probe->pt()));
         }

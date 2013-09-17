@@ -11,13 +11,14 @@ class EffTableLoader {
   EffTableLoader ();
   EffTableLoader (const std::string& fDataFile);
   virtual ~EffTableLoader ();
-  std::vector<float> correctionEff (float fEt, float fEta, float fPU) const; 
+  std::vector<float> correctionEff (float fEt, float fEta, float fPU, float fPS) const; 
   std::vector<float> correctionEff (int index) const;
-  int GetBandIndex(float fEt, float fEta, float fPU) const;
+  int GetBandIndex(float fEt, float fEta, float fPU, float fPS) const;
+  float GetEff(int index)const;
   std::vector<std::pair<float, float> > GetCellInfo(int index)const;
-  std::vector<std::pair<float, float> > GetCellInfo(float fEt, float fEta, float fPU)const;
+  std::vector<std::pair<float, float> > GetCellInfo(float fEt, float fEta, float fPU, float fPS)const;
   std::pair<float, float> GetCellCenter(int index )const;
-  std::pair<float, float> GetCellCenter(float fEt, float fEta, float fPU )const;
+  std::pair<float, float> GetCellCenter(float fEt, float fEta, float fPU, float fPS )const;
   int size(void);
 
  private:

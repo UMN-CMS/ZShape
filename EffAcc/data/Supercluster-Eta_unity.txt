@@ -1,0 +1,8 @@
+#put your comments after a '#'.
+#efficiency name: SC
+#dimension: 1 
+
+
+     #PtMin      PtMax     EtaMin     EtaMax   NumParms        eff      systp      systm        den
+         -1         5000       -5       5          4             1.00    0.9925     0.9925        928
+        

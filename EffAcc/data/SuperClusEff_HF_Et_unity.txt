@@ -1,0 +1,8 @@
+#put your comments after a '#'.
+#efficiency name: HFSCEff
+#dimension: 1 
+
+
+     #PtMin      PtMax     EtaMin     EtaMax   NumParms        eff      statp      statm        den
+          0           500       -100       -3.0          4     1.000       .99         .99          0
+          0           500       3.0      100          4     1.000          .99         .99          0

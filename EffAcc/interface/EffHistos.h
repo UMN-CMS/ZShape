@@ -28,12 +28,13 @@ class EffHistos {
  private:
   double massWindowLow_,massWindowHigh_;
 
-  TH1 *evt_nvert_, *evt_npu_;
+  TH1 *evt_nvert_, *evt_npu_, *h_wgt_, *h_wgt_e1, *h_wgt_e2, *h_wgt_ee;
   TH1 *mZ_,*mZ_zoom,*mz_hfn,*mz_hfp,*YZ_, *ptZ_,*ptZmon_,*polarizationZ_,*cosPolarizationZ_;
   TH1 *YZmasscut_,*ptZmasscut_;
   TH1 *YZmasscutTL_,*ptZmasscutTL_;
   TH1 *YZTLmasscut_,*ptZTLmasscut_;
   TH1 *YZTL_,*ptZTLmon_,*mZTL_,*ptZTL_,*atZ_,*alZ_ ,*MCatZ_,*MCalZ_, *phiStar_, *MCphiStar_, *dphi_, *deta_, *phistarRes, *atRes, *ptRes, *phistarRes_scaled, *atRes_scaled, *ptRes_scaled, *phistarRes_plain, *atRes_plain, *ptRes_plain, *newphistar_, *phiStar_lr;
+  TH1 *fid_ps_BB, *fid_ps_EB, *fid_ps_EH, *fid_ps_BB_MC, *fid_ps_EB_MC, *fid_ps_EH_MC;
   bool booked_;
   TH1 *e1eta_,*e2eta_,*e1phi_,*e2phi_,*e1pt_,*e2pt_,*eeta_,*ephi_,*hfeta_, *e1charge_, *e2charge_;
   TH2 *mZ_Y_,*mZ_pt_,*pt_Y_,*e1eta_YZ_,*e2eta_YZ_,*e1eta_ptZ_,*e2eta_ptZ_,*e1eta_e2eta_,*YZTL_YZ_,*YZTL_YZ_matrix_,*atTL_at_,*atTL_at_matrix_,*phiStarTL_phiStar_,*phiStarTL_phiStar_matrix_, *ptTL_phiStar_, *ptTL_at_;

@@ -21,14 +21,17 @@ EffTableLoader::~EffTableLoader () {
   delete mParameters;
 }
 
-int EffTableLoader::GetBandIndex(float fEt, float fEta, float fPU)const {
-  int index=mParameters->bandIndex(fEt, fEta,fPU);
+int EffTableLoader::GetBandIndex(float fEt, float fEta, float fPU, float fPS)const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU,fPS);
   return index;
 }
+float EffTableLoader::GetEff(int index)const{
+  return mParameters->record(index).Eff();
 
+}
 
-std::vector<float> EffTableLoader::correctionEff (float fEt,float fEta, float fPU) const {
-  int index=mParameters->bandIndex(fEt, fEta,fPU);
+std::vector<float> EffTableLoader::correctionEff (float fEt,float fEta, float fPU, float fPS) const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU,fPS);
   EffTableReader::Record rec=mParameters->record(index);
   std::vector<float> param=rec.parameters();
   return param;
@@ -40,8 +43,8 @@ std::vector<float> EffTableLoader::correctionEff (int index) const {
 }
 
 
-std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(float fEt, float fEta, float fPU)const {
-  int index=mParameters->bandIndex(fEt, fEta,fPU);
+std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(float fEt, float fEta, float fPU, float fPS)const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU,fPS);
   return (this->GetCellInfo(index)) ;
 }
 std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(int index)const {
@@ -63,8 +66,8 @@ std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(int index)cons
   return BinInfo ;
 }
 
-std::pair<float, float> EffTableLoader::GetCellCenter(float fEt, float fEta, float fPU )const {
-  int index=mParameters->bandIndex(fEt, fEta,fPU);
+std::pair<float, float> EffTableLoader::GetCellCenter(float fEt, float fEta, float fPU, float fPS )const {
+  int index=mParameters->bandIndex(fEt, fEta,fPU,fPS);
   return (this->GetCellCenter(index)); 
 }
 std::pair<float, float> EffTableLoader::GetCellCenter(int index )const {

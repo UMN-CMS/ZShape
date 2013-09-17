@@ -1,50 +1,51 @@
 {
-#include "plotEffStat.C"
+#include "pt_plotEffStat.C"
 //#include "makefinal.C"
 
-TFile *my95    = new TFile("data/TFEcalEffSystECAL80-ECAL95Def_WP95-EFFSYST_001.root");
-TFile *my95hf  = new TFile("data/TFEcalEffSystECAL80-ECAL95Def_WP95-EFFSYST_001.root");
+
+TFile *my95    = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-ECAL95-MUODef_WP95_001.root");
+TFile *my95hf  = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-ECAL95-MUODef_WP95_001.root");
 TFile *myo95p  = new TFile("WP95P.root","RECREATE");
 TFile *myo95m  = new TFile("WP95M.root","RECREATE");
 
-TFile *my80    = new TFile("data/TFEcalEffSystECAL80-ECAL95Def_WP80-EFFSYST_001.root");
-TFile *my80hf  = new TFile("data/TFEcalEffSystECAL80-HFDef_WP80-EFFSYST_001.root");
+TFile *my80    = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-ECAL95-MUODef_WP80_001.root");
+TFile *my80hf  = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_WP80_001.root");
 TFile *myo80p  = new TFile("WP80P.root","RECREATE");
 TFile *myo80m  = new TFile("WP80M.root","RECREATE");
 
 
-TFile *myGSF   = new TFile("data/TFEcalEffSystECAL80-ECAL95Def_GsfTrack-EtaDet-EFFSYST_001.root");
-TFile *myGSFhf = new TFile("data/TFEcalEffSystECAL80-HFDef_GsfTrack-EtaDet-EFFSYST_001.root");
+TFile *myGSF   = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-ECAL95-MUODef_GsfTrack-EtaDet_001.root");
+TFile *myGSFhf = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_GsfTrack-EtaDet_001.root");
 TFile *myoGSFp = new TFile("GSFP.root","RECREATE");
 TFile *myoGSFm = new TFile("GSFM.root","RECREATE");
 
 
-TFile *myHFEID   = new TFile("data/TFEcalEffSystECAL80-HFDef_HFElectronId-EtaDet-EFFSYST_001.root");
-TFile *myHFEIDhf = new TFile("data/TFEcalEffSystECAL80-HFDef_HFElectronId-EtaDet-EFFSYST_001.root");
+TFile *myHFEID   = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_HFElectronId-EtaDet_001.root");
+TFile *myHFEIDhf = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_HFElectronId-EtaDet_001.root");
 TFile *myoHFEIDp = new TFile("HFEIDP.root","RECREATE");
 TFile *myoHFEIDm = new TFile("HFEIDM.root","RECREATE");
 
 
-TFile *myHFSC   = new TFile("data/TFEcalEffSystECAL80-HFDef_HFSuperCluster-Et-EFFSYST_001.root");
-TFile *myHFSChf = new TFile("data/TFEcalEffSystECAL80-HFDef_HFSuperCluster-Et-EFFSYST_001.root");
+TFile *myHFSC   = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_HFSuperCluster-Et_001.root");
+TFile *myHFSChf = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_HFSuperCluster-Et_001.root");
 TFile *myoHFSCp = new TFile("HFSCP.root","RECREATE");
 TFile *myoHFSCm = new TFile("HFSCM.root","RECREATE");
 
 
-TFile *mySC    = new TFile("data/TFEcalEffSystECAL80-ECAL95Def_Supercluster-Eta-EFFSYST_001.root");
-TFile *mySChf  = new TFile("data/TFEcalEffSystECAL80-HFDef_Supercluster-Eta-EFFSYST_001.root");
+TFile *mySC    = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-ECAL95-MUODef_Supercluster-Eta_001.root");
+TFile *mySChf  = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_Supercluster-Eta_001.root");
 TFile *myoSCp   = new TFile("SCP.root","RECREATE");
 TFile *myoSCm   = new TFile("SCM.root","RECREATE");
 
 
-TFile *myHLT   = new TFile("data/TFEcalEffSystECAL80-ECAL95Def_HLT-GSF-EFFSYST_001.root");
-TFile *myHLThf = new TFile("data/TFEcalEffSystECAL80-HFDef_HLT-GSF-EFFSYST_001.root");
+TFile *myHLT   = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-ECAL95-MUODef_HLT-GSF_001.root");
+TFile *myHLThf = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-HFDef_HLT-GSF_001.root");
 TFile *myoHLTp = new TFile("HLTP.root","RECREATE");
 TFile *myoHLTm = new TFile("HLTM.root","RECREATE");
 
 
-TFile *myNT    = new TFile("data/TFEcalEffSystECAL80-NTLooseDef_NTTightElectronId-EtaDet-EFFSYST_001.root");
-TFile *myNThf  = new TFile("data/TFEcalEffSystECAL80-NTLooseDef_NTTightElectronId-EtaDet-EFFSYST_001.root");
+TFile *myNT    = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-NTLooseDef_NTTightElectronId-EtaDet_001.root");
+TFile *myNThf  = new TFile("/local/cms/user/klapoetke/Z2Pow_apr/Z2EcalEffSystECAL80-NTLooseDef_NTTightElectronId-EtaDet_001.root");
 TFile *myoNTp   = new TFile("NTP.root","RECREATE");
 TFile *myoNTm   = new TFile("NTM.root","RECREATE");
 
