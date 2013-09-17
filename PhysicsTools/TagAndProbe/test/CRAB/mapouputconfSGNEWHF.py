@@ -1,0 +1,1 @@
+"voigtPlusBKGHF","*et_bin0;*eta_bin0}*","voigtPlusBKGHFpt0eta0","*et_bin1;*eta_bin0}*","voigtPlusBKGHFpt1eta0","*et_bin0;*eta_bin1}*","voigtPlusBKGHFpt0eta1","*et_bin1;*eta_bin1}*","voigtPlusBKGHFpt1eta1","*et_bin0;*eta_bin2}*","voigtPlusBKGHFpt0eta2","*et_bin1;*eta_bin2}*","voigtPlusBKGHFpt1eta2"

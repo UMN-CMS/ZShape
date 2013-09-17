@@ -1,0 +1,382 @@
+? CRAB
+? out
+===================================================================
+File: Electron_TagProbeTreeProducer_cfg.py	Status: Needs Patch
+
+   Working revision:	1.22
+   Repository revision:	1.33	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/Electron_TagProbeTreeProducer_cfg.py,v
+   Commit Identifier:	3pbUpo6NdM57nYKv
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: Makefile         	Status: Up-to-date
+
+   Working revision:	1.4
+   Repository revision:	1.4	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/Makefile,v
+   Commit Identifier:	WEYXifpyENTclBBu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: Photon_TagProbeTreeProducer_cfg.py	Status: Needs Patch
+
+   Working revision:	1.1
+   Repository revision:	1.4	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/Photon_TagProbeTreeProducer_cfg.py,v
+   Commit Identifier:	0YoiOX3IgC83tn3v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: ZeeGenLevel.root 	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/ZeeGenLevel.root,v
+   Commit Identifier:	qCGKex9gt0EL6PVu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: libFFTW.so       	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/libFFTW.so,v
+   Commit Identifier:	qCGKex9gt0EL6PVu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: psetDumpFromTTree.C	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/psetDumpFromTTree.C,v
+   Commit Identifier:	p1LJxVtbqvnBDAfu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeAnalyzer_GEN.py	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeAnalyzer_GEN.py,v
+   Commit Identifier:	WcBKebybxsD1lBBu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeAnalyzer_JPsi.py	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeAnalyzer_JPsi.py,v
+   Commit Identifier:	vWDaxzH3P4mSVylu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeAnalyzer_JPsiMuMu.py	Status: Up-to-date
+
+   Working revision:	1.2
+   Repository revision:	1.2	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeAnalyzer_JPsiMuMu.py,v
+   Commit Identifier:	oYyGLlVNo6Hi8eBu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeAnalyzer_Toy.py	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeAnalyzer_Toy.py,v
+   Commit Identifier:	a6qRR6oGbNCWIeBu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeAnalyzer_Zee.py	Status: Needs Patch
+
+   Working revision:	1.5
+   Repository revision:	1.12	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeAnalyzer_Zee.py,v
+   Commit Identifier:	3pbUpo6NdM57nYKv
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeProducer_GEN.py	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeProducer_GEN.py,v
+   Commit Identifier:	WcBKebybxsD1lBBu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeProducer_JPsi.py	Status: Up-to-date
+
+   Working revision:	1.2
+   Repository revision:	1.2	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeProducer_JPsi.py,v
+   Commit Identifier:	041an8Uv3UVtLqiu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeProducer_JPsiMuMu.py	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeProducer_JPsiMuMu.py,v
+   Commit Identifier:	oLGq8ZFgY6G2QxBu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeProducer_Toy.C	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeProducer_Toy.C,v
+   Commit Identifier:	YMfr8nvnajiMIeBu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: testTagProbeFitTreeProducer_ZMuMu.py	Status: Up-to-date
+
+   Working revision:	1.2
+   Repository revision:	1.2	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/testTagProbeFitTreeProducer_ZMuMu.py,v
+   Commit Identifier:	FifCMqpsNUO6KfYu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: CMSBkgLineShape.cxx	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/CMSBkgLineShape.cxx,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: CMSBkgLineShape.h	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/CMSBkgLineShape.h,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: CutNCountElectronTagAndProbe.C	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/CutNCountElectronTagAndProbe.C,v
+   Commit Identifier:	HnXZoXOCGlDF7GLu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: ElectronTagAndProbeFitter.C	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/ElectronTagAndProbeFitter.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: RooCBExGaussShape.cxx	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/RooCBExGaussShape.cxx,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: RooCBExGaussShape.h	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/RooCBExGaussShape.h,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: RooPowLaw.cxx    	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/RooPowLaw.cxx,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: RooPowLaw.h      	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/RooPowLaw.h,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: SimplifiedElectronTagAndProbe.C	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/SimplifiedElectronTagAndProbe.C,v
+   Commit Identifier:	HnXZoXOCGlDF7GLu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: ThreeCategorySimZFitter.C	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/ThreeCategorySimZFitter.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: TwoCategorySimZFitter.C	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/TwoCategorySimZFitter.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: ZeeBkgFit.C      	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/ZeeBkgFit.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: Zlineshapes.root 	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/Zlineshapes.root,v
+   Commit Identifier:	ONDyiT0LOShZbGLu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: calculateAllEffs.sh	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/calculateAllEffs.sh,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: crab_SKIM.cfg    	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/crab_SKIM.cfg,v
+   Commit Identifier:	SfZ6VbOpG7EUNaIu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: effCalculator.C  	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/effCalculator.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: fitZCat.C        	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/fitZCat.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: parseOutput.sh   	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/parseOutput.sh,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: rootlogon.C      	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/rootlogon.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: selectedEvents.C 	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/selectedEvents.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: skimPhotonPhoton.py	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/skimPhotonPhoton.py,v
+   Commit Identifier:	SfZ6VbOpG7EUNaIu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: tdrstyle.C       	Status: Up-to-date
+
+   Working revision:	1.1
+   Repository revision:	1.1	/cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/TagAndProbe/test/utilities/tdrstyle.C,v
+   Commit Identifier:	q3PG58uWFNF0EhTu
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
