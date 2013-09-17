@@ -1,27 +1,36 @@
 # Electron Efficiency at High Pileup
 
-The Higgs to WW group has modified definitions of the Working Points for electrons. These can be found here: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID2011
+The Higgs to WW group has modified definitions of the Working Points for
+electrons. These can be found here:
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID2011
 
 ## Set Up
 
-In simpleCutBasedElectronIDSpring10_cfi.py you'll need to make sure that you're using V20:
+In simpleCutBasedElectronIDSpring10_cfi.py you'll need to make sure that you're
+using V20:
 
+```python
   simpleCutBasedElectronID = cms.EDProducer("EleIdCutBasedExtProducer",
   ...
   electronVersion = cms.string('V20'),
   ...
   )
+```
 
-To include the cuts in your analysis you'll have to add the following to your cfg.py:
+To include the cuts in your analysis you'll have to add the following to your
+cfg.py:
+
 ```python
 ## Electron ID cuts
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
 process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 ```
+
 ### Example Cuts
 
 The cuts are defined in simpleCutBasedElectronIDSpring10_cfi.py as follows:
+
 ```python
     robust60cIsoEleIDCutsV20 = cms.PSet(
             barrel =  cms.vdouble(
@@ -82,6 +91,7 @@ The cuts are defined in simpleCutBasedElectronIDSpring10_cfi.py as follows:
                 ),
             ),
 ```
+
 ### Jets
 
 The isolation calculation requires kt6PFJets. If these are missing, you can produce by adding the process below:
