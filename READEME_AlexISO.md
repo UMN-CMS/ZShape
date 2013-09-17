@@ -13,16 +13,16 @@ In simpleCutBasedElectronIDSpring10_cfi.py you'll need to make sure that you're 
   )
 
 To include the cuts in your analysis you'll have to add the following to your cfg.py:
-
-    ## Electron ID cuts
-    process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
-    process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
-    process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
-
+```python
+## Electron ID cuts
+process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
+process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
+process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
+```
 ### Example Cuts
 
 The cuts are defined in simpleCutBasedElectronIDSpring10_cfi.py as follows:
-
+```python
     robust60cIsoEleIDCutsV20 = cms.PSet(
             barrel =  cms.vdouble(
                 9999.,  # > H/E
@@ -81,15 +81,17 @@ The cuts are defined in simpleCutBasedElectronIDSpring10_cfi.py as follows:
                 0.02,    # > dcot for conversion
                 ),
             ),
-
+```
 ### Jets
 
 The isolation calculation requires kt6PFJets. If these are missing, you can produce by adding the process below:
 
-    ## Jets for Isolation Cuts
-    process.load('RecoJets.JetProducers.kt4PFJets_cfi') # For isolation calculation
-    process.kt6PFJets = process.kt4PFJets.clone(
-            rParam = 0.6,
-            doRhoFastjet = True,
-            Rho_EtaMax = cms.double(2.5),
-            )
+```python
+## Jets for Isolation Cuts
+process.load('RecoJets.JetProducers.kt4PFJets_cfi') # For isolation calculation
+process.kt6PFJets = process.kt4PFJets.clone(
+        rParam = 0.6,
+        doRhoFastjet = True,
+        Rho_EtaMax = cms.double(2.5),
+        )
+```
