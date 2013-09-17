@@ -114,7 +114,7 @@ void DataSeries::create(const char* file, int iy) {
 }
 
 void plotFinal(TFile* mctruth, int mode=1) {
-  int lumi=36;
+  int lumi=216;
   setTDRStyle();
 
   TH1* truth=(TH1*)(mctruth->Get("mcEff/All/Z0_Y_masscut")->Clone("truth"));
@@ -285,7 +285,9 @@ void plotFinal(TFile* mctruth, int mode=1) {
     pdfTotal.y[i]=(pdfPos.y[i]+(-pdfNeg.y[i]))/2*corrDataBkgd.y[i];
     pdfFrac.y[i]=(pdfPos.y[i]+(-pdfNeg.y[i]))/2;
     
+
     printf("%d %f %f \n",i+1,corrData.ey[i],corrData.y[i]*ea_statErr.y[i]);
+
     corrDataSyst.ey[i]=sqrt(pow(corrDataBkgd.ey[i],2)+
 			    pow(corrDataBkgd.y[i]*ea_statErr.y[i],2)+
 			    pow(backgroundAllUnc.y[i]/effAcc.y[i],2)+

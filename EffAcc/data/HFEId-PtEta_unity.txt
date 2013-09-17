@@ -1,0 +1,9 @@
+#put your comments after a '#'.
+#efficiency name: HFEId
+#dimension: 1 
+
+
+     #PtMin      PtMax     EtaMin     EtaMax   NumParms        eff      systp      systm        den
+         20        500       -4.6         4.6        4         1.00     0.5967     0.5618     138.11
+        
+  

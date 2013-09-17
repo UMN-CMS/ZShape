@@ -5,7 +5,7 @@
 #include "TGraphErrors.h"
 #include "TLegend.h"
 #include "TH2.h"
-#include "readUnfoldingMatrices.C"
+#include "../root/readUnfoldingMatrices.C"
 #include "TMath.h"
 
 static const int    pt_bins=19;
@@ -210,8 +210,14 @@ void plotFinalQt(TFile* mctruth, int mode) {
     //    const char* unfoldingFile="../root/unfoldingMatrix-pt_theOutPut.root"; 
 
     TH1* data_corr_smeared=corrData.makeTH1("data_corr_smeared");
+<<<<<<< plotFinalQt.C
+    //change here for thing
+    TH1* data_corr_unsmeared=unfold(data_corr_smeared,"../root/unfoldingMatrix-pt_theOutPut.root");
+    TFile*    theunfoldingMatrixInputFile = new TFile("../root/unfoldingMatrix-pt_theOutPut.root","read");
+=======
     TH1* data_corr_unsmeared=unfold(data_corr_smeared,unfoldingFile);
     TFile*    theunfoldingMatrixInputFile = new TFile(unfoldingFile,"read");
+>>>>>>> 1.15
     TMatrixD* theUnfoldingMatrix          = (TMatrixD*)theunfoldingMatrixInputFile->Get("unsmearMatrices/unfoldingMatrixTotal");
     double errorCumul=0;
     for (int i=0; i<BINCOUNT; i++) {  
@@ -428,7 +434,6 @@ void plotFinalQt(TFile* mctruth, int mode) {
   tl->AddEntry(truth_vis,"POWHEG+CT10 Prediction","l");
   tl->Draw();
 
-
   zrap_Prelim(0.22,0.97,0.82,0.17);
   zrap_Lumi(0.85,0.97,lumi);
 
@@ -615,7 +620,11 @@ void plotFinalQt(TFile* mctruth, int mode) {
 
       // for scientific notation
       // fprintf(outFile, "%9i %9.1f %9.1f %9e %12.10e %12.10e\n", i+1, pt_binning[i], pt_binning[i+1], corrData.y[i], corrData.ey[i], 
+<<<<<<< plotFinalQt.C
+sqrt(pow(corrDataSyst.ey[i],2)-pow(corrData.ey[i],2));
+=======
       //sqrt(pow(corrDataSyst.ey[i],2)-pow(corrData.ey[i],2)));
+>>>>>>> 1.15
 
       double toadd=pow(corrData.y[i]-truth_vis->GetBinContent(i+1),2)/pow(corrDataSyst.ey[i],2);
       //      printf("%d %f %f %f %f\n",i,corrData.y[i],truth_vis->GetBinContent(i+1),corrDataSyst.ey[i],toadd);

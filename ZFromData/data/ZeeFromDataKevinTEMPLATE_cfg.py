@@ -159,16 +159,6 @@ process.ZFromData = cms.EDAnalyzer("ZFromData",
             Z = cms.untracked.vstring('m(60,120)'),
             ptorder = cms.untracked.bool (False)
 	),
-    cms.PSet( 
-            name = cms.untracked.string('EB-EE'),
-             e1 = cms.untracked.vstring("ACC(EB)","PT20","Supercluster-Eta","PT20",
-                                        "GsfTrack-EtaDet","WP80", "HLT-GSF"),
-            e2 = cms.untracked.vstring("ACC(EE+TRK)","PT20","Supercluster-Eta","PT20",
-                                       "GsfTrack-EtaDet","WP80", "HLT-GSF"),
-            Z = cms.untracked.vstring('m(60,120)'),
-            ptorder = cms.untracked.bool (False)
-	),
-          
 cms.PSet( 
             name = cms.untracked.string('EE-EE'),
             e1 = cms.untracked.vstring("ACC(EE+TRK)","PT20","Supercluster-Eta",
@@ -203,6 +193,6 @@ cms.PSet(
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
 process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 
-process.p1 = cms.Path(process.patElectronIDs+process.hfRecoEcalCandidate+process.lepton_cands+process.ZFromData)
+process.p1 = cms.Path(process.patElectronIDs+process.hfEMClusteringSequence+process.lepton_cands+process.ZFromData)
 
 	 

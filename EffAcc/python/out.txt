@@ -1,0 +1,10 @@
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.952, 1st odd world: 0.797, 2nd odd world: 0.779
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.000, 1st odd world: 0.000, 2nd odd world: 0.000
+comapare weight: real world 0.949, 1st odd world: 0.849, 2nd odd world: 0.849

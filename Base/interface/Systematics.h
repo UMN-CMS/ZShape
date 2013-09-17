@@ -7,11 +7,12 @@ namespace zshape {
   
   class EnergyScale {
   public:
-    EnergyScale(int ECAL, int HF, bool isEtaDep); 
+    EnergyScale(int ECAL, int HF, bool isEtaDep, double mscale); 
     void rescale(ZShapeElectron& electron);
   private:
     int shiftECAL_,shiftHF_;
     bool isEtaDep_;
+    double m_scale;
   };
 
 }

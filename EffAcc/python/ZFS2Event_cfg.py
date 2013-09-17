@@ -29,8 +29,10 @@ process.source = cms.Source("PoolSource",
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo_10M_partBUILDINGTTEST.root')
 )
+process.load("ZShape.EffAcc.SmearedElectronsProducer_cfi")
+process.load("ZShape.EffAcc.ZEfficiencyKevin_cfi")
 
-process.load("ZShape.EffAcc.ZEfficiencyStd_cfi")
+#process.load("ZShape.EffAcc.ZEfficiencyStd_cfi")
 
 process.mcEff.zsrc = cms.untracked.InputTag("f2s","ZEventParticles")
 process.mcEff.zElectronsCollection = cms.untracked.InputTag("f2s","ZEventParticles")
@@ -40,4 +42,4 @@ process.f2s = cms.EDProducer("ZFullSim2Event"
                              )
 
 #process.p = cms.Path(process.makePatElectrons+process.f2s)
-process.p = cms.Path(process.f2s+process.mcEff)
+process.p = cms.Path(process.f2s+process.SmearedElectronsProducer+process.mcEff)

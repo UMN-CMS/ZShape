@@ -152,11 +152,11 @@ void plotEffAcc(TFile* f, int mode=0, const char* var="Z0_Y_masscut") {
   zrap_Prelim(0.87,0.975,0.3,0.87);
 
   char stuff[1024];
-  if (post==0) sprintf(stuff,"effacc_bycut.png");
-  else sprintf(stuff,"effacc_bycut_%s.png",post);
+  if (post==0) sprintf(stuff,"~/public_html/talk/effacc_bycut.png");
+  else sprintf(stuff,"~/public_html/talk/effacc_bycut_%s.png",post);
   c1->Print(stuff);
-  if (post==0) sprintf(stuff,"effacc_bycut.eps");
-  else sprintf(stuff,"effacc_bycut_%s.eps",post);
+  if (post==0) sprintf(stuff,"~/public_html/talk/effacc_bycut.eps");
+  else sprintf(stuff,"~/public_html/talk/effacc_bycut_%s.eps",post);
   c1->Print(stuff);
 
   c2->cd();
@@ -198,11 +198,11 @@ void plotEffAcc(TFile* f, int mode=0, const char* var="Z0_Y_masscut") {
 
   zrap_Prelim(0.87,0.975,0.3,0.87);
 
-  if (post==0) sprintf(stuff,"effacc_bytype.png");
-  else sprintf(stuff,"effacc_bytype_%s.png",post);
+  if (post==0) sprintf(stuff,"~/public_html/talk/effacc_bytype.png");
+  else sprintf(stuff,"~/public_html/talk/effacc_bytype_%s.png",post);
   c2->Print(stuff);
-  if (post==0) sprintf(stuff,"effacc_bytype.eps");
-  else sprintf(stuff,"effacc_bytype_%s.eps",post);
+  if (post==0) sprintf(stuff,"~/public_html/talk/effacc_bytype.eps");
+  else sprintf(stuff,"~/public_html/talk/effacc_bytype_%s.eps",post);
   c2->Print(stuff);
 
   baseclone->SetLineWidth(2);
@@ -212,11 +212,11 @@ void plotEffAcc(TFile* f, int mode=0, const char* var="Z0_Y_masscut") {
 
   baseclone->Draw("SAMEHIST");
 
-  if (post==0) sprintf(stuff,"effacc_bytypetheory.eps");
-  else sprintf(stuff,"effacc_bytypetheory_%s.eps",post);
+  if (post==0) sprintf(stuff,"~/public_html/talk/effacc_bytypetheory.eps");
+  else sprintf(stuff,"~/public_html/talk/effacc_bytypetheory_%s.eps",post);
   c2->Print(stuff);
-  if (post==0) sprintf(stuff,"effacc_bytypetheory.C");
-  else sprintf(stuff,"effacc_bytypetheory_%s.C",post);
+  if (post==0) sprintf(stuff,"~/public_html/talk/effacc_bytypetheory.C");
+  else sprintf(stuff,"~/public_html/talk/effacc_bytypetheory_%s.C",post);
   c2->Print(stuff);
 
   

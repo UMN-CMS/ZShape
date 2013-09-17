@@ -1,6 +1,7 @@
 #include "tdrstyle.C"
 #include "zrapidityStandard.C"
-void plotEffStat(TFile* f, TFile* of=0, const char* var="Z0_Y") {
+
+void plotEffStat(TFile* f, TFile* of=0, const char* var="wZ0_phiStar") {
   setTDRStyle();
 
   TDirectory* based=(TDirectory*)f->Get("mcEff");
@@ -26,7 +27,7 @@ void plotEffStat(TFile* f, TFile* of=0, const char* var="Z0_Y") {
   TLegend* tl=new TLegend(0.5,0.8,0.95,0.95);
 
 
-  TDirectory* ecec=defcont->Get("ECAL80-ECAL95-MUO");
+  TDirectory* ecec=defcont->Get("ECAL80-ECAL95");
   TDirectory* echf=defcont->Get("ECAL80-HF");
   TDirectory* ecnt=defcont->Get("ECAL80-NTTight");
 
@@ -102,7 +103,7 @@ void plotEffStat(TFile* f, TFile* of=0, const char* var="Z0_Y") {
 }
 
 
-void plotEffSyst(TFile* f, TFile *fhf,  TFile* of=0, const char* var="Z0_Pt_masscut", const char* varpm="Plus") {
+void plotEffSyst(TFile* f, TFile *fhf,  TFile* of=0, const char* var="wZ0_phiStar", const char* varpm="Plus") {
   setTDRStyle();
 
   TDirectory* based=(TDirectory*)f->Get("mcEff");
@@ -151,12 +152,12 @@ void plotEffSyst(TFile* f, TFile *fhf,  TFile* of=0, const char* var="Z0_Pt_mass
   TLegend* tl=new TLegend(0.5,0.8,0.95,0.95);
 
 
-  TDirectory* ecec=based->Get("ECAL80-ECAL95-MUO/C07-HLT-GSF");
+  TDirectory* ecec=based->Get("ECAL80-ECAL95/C07-HLT-GSF");
   TDirectory* echf=based->Get("ECAL80-HF/C07-HLT-GSF");
   TDirectory* ecnt=based->Get("ECAL80-NTTight/C07-HLT-GSF");
 
-  TH1* h_ececb=zpt_rebinForPlot((TH1*)ecec->Get(var));
-  TH1* h_echfb=zpt_rebinForPlot((TH1*)echf->Get(var)); 
+  TH1* h_ececb=(TH1*)ecec->Get(var);
+  TH1* h_echfb=(TH1*)echf->Get(var); 
   std::cout << " my string is " << mys << " " << Form("%s",mys.c_str()) << std::endl;
   TH1* h_ecec= defcont   ? ((TDirectory*)defcont->Get(Form("%s",mys.c_str())))->Get(var) : h_ececb ;
   TH1* h_echf =defconthf ?((TDirectory*)defconthf->Get(Form("%s",mys.c_str())))->Get(var): h_echfb ;
@@ -164,8 +165,8 @@ void plotEffSyst(TFile* f, TFile *fhf,  TFile* of=0, const char* var="Z0_Pt_mass
   TH1* feb =  (TH1*) h_ececb->Clone("feb");
   TH1* fec =  (TH1*) h_ecec->Clone("fec");
   
-  //feb->Add(h_echfb);
-  //fec->Add(h_echf);
+  feb->Add(h_echfb);
+  fec->Add(h_echf);
 
   //Scale the fec histogram since this is a SHAPE measurement... who cares about the absolute effects...
   fec->Scale((double (feb->Integral()))/ ( double (fec->Integral())));
@@ -174,7 +175,7 @@ void plotEffSyst(TFile* f, TFile *fhf,  TFile* of=0, const char* var="Z0_Pt_mass
   //fe->SetTitle("FractionalError");
   
   fe->Add(fec,-1.);
-  fe->Divide(base);
+  fe->Divide(fec);
   
   fe->Draw();
   

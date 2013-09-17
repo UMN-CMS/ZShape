@@ -1,0 +1,3 @@
+cfb 40 EB_mean_Apr12_1247_cfg.py ~/Feb2021_fullSim_zee.list;cfb 40 EB_c_Apr12_1235_cfg.py ~/Feb2021_fullSim_zee.list;cfb 40 EE_c_Apr13_1603_cfg.py ~/Feb2021_fullSim_zee.list;cfb 40 EE_mean_Apr13_1248_cfg.py ~/Feb2021_fullSim_zee.list;cfb 40 HF_mean_Apr13_1707_cfg.py ~/Feb2021_fullSim_zee.list;cfb 40 HF_constant_Apr13_1710_cfg.py ~/Feb2021_fullSim_zee.list;
+
+

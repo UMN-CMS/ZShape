@@ -24,12 +24,21 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.load("ZShape.EffAcc.SmearedElectronsProducer_cfi")
-process.load("ZShape.EffAcc.ZEfficiencyStd_cfi")
+process.load("ZShape.EffAcc.ZEfficiencyKevin_cfi")
 
 process.mcEff.systematic = "ECALScale-"
 
+process.mcEff.zsrc = cms.untracked.InputTag("FullSimSmearedElectronsProducer","ZEventParticles")
+process.mcEff.zElectronsCollection = cms.untracked.InputTag("FullSimSmearedElectronsProducer","ZEventParticles")
+process.mcEff.zTreeLevelElectronsCollection = cms.untracked.InputTag("f2s","ZEventEle3")
 
-process.p = cms.Path(process.SmearedElectronsProducer
-                     + process.mcEff
-                     )
+process.f2s = cms.EDProducer("ZFullSim2Event"
+                             )
+process.load("RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff")
+
+process.hfRecoEcalCandidateMC.intercept2DCut = cms.double(-99)
+process.hfRecoEcalCandidateMC.intercept2DSlope = cms.double(99)
+
+#process.p = cms.Path(process.makePatElectrons+process.f2s)
+process.p = cms.Path(process.hfEMClusters+process.hfRecoEcalCandidateMC+process.f2s+process.FullSimSmearedElectronsProducer+process.mcEff)
 

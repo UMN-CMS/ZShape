@@ -153,6 +153,12 @@ void makeCovarianceMatrix(const char* file,  TMatrixD * theUnfoldingMatrix, int 
       //      int ate, atetotal=0;
       int found=sscanf(line," %d %f %f %f %f %f",&i,&a,&b,&c,&d,&e);
 
+<<<<<<< readUnfoldingMatrices.C
+      errorsArray[errorsCounter] = d*d; // use statistical to compute covariance matrix
+      systErrosArray[errorsCounter] = d*d+e*e;
+      std::cout << "stat errors2 directly from unfolded distribution - bin : " << i  <<"\t" << " err2: " << sqrt(errorsArray[errorsCounter])  << std::endl;    
+      myfileData << progressive << "\t"
+=======
       if(isPt){
       errorsArray[errorsCounter]    = d*d;          // use statistical only to compute covariance matrix
       systErrosArray[errorsCounter] = e*e;          // systematics to be added back to the diagonal
@@ -165,6 +171,7 @@ void makeCovarianceMatrix(const char* file,  TMatrixD * theUnfoldingMatrix, int 
       std::cout << "errors2 directly from unfolded distribution used to compute covariance - bin : " 
 		<< i  <<"\t" << " err2: " << sqrt(errorsArray[errorsCounter])  << std::endl;    
       myfileData << scientific << progressive << "\t"
+>>>>>>> 1.20
 		 << a << "\t" //bin_min
 		 << b << "\t"  //bin_max
 		 << c << "\t" //value
@@ -230,11 +237,19 @@ void makeCovarianceMatrix(const char* file,  TMatrixD * theUnfoldingMatrix, int 
       if(addSystematicsOnDiagonal) {
 	float theMatrixElement = covarianceMatrix(i,j);
 	if(i==j) theMatrixElement+= systErrosArray[i]*systErrosArray[i];
+<<<<<<< readUnfoldingMatrices.C
+	  myfile << (i+1) << "\t" << (j+1) << "\t" << theMatrixElement << std::endl;
+=======
 	  myfile << scientific << (i+1) << " " << (j+1) << " " << theMatrixElement << std::endl;
+>>>>>>> 1.20
 	  if(i==j) std::cout << "cov matrix diagonal (sig^2): " << theMatrixElement << "\t sig: " << sqrt(theMatrixElement) << std::endl;
       }
       else{
+<<<<<<< readUnfoldingMatrices.C
+	myfile << (i+1) << "\t" << (j+1) << "\t" << covarianceMatrix(i,j) << std::endl;
+=======
 	myfile << scientific << (i+1) << " " << (j+1) << " " << covarianceMatrix(i,j) << std::endl;
+>>>>>>> 1.20
 	if(i==j) std::cout << "cov matrix diagonal (sig^2): " << covarianceMatrix(i,j) << "\t sig: " << sqrt(covarianceMatrix(i,j)) << std::endl;
       }
     }// loop on matrixIndex

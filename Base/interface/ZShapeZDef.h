@@ -11,8 +11,8 @@ class ZShapeEvent;
   * These cuts apply to the first electron, the second electron, and then
   * the di-electron. 
   * 
-  * $Date: 2010/02/23 21:04:00 $
-  * $Revision: 1.5 $
+  * $Date: 2011/02/28 14:17:01 $
+  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class ZShapeZDef {

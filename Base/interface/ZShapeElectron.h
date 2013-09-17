@@ -23,7 +23,7 @@ public:
   double detEtaVtx_;
   double scEnergy_;
   double detPhi_;
-
+  double PS_;
   // calculate detector eta w.r.t to vertex
   double detectorEta(const math::XYZPoint& vtx) const;
 

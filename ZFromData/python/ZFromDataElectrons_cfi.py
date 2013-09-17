@@ -21,19 +21,21 @@ from RecoEgamma.EgammaIsolationAlgos.eleIsoDepositHcalFromTowers_cff import *
 
 hfEMClusters.correctionType = cms.int32(1)
 hfRecoEcalCandidate.Correct = True
-hfRecoEcalCandidate.e9e25Cut = 0.94
-hfRecoEcalCandidate.intercept2DCut = 0.815
-hfRecoEcalCandidate.intercept2DSlope = 0.475
+#hfRecoEcalCandidate.e9e25Cut = 0
+hfRecoEcalCandidate.intercept2DCut = 0.2
 
 hfSuperClusterCandidate = hfRecoEcalCandidate.clone()
-hfSuperClusterCandidate.e9e25Cut = -99
+hfSuperClusterCandidate.e9e25Cut = 0
 hfSuperClusterCandidate.intercept2DCut = -99
-hfSuperClusterCandidate.intercept2DSlope = -99
+hfSuperClusterCandidate.intercept2DSlope = 99
 
 hfRecoEcalCandidateTight = hfRecoEcalCandidate.clone()
-hfRecoEcalCandidateTight.intercept2DCut = 0.92
-hfRecoEcalCandidateTight.intercept2DSlope = 0.2
-hfRecoEcalCandidateTight.e9e25Cut = 0.94
+hfRecoEcalCandidateTight.intercept2DCut = 0.815
+hfRecoEcalCandidateTight.intercept2DSlope = 0.475
+#intercept2DCut = cms.double(0.815),
+#intercept2DSlope = cms.double(0.475),
+
+#hfRecoEcalCandidateTight.e9e25Cut = 0
 
 
 #  Calculate efficiency for *SuperClusters passing as GsfElectron* 
@@ -336,6 +338,8 @@ PassingGsf = cms.EDFilter("PATElectronRefSelector",
                      " && (ecalEnergy*sin(superClusterPosition.theta)>20.0) && (hadronicOverEm<0.15)")    
 )
 
+
+
 theGsfElectrons = PassingGsf.clone()
 
 HFElectronID = cms.EDFilter("CandViewSelector",
@@ -393,6 +397,12 @@ theIsolation = Iso95.clone()
 #
 
 theId = ElectronID95.clone()
+
+theHFSC = cms.EDFilter("RecoEcalCandidateRefSelector",
+    src = cms.InputTag("hfSuperClusterCandidate"),
+    cut = cms.string("(2.5<abs(superCluster.eta)<5.0)") 
+)
+
 
 ##    _____     _                         __  __       _       _     _             
 ##   |_   _| __(_) __ _  __ _  ___ _ __  |  \/  | __ _| |_ ___| |__ (_)_ __   __ _ 
@@ -472,11 +482,26 @@ theHLTGsf = cms.EDProducer("trgMatchedGsfElectronProducer",
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
 )
 
+
+theHFHLT = cms.EDProducer("trgMatchedEcalCandidateProducer",                     
+    InputProducer = cms.InputTag("theHFSC"),                          
+    hltTag = cms.untracked.VInputTag(
+           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
+           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
+           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
+           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
+)
+
+
+
+
+
 theGsfHFLoose =  cms.EDProducer("CandViewMerger",
     src = cms.VInputTag(cms.InputTag("PassingGsf"), cms.InputTag("HFElectronID"), cms.InputTag("NTElecLoose"))
 )
 
-electron_sequence = cms.Sequence(PassingGsf * theGsfElectrons * theHLTGsf * theGsfHf * theIsolation * theId * theHLT * (HFElectronID + HFElectronIDTight) * theGsfHFLoose )
+electron_sequence = cms.Sequence(PassingGsf * theGsfElectrons * theHLTGsf * theGsfHf * theIsolation * theId * theHLT * theHFSC * theHFHLT *(HFElectronID + HFElectronIDTight) * theGsfHFLoose )
 
 
 ##    _____ ___   ____    ____       _          
@@ -503,36 +528,36 @@ electron_sequence = cms.Sequence(PassingGsf * theGsfElectrons * theHLTGsf * theG
 
 
 tpMapSuperClusters = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("theSuperClusters theSuperClusters"), # charge coniugate states are implied
+    decay = cms.string("theSuperClusters theSuperClusters"), # charge conjugate states are implied
     checkCharge = cms.bool(False),                           
     cut   = cms.string("30 < mass < 120"),
 )
 
 
 tpMapGsfElectrons = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("PassingGsf PassingGsf"), # charge coniugate states are implied
+    decay = cms.string("PassingGsf PassingGsf"), # charge conjugate states are implied
     #cut   = cms.string("60 < mass < 120"),
     cut   = cms.string("30 < mass < 150"),
     checkCharge = cms.bool(False),
 )
 
 tpMapIsolation = cms.EDProducer("CandViewShallowCloneCombiner",
-    #decay = cms.string("theHLT theIsolation"), # charge coniugate states are implied
-    decay = cms.string("theId theIsolation"), # charge coniugate states are implied
+    decay = cms.string("theHLT theIsolation"), # charge conjugate states are implied
+    #decay = cms.string("theId theIsolation"), # charge conjugate states are implied
     cut   = cms.string("60 < mass < 120"),
     checkCharge = cms.bool(False),
 )
 
 tpMapId =  cms.EDProducer("CandViewShallowCloneCombiner",
-    #decay = cms.string("theHLT theId"), # charge coniugate states are implied
-    decay = cms.string("theId theId"), # charge coniugate states are implied
+    decay = cms.string("theHLT theId"), # charge conjugate states are implied
+    #decay = cms.string("theId theId"), # charge conjugate states are implied
     cut   = cms.string("60 < mass < 120"),
     checkCharge = cms.bool(False),
 )
 
 tpMapHFSuperClusters = cms.EDProducer("CandViewShallowCloneCombiner",
-    #decay = cms.string("theHLT theHFSuperClusters"), # charge coniugate states are implied
-    decay = cms.string("theId theHFSuperClusters"), # charge coniugate states are implied
+    decay = cms.string("theHLT theHFSuperClusters"), # charge conjugate states are implied
+    #decay = cms.string("theId theHFSuperClusters"), # charge conjugate states are implied
     cut   = cms.string("30 < mass < 120"),
     checkCharge = cms.bool(False),
 )
@@ -540,15 +565,17 @@ tpMapHFSuperClusters = cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 tpMapGsfAndHF =  cms.EDProducer("CandViewShallowCloneCombiner",
-    #decay = cms.string("theHLTGsf theGsfHf"), # charge coniugate states are implied
-    decay = cms.string("PassingGsf theGsfHf"),
+    decay = cms.string("theHLTGsf theGsfHf"), # charge conjugate states are implied
+    #decay = cms.string("PassingGsf theGsfHf"),
     cut   = cms.string("50 < mass < 130"),
     checkCharge = cms.bool(False),
 )
 
 tpMapWP95AndHF =  cms.EDProducer("CandViewShallowCloneCombiner",
-    #decay = cms.string("theHLTGsf theGsfHf"), # charge coniugate states are implied
-    decay = cms.string("WorkingPoint95 theGsfHFLoose"),
+    decay = cms.string("theHLTGsf theGsfHf"), # charge conjugate states are implied
+    #decay = cms.string("PassingGsf theGsfHf"), #ifMC
+
+    #decay = cms.string("WorkingPoint95 theGsfHFLoose"),
     cut   = cms.string("50 < mass < 160"),
     checkCharge = cms.bool(False),
 )
@@ -572,9 +599,25 @@ tpMapWP90AndSupers =  cms.EDProducer("CandViewShallowCloneCombiner",
 )
 
 
+tpMapTIDSingleTrigHFSC =  cms.EDProducer("CandViewShallowCloneCombiner",
+    decay = cms.string("theHLTGsf theHFSuperClusters"),
+    cut   = cms.string("50 < mass < 160"),
+    checkCharge = cms.bool(False),
+)
+
+tpMapTIDDoubleTrigHFTID =  cms.EDProducer("CandViewShallowCloneCombiner",
+    decay = cms.string("theHLTGsf theHFHLT"),
+    cut   = cms.string("50 < mass < 160"),
+    checkCharge = cms.bool(False),
+)
 
 
-tpMap_sequence = cms.Sequence( tpMapSuperClusters + tpMapGsfElectrons + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF + tpMapWP95AndHF + tpMapWP80AndHF + tpMapWP80AndSupers + tpMapWP90AndSupers )
+
+
+
+
+
+tpMap_sequence = cms.Sequence( tpMapSuperClusters + tpMapGsfElectrons + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF + tpMapWP95AndHF + tpMapWP80AndHF + tpMapWP80AndSupers + tpMapWP90AndSupers +tpMapTIDSingleTrigHFSC +tpMapTIDDoubleTrigHFTID )
 #tpMap_sequence = cms.Sequence( tpMapGsfElectrons + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF)
 
 ##    __  __  ____   __  __       _       _               

@@ -44,6 +44,7 @@ private:
       
   // ----------member data ---------------------------
   edm::InputTag m_mcTag;
+  edm::InputTag m_hfRecoTag;
   bool m_fromPAT;
   double dRmatch_;
 
@@ -52,11 +53,13 @@ private:
 
 ZFullSim2Event::ZFullSim2Event(const edm::ParameterSet& iConfig) : 
   m_mcTag(iConfig.getUntrackedParameter<edm::InputTag>("mc",edm::InputTag("generator"))),
+  m_hfRecoTag(iConfig.getUntrackedParameter<edm::InputTag>("hfRecoTag",edm::InputTag("hfRecoEcalCandidate"))),
   m_fromPAT(iConfig.getUntrackedParameter<bool>("fromPAT",false)),
-  dRmatch_(iConfig.getUntrackedParameter<double>("dRmatch",0.15))
+  dRmatch_(iConfig.getUntrackedParameter<double>("dRmatch",0.15))//,0.15))
 {
   using namespace reco;
-
+ 
+ 
   //register your products
   produces<GenParticleCollection>("ZEventEle1");
   produces<GenParticleCollection>("ZEventEle3");
@@ -69,6 +72,9 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm; 
   using namespace std; 
   using namespace reco;
+  //!!!!!!!!!!!!!
+  bool dump=false;//kevin remove this soon!!change to false;
+  //  bool dump2=true;//kevin remove this soon!!change to false;
   
   std::auto_ptr<GenParticleCollection> pZeeEle1(  new GenParticleCollection() );
   std::auto_ptr<GenParticleCollection> pZeeEle3(  new GenParticleCollection() );
@@ -79,7 +85,7 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   pZeeParticles->clear();
 
   typedef math::PtEtaPhiMLorentzVector PolarLorentzVector;
-  // electric charge type
+  // electric charge type  
   int q=0;
   // Lorentz vector
   typedef int Charge;
@@ -136,6 +142,9 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                            );
     }
   }// end of loop on particles aiming to type-3 electrons
+
+
+ 
 
   /////////////////////////////////////////
   // second loop: aiming to type-1 electrons
@@ -230,15 +239,29 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     qualityOfMatch[0]=1e6;     qualityOfMatch[1]=1e6; 
 
     Particle::LorentzVector dilep= (*pZeeEle3)[0].p4()+(*pZeeEle3)[1].p4();
+    
 
-    bool dump=false;
-
-    if (dilep.M()>60 && dump) {
-      std::cout << dilep.M() << " GeV / ";
-      std::cout << (*pZeeEle3)[0].pt() << " " << (*pZeeEle3)[0].eta() << " " <<  (*pZeeEle3)[0].phi() << " / ";
-      std::cout << (*pZeeEle3)[1].pt() << " " << (*pZeeEle3)[1].eta() << " " <<  (*pZeeEle3)[1].phi() << std::endl;
+    if (dilep.M()>60 && dump) {//dilep.M()>60
+      printf("\n--------------------------------------------------\n");
+      std::cout <<"%%f2s MASS: "<<dilep.M() << " GeV /"<< std::endl;
+      std::cout <<"e1 PT:"<<(*pZeeEle3)[0].pt() << " eta:" << (*pZeeEle3)[0].eta() << " phi:" <<  (*pZeeEle3)[0].phi() << " / ";
+      std::cout <<"e2 PT:"<<(*pZeeEle3)[1].pt() << " eta:" << (*pZeeEle3)[1].eta() << " phi:" <<  (*pZeeEle3)[1].phi() << std::endl;
+      bool shouldpass=true;
+      char whyy[128];
+      sprintf(whyy,"Because:");
+      if(dilep.M()<60 || dilep.M()>120){shouldpass=false; sprintf(whyy,"%s bad mass; ",whyy);}
+      if(((*pZeeEle3)[0].pt() < 20)||((*pZeeEle3)[1].pt()<20)){shouldpass=false; sprintf(whyy,"%s low pt; ",whyy);}
+      if( (fabs((*pZeeEle3)[0].eta()) > 1.442) &&  (fabs((*pZeeEle3)[0].eta()) < 1.566)  ){shouldpass=false;sprintf(whyy,"%s EE-EB Crack; ",whyy);}
+      if( (fabs((*pZeeEle3)[1].eta()) > 1.442) &&  (fabs((*pZeeEle3)[1].eta()) < 1.566)  ){shouldpass=false;sprintf(whyy,"%s EE-EB Crack; ",whyy);}
+      if( (fabs((*pZeeEle3)[0].eta()) > 2.5) &&  (fabs((*pZeeEle3)[0].eta()) < 3.1)  ){shouldpass=false;sprintf(whyy,"%s EE-HF Crack; ",whyy);}
+      if( (fabs((*pZeeEle3)[1].eta()) > 2.5) &&  (fabs((*pZeeEle3)[1].eta()) < 3.1)  ){shouldpass=false;sprintf(whyy,"%s EE-HF Crack; ",whyy);}
+      if( (fabs((*pZeeEle3)[0].eta()) > 4.6)  ){shouldpass=false;sprintf(whyy,"%s in beam pipe; ",whyy);}
+      if( (fabs((*pZeeEle3)[1].eta()) > 4.6) ){shouldpass=false;sprintf(whyy,"%s in beam pipe; ",whyy);}
+      
+      if(!shouldpass)printf("!!!!Should Fail %s!!\n",whyy);
+      else {printf("@@@@@@@@ should pass\n");}
     }
-
+    
     if (m_fromPAT) {
    
       edm::Handle<pat::ElectronCollection> patElectron;
@@ -275,7 +298,7 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (i=pElecs.begin(); i!=pElecs.end(); i++) {
 	for (int k=0; k<2; k++) {
 	  double qf=reco::deltaR(*i,(*pZeeEle3)[k]);
-
+	  //if (dilep.M()>60 && dump) printf("## EC current quality:%0.3f ::: quality %i: %0.3f  test:  eta:%0.3f phi:%0.3f\n",qualityOfMatch[k],(int)k,qf,i->eta(),i->phi());
 	  if (qf<qualityOfMatch[k]) {
 	    bestMatches[k]=GenParticle(i->charge(),
 				       i->p4(),
@@ -291,7 +314,7 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // next try HF!
     edm::Handle<reco::RecoEcalCandidateCollection> HFElectronsH;
-    iEvent.getByLabel("hfRecoEcalCandidate",HFElectronsH);
+    iEvent.getByLabel(m_hfRecoTag,HFElectronsH);
 
     if (!HFElectronsH.isValid()) {
       std::cerr << "Invalid HF Electrons Handle" << std::endl;
@@ -300,10 +323,12 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     const reco::RecoEcalCandidateCollection& HFelecs=*HFElectronsH;
     reco::RecoEcalCandidateCollection::const_iterator j;
+    int zz=0;
     for (j=HFelecs.begin(); j!=HFelecs.end(); j++) {
       for (int k=0; k<2; k++) {
 	double qf=reco::deltaR(*j,(*pZeeEle3)[k]);
-	
+	//if (dilep.M()>60 && dump) printf("## HF current quality:%0.3f ::: quality %i: %0.3f  test:  eta:%0.3f phi:%0.3f\n",qualityOfMatch[k],(int)k,qf,j->eta(),j->phi());
+	//	printf("##qf of HF[%i][%i]: %0.2f \n##HF: pt: %0.2f eta: %0.2f phi: %0.2f\n## z3: pt: %0.2f eta: %0.2f phi: %0.2f\n",k,zz,qf,j->p4().pt(),j->eta(),j->phi(),(*pZeeEle3)[k].pt(),(*pZeeEle3)[k].eta(),(*pZeeEle3)[k].phi());
 	if (qf<qualityOfMatch[k]) {
 	  bestMatches[k]=GenParticle(j->charge(),
 				     j->p4(),
@@ -312,45 +337,66 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				     100,
 				     true);
 	  qualityOfMatch[k]=qf;
+
 	}
-      }
+      }zz++;
     }
 
     if (dilep.M()>60 && dump) {
-      std::cout << bestMatches[0].pt() << " " << bestMatches[0].eta() << " " <<  bestMatches[0].phi() << " : " << qualityOfMatch[0] << " / ";
-      std::cout << bestMatches[1].pt() << " " << bestMatches[1].eta() << " " <<  bestMatches[1].phi() << " : " << qualityOfMatch[1] << std::endl;
-      std::cout << std::endl;
+
+      std::cout <<"%%best match1 PT:" <<bestMatches[0].pt() << " eta:" << bestMatches[0].eta() << " phi:" <<  bestMatches[0].phi() << " Quality: " << qualityOfMatch[0] << " / ";
+      std::cout << " best amtch 2: PT:" <<bestMatches[1].pt() << " eta:" << bestMatches[1].eta() << " phi:" <<  bestMatches[1].phi() << " Quality: " << qualityOfMatch[1] << std::endl;
+      // std::cout << std::endl;
 
     }
-
+    bool dump2=false;//kevin remove this soon!!change to false;
     if (qualityOfMatch[0]<dRmatch_ && qualityOfMatch[1]<dRmatch_) {
       pZeeParticles->push_back(bestMatches[0]);
       pZeeParticles->push_back(bestMatches[1]);
+    } else {
+      //std::cout << "Failure: We have " << pZeeEle3->size() << std::endl;
+    }
+    if (pZeeParticles->empty()) {
+      LorentzVector p4(1.0,0.0,1.1e4,sqrt(1.0+1.1e4*1.1e4));
+      LorentzVector mp4(-1.0,0.0,-1.1e4,sqrt(1.0+1.1e4*1.1e4));
+      //  printf("FAKING IT!!!!!!!!!!!!\n");
+      pZeeParticles->push_back(GenParticle(1,
+					   p4,
+					   Point(0,0,0),
+					   11,
+					   110,
+					   true));
+      pZeeParticles->push_back(GenParticle(-1,
+					   mp4,
+					   Point(0,0,0),
+					   11,
+					   110,
+					   true));
+
+      dump2=false;
     }
 
-         
-  } else {
-    std::cout << "We have " << pZeeEle3->size() << std::endl;
+ if( (fabs((*pZeeEle3)[0].eta()) > 1.442) &&  (fabs((*pZeeEle3)[0].eta()) < 1.566)  ) dump2=false;
+      if( (fabs((*pZeeEle3)[1].eta()) > 1.442) &&  (fabs((*pZeeEle3)[1].eta()) < 1.566)  ) dump2=false;
+      if( (fabs((*pZeeEle3)[0].eta()) > 2.5) &&  (fabs((*pZeeEle3)[0].eta()) < 3.1)  ) dump2=false;
+      if( (fabs((*pZeeEle3)[1].eta()) > 2.5) &&  (fabs((*pZeeEle3)[1].eta()) < 3.1)  ) dump2=false;
+      if( (fabs((*pZeeEle3)[0].eta()) > 4.6)  ) dump2=false;
+      if( (fabs((*pZeeEle3)[1].eta()) > 4.6) ) dump2=false;
+
+
+
+
+    if(dilep.M()<50)dump2=false;
+    if(dump2){   
+      printf("@------------------\n");
+      printf("@Z: m: %0.2f pu: --\n",dilep.M());
+      printf("@e1: pt: %0.2f eta: %0.2f phi: %0.2f \n",(*pZeeEle3)[0].pt(),(*pZeeEle3)[0].eta(),(*pZeeEle3)[0].phi());
+      printf("@e1: pt: %0.2f eta: %0.2f phi: %0.2f \n",(*pZeeEle3)[1].pt(),(*pZeeEle3)[1].eta(),(*pZeeEle3)[1].phi());
+      printf("@------------------\n");
+    }//end dump2
+
+
   }
-
-  if (pZeeParticles->empty()) {
-    LorentzVector p4(1.0,0.0,1.1e4,sqrt(1.0+1.1e4*1.1e4));
-    
-    pZeeParticles->push_back(GenParticle(1,
-					p4,
-					Point(0,0,0),
-					11,
-					110,
-					true));
-    pZeeParticles->push_back(GenParticle(-1,
-					p4,
-					Point(0,0,0),
-					11,
-					110,
-					true));
-  }
-
-
   iEvent.put(pZeeEle1,"ZEventEle1");
   iEvent.put(pZeeEle3,"ZEventEle3");
   iEvent.put(pZeeParticles,"ZEventParticles");

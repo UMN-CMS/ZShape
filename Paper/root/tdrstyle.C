@@ -2,7 +2,7 @@
 #define TDRSTYLE_INCLUDED
 #include "TStyle.h"
 #include "TColor.h"
-
+#include "TPad.h"
 
 #include "TStyle.h"
 

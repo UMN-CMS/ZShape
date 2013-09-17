@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Mon Feb 18 21:18:39 CET 2008
-// $Id: ZEventProducer.cc,v 1.1 2010/12/14 21:26:26 mansj Exp $
+// $Id: BestZProducer.cc,v 1.1 2011/01/15 07:52:00 haupt Exp $
 //
 //
 

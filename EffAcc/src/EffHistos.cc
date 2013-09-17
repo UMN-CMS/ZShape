@@ -10,186 +10,194 @@ typedef math::XYZTLorentzVector XYZTLorentzVector;
 
 void EffHistos::Book(TFileDirectory& tdf,bool mzbin) {
 
-    booked_=true;
-    massFinals_=mzbin;
+  booked_=true;
+  massFinals_=mzbin;
 
-    // add here all extremes, tidily
-    const float pi       = 3.141593;
-    const float maxPt    = 400;
-    const float minZmass = 50;
-    const float maxZmass = 150;
-    const int   binsZmass  = 50;
+  // add here all extremes, tidily
+  const float pi       = 3.141593;
+  const float maxPt    = 400;
+  const float minZmass = 50;
+  const float maxZmass = 150;
+  const int   binsZmass  = 50;
 
-    const double ZmassBins[]={ 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
-        51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 
-        71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
-        91, 92, 93, 94, 95, 96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,
-        111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,
-        131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150};
+  const double ZmassBins[]={ 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+			     51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 
+			     71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+			     91, 92, 93, 94, 95, 96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,
+			     111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,
+			     131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150};
 
-    //  float detetaBins[104] = {-5., -4.9, -4.8, -4.7, -4.6, -4.5, -4.4, -4.3, -4.2, -4.1, -4., -3.9, -3.8, -3.7, -3.6,  //14
-    //                       -3.5, -3.4, -3.3,  -3.2, -3.1, -3., //6
-    //                       -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -1.89, -1.78, -1.67,  //13
-    //                       -1.56, -1.4442, -1.35, -1.257, -1.163, -1.127,  -1.02, -0.913, -0.806, -0.770,  //10
-    //                       -0.667, -.564, -0.461, -0.423, -0.32, -0.22, -0.12, -0.018, 0.018, 0.12, 0.22, 0.32,  0.423, 0.461, 0.564,0.667, //16
-    //                       0.770, 0.806, 0.913, 1.02, 1.127, 1.163,  1.257, 1.35, 1.4442, //9
-    //                       1.56, 1.67, 1.78, 1.89, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, //14
-    //                       3., 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, //10
-    //                       4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5. }; //11
+  const double psBins[]={0.001,0.005,0.01,0.016,0.023,0.031,0.04,0.05,0.07,0.1,0.15,0.2,0.28,0.36,0.46,0.66,0.88,1};
+  const double npsb=17;
+  //  float detetaBins[104] = {-5., -4.9, -4.8, -4.7, -4.6, -4.5, -4.4, -4.3, -4.2, -4.1, -4., -3.9, -3.8, -3.7, -3.6,  //14
+  //                       -3.5, -3.4, -3.3,  -3.2, -3.1, -3., //6
+  //                       -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -1.89, -1.78, -1.67,  //13
+  //                       -1.56, -1.4442, -1.35, -1.257, -1.163, -1.127,  -1.02, -0.913, -0.806, -0.770,  //10
+  //                       -0.667, -.564, -0.461, -0.423, -0.32, -0.22, -0.12, -0.018, 0.018, 0.12, 0.22, 0.32,  0.423, 0.461, 0.564,0.667, //16
+  //                       0.770, 0.806, 0.913, 1.02, 1.127, 1.163,  1.257, 1.35, 1.4442, //9
+  //                       1.56, 1.67, 1.78, 1.89, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, //14
+  //                       3., 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, //10
+  //                       4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5. }; //11
 
-    mZ_  = tdf.make<TH1F>("Z0_mass","Z0_mass;m_{Z} (GeV/c^{2})", binsZmass, minZmass, maxZmass);
-    mZ_zoom  = tdf.make<TH1F>("Z0_mass_zoom","Z0_mass(fine binning);m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
+  mZ_  = tdf.make<TH1F>("Z0_mass","Z0_mass;m_{Z} (GeV/c^{2})", binsZmass, minZmass, maxZmass);
+  mZ_zoom  = tdf.make<TH1F>("Z0_mass_zoom","Z0_mass(fine binning);m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
    
-    YZ_  = tdf.make<TH1F>("Z0_Y","Z0_Y;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
-    ptZ_  = tdf.make<TH1F>("Z0_Pt","Z0_Pt;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning);
-    ptZmon_ = tdf.make<TH1F>("Z0_PtMon","Z0_PtMon;p_{T,Z0}", 200, 0, maxPt);
+  YZ_  = tdf.make<TH1F>("Z0_Y","Z0_Y;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
+  ptZ_  = tdf.make<TH1F>("Z0_Pt","Z0_Pt;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning);
+  ptZmon_ = tdf.make<TH1F>("Z0_PtMon","Z0_PtMon;p_{T,Z0}", 200, 0, maxPt);
     
-    atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 150, 0, 150.);
-    alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{l,Z0}", 150, 0, 150.);
-    ptZ_ = tdf.make<TH1F>("wZ0_pt","Z0_Pt;p_{T,Z0}", 200, 0, maxPt);
-    phiStar_ = tdf.make<TH1F>("wZ0_phiStar","Z0_phiStar;phiStar_{T,Z0}", 1000, 0, 1.);
-    phiStar_lr= tdf.make<TH1F>("wZ0_phiStar_lr","Z0_phiStar long range;phiStar_{T,Z0}", 200, 1.0, 5);
-    newphistar_=tdf.make<TH1F>("delta_phiStars","old phis star- old phi star;#Delta phiStar_{T,Z0}", 1000, -2, 2.);
-    e1eta_ = tdf.make<TH1F>("e1_eta","e1_eta;detector #eta_{e1}", 50, -5, 5);
-    e2eta_ = tdf.make<TH1F>("e2_eta","e2_eta;detector #eta_{e2}", 50, -5, 5);
-    eeta_ = tdf.make<TH1F>("e_eta","e_eta;detector #eta_{e}", 50, -5, 5);
-    e1phi_ = tdf.make<TH1F>("e1_phi","e1_phi;#phi_{e1}", 50, -pi, pi);
-    e2phi_ = tdf.make<TH1F>("e2_phi","e2_phi;#phi_{e2}", 50,  -pi, pi);
-    ephi_ = tdf.make<TH1F>("e_phi","e_phi;#phi_{e}", 50,  -pi, pi);
-    e1pt_  = tdf.make<TH1F>("e1_P_t","e1_P_t;p_{T,e1}", 200, 0, maxPt);
-    e2pt_  = tdf.make<TH1F>("e2_P_t","e2_P_t;p_{T,e2}", 200, 0, maxPt);
-    //2D mass v stuff  stff=x, mass=y
+  atZ_ = tdf.make<TH1F>("wZ0_at","Z0_at;a_{T,Z0}", 150, 0, 150.);
+  alZ_ = tdf.make<TH1F>("wZ0_al","Z0_al;a_{l,Z0}", 150, 0, 150.);
+  ptZ_ = tdf.make<TH1F>("wZ0_pt","Z0_Pt;p_{T,Z0}", 200, 0, maxPt);
+  phiStar_ = tdf.make<TH1F>("wZ0_phiStar","Z0_phiStar;phiStar_{T,Z0}", 1000,0,1); //npsb,psBins);
+  phiStar_lr= tdf.make<TH1F>("wZ0_phiStar_lr","Z0_phiStar long range;phiStar_{T,Z0}", 200,1.0,5);
+  newphistar_=tdf.make<TH1F>("delta_phiStars","old phis star- old phi star;#Delta phiStar_{T,Z0}", 1000, -2, 2.);
+  e1eta_ = tdf.make<TH1F>("e1_eta","e1_eta;detector #eta_{e1}", 50, -5, 5);
+  e2eta_ = tdf.make<TH1F>("e2_eta","e2_eta;detector #eta_{e2}", 50, -5, 5);
+  eeta_ = tdf.make<TH1F>("e_eta","e_eta;detector #eta_{e}", 50, -5, 5);
+  e1phi_ = tdf.make<TH1F>("e1_phi","e1_phi;#phi_{e1}", 50, -pi, pi);
+  e2phi_ = tdf.make<TH1F>("e2_phi","e2_phi;#phi_{e2}", 50,  -pi, pi);
+  ephi_ = tdf.make<TH1F>("e_phi","e_phi;#phi_{e}", 50,  -pi, pi);
+  e1pt_  = tdf.make<TH1F>("e1_P_t","e1_P_t;p_{T,e1}", 200, 0, 500);
+  e2pt_  = tdf.make<TH1F>("e2_P_t","e2_P_t;p_{T,e2}", 200, 0, 500);
+  //2D mass v stuff  stff=x, mass=y
+
+  h_wgt_ = tdf.make<TH1F>("wgt_cut","Weight per cut (running total", 110, -0.05, 1.05);
 
 
-
-    
+  evt_nvert_ = tdf.make<TH1F>("nvert","Number of Vertices;Vertices", 31, -.5, 30.5);
+  evt_npu_ = tdf.make<TH1F>("npu","Number of Pile Up;Pile Up", 31, -1, 30);
   
-    mZ_v_mz_  = tdf.make<TH2F>("mZ_vs_Z0_mass_zoom","mZ_vs_Z0_mass_zoom;m_{Z} (GeV/c^{2});m_{Z} (GeV/c^{2})",120, 60.0, 120.0,60, 60.0, 120.0);
-    YZ_v_mz_  = tdf.make<TH2F>("mZ_vs_Z0_Y","mZ_vs_Z0_Y;Y_{Z0};m_{Z} (GeV/c^{2})", zshape::y_bins, -zshape::y_max, zshape::y_max,60, 60.0, 120.0);
-    atZ_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_at","mZ_vs_Z0_at;a_{T,Z0};m_{Z} (GeV/c^{2})", 150, 0, 150.,60, 60.0, 120.0);
-    ptZ_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_pt","mZ_vs_Z0_Pt;p_{T,Z0};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
-    phiStar_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_phiStar","mZ_vs_Z0_phiStar;phiStar_{T,Z0};m_{Z} (GeV/c^{2})", 1000, 0, 1.,60, 60.0, 120.0);
-    e1eta_v_mz_ = tdf.make<TH2F>("mZ_vs_e1_eta","mZ_vs_e1_eta;detector #eta_{e1};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
-    e2eta_v_mz_ = tdf.make<TH2F>("mZ_vs_e2_eta","mZ_vs_e2_eta;detector #eta_{e2};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
-    eeta_v_mz_= tdf.make<TH2F>("mZ_vs_e_eta","mZ_vs_e_eta;detector #eta_{e};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
-    e1phi_v_mz_ = tdf.make<TH2F>("mZ_vs_e1_phi","mZ_vs_e1_phi;#phi_{e1};m_{Z} (GeV/c^{2})", 50, -pi, pi,60, 60.0, 120.0);
-    e2phi_v_mz_ = tdf.make<TH2F>("mZ_vs_e2_phi","mZ_vs_e2_phi;#phi_{e2};m_{Z} (GeV/c^{2})", 50,  -pi, pi,60, 60.0, 120.0);
-    ephi_v_mz_ = tdf.make<TH2F>("mZ_vs_e_phi","mZ_vs_e_phi;#phi_{e};m_{Z} (GeV/c^{2})", 50,  -pi, pi,60, 60.0, 120.0);
-    e1pt_v_mz_  = tdf.make<TH2F>("mZ_vs_e1_P_t","mZ_vs_e1_P_t;p_{T,e1};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
-    e2pt_v_mz_  = tdf.make<TH2F>("mZ_vs_e2_P_t","mZ_vs_e2_P_t;p_{T,e2};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
+  fid_ps_BB = tdf.make<TH1F>("Fid_phisStar_BB","phiStar fiducial cut EB-EB", npsb,psBins);
+   fid_ps_EB = tdf.make<TH1F>("Fid_phisStar_EB","phiStar fiducial cut EE-EB", npsb,psBins);
+  fid_ps_EH = tdf.make<TH1F>("Fid_phisStar_EH","phiStar fiducial cut EE-HF", npsb,psBins);
+
+ fid_ps_BB_MC = tdf.make<TH1F>("Fid_phisStar_BB_mc","phiStar fiducial cut EB-EB MonteCarlo", npsb,psBins);
+
+ fid_ps_EB_MC = tdf.make<TH1F>("Fid_phisStar_EB_mc","phiStar fiducial cut EE-EB MonteCarlo", npsb,psBins);
+  fid_ps_EH_MC = tdf.make<TH1F>("Fid_phisStar_EH_mc","phiStar fiducial cut EE-HF MonteCarlo", npsb,psBins);
+
+  mZ_v_mz_  = tdf.make<TH2F>("mZ_vs_Z0_mass_zoom","mZ_vs_Z0_mass_zoom;m_{Z} (GeV/c^{2});m_{Z} (GeV/c^{2})",120, 60.0, 120.0,60, 60.0, 120.0);
+  YZ_v_mz_  = tdf.make<TH2F>("mZ_vs_Z0_Y","mZ_vs_Z0_Y;Y_{Z0};m_{Z} (GeV/c^{2})", zshape::y_bins, -zshape::y_max, zshape::y_max,60, 60.0, 120.0);
+  atZ_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_at","mZ_vs_Z0_at;a_{T,Z0};m_{Z} (GeV/c^{2})", 150, 0, 150.,60, 60.0, 120.0);
+  ptZ_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_pt","mZ_vs_Z0_Pt;p_{T,Z0};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
+  phiStar_v_mz_ = tdf.make<TH2F>("mZ_vs_wZ0_phiStar","mZ_vs_Z0_phiStar;phiStar_{T,Z0};m_{Z} (GeV/c^{2})", npsb,psBins,60, 60.0, 120.0);
+  e1eta_v_mz_ = tdf.make<TH2F>("mZ_vs_e1_eta","mZ_vs_e1_eta;detector #eta_{e1};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
+  e2eta_v_mz_ = tdf.make<TH2F>("mZ_vs_e2_eta","mZ_vs_e2_eta;detector #eta_{e2};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
+  eeta_v_mz_= tdf.make<TH2F>("mZ_vs_e_eta","mZ_vs_e_eta;detector #eta_{e};m_{Z} (GeV/c^{2})", 50, -5, 5,60, 60.0, 120.0);
+  e1phi_v_mz_ = tdf.make<TH2F>("mZ_vs_e1_phi","mZ_vs_e1_phi;#phi_{e1};m_{Z} (GeV/c^{2})", 50, -pi, pi,60, 60.0, 120.0);
+  e2phi_v_mz_ = tdf.make<TH2F>("mZ_vs_e2_phi","mZ_vs_e2_phi;#phi_{e2};m_{Z} (GeV/c^{2})", 50,  -pi, pi,60, 60.0, 120.0);
+  ephi_v_mz_ = tdf.make<TH2F>("mZ_vs_e_phi","mZ_vs_e_phi;#phi_{e};m_{Z} (GeV/c^{2})", 50,  -pi, pi,60, 60.0, 120.0);
+  e1pt_v_mz_  = tdf.make<TH2F>("mZ_vs_e1_P_t","mZ_vs_e1_P_t;p_{T,e1};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
+  e2pt_v_mz_  = tdf.make<TH2F>("mZ_vs_e2_P_t","mZ_vs_e2_P_t;p_{T,e2};m_{Z} (GeV/c^{2})", 200, 0, maxPt,60, 60.0, 120.0);
+
+
+
+  //  h_wgt_e1 = tdf.make<TH1F>("wgt_e1","Weight of e1 at this cut", 100, -0.05, 1.05);
+  //  h_wgt_e2 = tdf.make<TH1F>("wgt_e2","Weight of e2 at this cut", 100, -0.05, 1.05);
+  //  h_wgt_ee = tdf.make<TH1F>("wgt_ee","total weight at this cut", 100, -0.05, 1.05);
 
 
 
 
 
 
+  mz_hfn = tdf.make<TH1F>("HFneg_mass_zoom","Z0_mass(fine binning) for HF minus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
+  mz_hfp = tdf.make<TH1F>("HFpos_mass_zoom","Z0_mass(fine binning) for HF plus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
+  //polarization
+  polarizationZ_= tdf.make<TH1F>("Z0_Pol","Z0_Polarization", 100, 0,3.2 );
+  cosPolarizationZ_= tdf.make<TH1F>("Z0_cosPol","Z0_cosinePolarization", 100, -1,1);
+  YZmasscut_  = tdf.make<TH1F>("Z0_Y_masscut","Z0_Y_masscut;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
+  ptZmasscut_  = tdf.make<TH1F>("Z0_Pt_masscut","Z0_Pt_masscut;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning);
+
+  mZTL_  = tdf.make<TH1F>("Z0_massTL","Z0_M Tree Level;m_{Z0} (GeV/c^{2})", 50, minZmass, maxZmass);
+  YZTL_  = tdf.make<TH1F>("Z0_YTL","Z0_Y Tree Level;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
+  ptZTL_  = tdf.make<TH1F>("Z0_PtTL","Z0_PtTL;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning); 
+  ptZTLmon_ = tdf.make<TH1F>("Z0_PtTLMon","Z0_Pt Tree Level Mon;p_{T,Z0}", 200, 0, maxPt);
+
+  YZTLmasscut_  = tdf.make<TH1F>("Z0_YTL_masscut","Z0_Y Tree Level_masscut;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
+  ptZTLmasscut_  = tdf.make<TH1F>("Z0_PtTL_masscut","Z0_PtTL_masscut;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning); 
+
+  YZmasscutTL_  = tdf.make<TH1F>("Z0_Y_masscutTL","Z0_Y masscutTL;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
+  ptZmasscutTL_  = tdf.make<TH1F>("Z0_Pt_masscutTL","Z0_Pt masscutTL;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning); 
+
+   
+
+  e1charge_  = tdf.make<TH1F>("e1_charge","e1_charge", 3, -1.5, 1.5);
+  e2charge_  = tdf.make<TH1F>("e2_charge","e2_charge", 3, -1.5, 1.5);
+  hfeta_ = tdf.make<TH1F>("hf_eta","hf_eta;|#eta|",13*7,3.0,5.0);
+
+  phistarRes= tdf.make<TH1F>("Z0_phistarRes","Z0_phistarRes(Gen-Reco/Gen)",400,-1,1);
+  atRes= tdf.make<TH1F>("Z0_atRes","Z0_atRes(Gen-Reco/Gen)",400,-1,1);
+  ptRes= tdf.make<TH1F>("Z0_ptRes","Z0_ptRes(Gen-Reco/Gen)",400,-1,1);
+
+  phistarRes_scaled= tdf.make<TH1F>("Z0_phistarRes_scaled","Z0_phistarRes(Gen-Reco/1.0)",200,-0.2,0.2);
+  atRes_scaled= tdf.make<TH1F>("Z0_atRes_scaled","Z0_atRes(Gen-Reco/M_Z)",200,-0.2,0.2);
+  ptRes_scaled= tdf.make<TH1F>("Z0_ptRes_scaled","Z0_ptRes(Gen-Reco/(M_Z sqrt 2) )",200,-0.2,0.2);
+
+  phistarRes_plain= tdf.make<TH1F>("Z0_phistarRes_plain","Z0_phistarRes(Gen-Reco)",400,-2,2);
+  atRes_plain= tdf.make<TH1F>("Z0_atRes_plain","Z0_atRes(Gen-Reco)",400,-40,40);
+  ptRes_plain= tdf.make<TH1F>("Z0_ptRes_plain","Z0_ptRes(Gen-Reco)",400,-60,60);
+  //at/al/phistar
+
+  deta_= tdf.make<TH1F>("e_deltaEta","Z0_at;#Delta#eta", 200, -10,10);
+  dphi_= tdf.make<TH1F>("e_deltaPhi","Z0_at;#Delta#phi", 150, -0.001, 1.001*pi);
+
+  MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 150, 0, 150.);
+  MCalZ_ = tdf.make<TH1F>("Z0_al_MC","Z0_al_MC;a_{l,Z0}", 150, 0, 150.);
+  MCphiStar_ = tdf.make<TH1F>("wZ0_phiStar_MC","Z0_phiStar_MC;phiStar_{T,Z0}", npsb,psBins);
 
 
 
-    mz_hfn = tdf.make<TH1F>("HFneg_mass_zoom","Z0_mass(fine binning) for HF minus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
-    mz_hfp = tdf.make<TH1F>("HFpos_mass_zoom","Z0_mass(fine binning) for HF plus;m_{Z} (GeV/c^{2})",120, 60.0, 120.0);
-    //polarization
-    polarizationZ_= tdf.make<TH1F>("Z0_Pol","Z0_Polarization", 100, 0,3.2 );
-    cosPolarizationZ_= tdf.make<TH1F>("Z0_cosPol","Z0_cosinePolarization", 100, -1,1);
-    YZmasscut_  = tdf.make<TH1F>("Z0_Y_masscut","Z0_Y_masscut;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
-    ptZmasscut_  = tdf.make<TH1F>("Z0_Pt_masscut","Z0_Pt_masscut;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning);
+  atTL_at_= tdf.make<TH2F>("atTL_vs_at","atTL_vs_at;a_{T};a_{T treeLevel}" ,150, 0, 150., 150, 0, 150.); 
 
-    mZTL_  = tdf.make<TH1F>("Z0_massTL","Z0_M Tree Level;m_{Z0} (GeV/c^{2})", 50, minZmass, maxZmass);
-    YZTL_  = tdf.make<TH1F>("Z0_YTL","Z0_Y Tree Level;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
-    ptZTL_  = tdf.make<TH1F>("Z0_PtTL","Z0_PtTL;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning); 
-    ptZTLmon_ = tdf.make<TH1F>("Z0_PtTLMon","Z0_Pt Tree Level Mon;p_{T,Z0}", 200, 0, maxPt);
+  phiStarTL_phiStar_= tdf.make<TH2F>("phiStarTL_phiStar","phiStarTL_vs_phiStar;#phi^{*};#phi^{*}_{treeLevel}" ,npsb,psBins, npsb,psBins);
+  atTL_at_matrix_= tdf.make<TH2F>("atTL_vs_at_matrix","atTL_vs_at_matrix;a_{T};a_{T treeLevel}" ,100, 0, 90., 100, 0, 90.); 
 
-    YZTLmasscut_  = tdf.make<TH1F>("Z0_YTL_masscut","Z0_Y Tree Level_masscut;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
-    ptZTLmasscut_  = tdf.make<TH1F>("Z0_PtTL_masscut","Z0_PtTL_masscut;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning); 
-
-    YZmasscutTL_  = tdf.make<TH1F>("Z0_Y_masscutTL","Z0_Y masscutTL;Y_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max);
-    ptZmasscutTL_  = tdf.make<TH1F>("Z0_Pt_masscutTL","Z0_Pt masscutTL;p_{T,Z0}", zshape::pt_bins, zshape::pt_binning); 
-
-    evt_nvert_ = tdf.make<TH1F>("nvert","Number of Vertices;Vertices", 31, -1, 30);
-    evt_npu_ = tdf.make<TH1F>("npu","Number of Pile Up;Pile Up", 31, -1, 30);
-
-
-    e1charge_  = tdf.make<TH1F>("e1_charge","e1_charge", 3, -1.5, 1.5);
-    e2charge_  = tdf.make<TH1F>("e2_charge","e2_charge", 3, -1.5, 1.5);
-    hfeta_ = tdf.make<TH1F>("hf_eta","hf_eta;|#eta|",13*7,3.0,5.0);
-
-    phistarRes= tdf.make<TH1F>("Z0_phistarRes","Z0_phistarRes(Gen-Reco/Gen)",400,-1,1);
-    atRes= tdf.make<TH1F>("Z0_atRes","Z0_atRes(Gen-Reco/Gen)",400,-1,1);
-    ptRes= tdf.make<TH1F>("Z0_ptRes","Z0_ptRes(Gen-Reco/Gen)",400,-1,1);
-
-    phistarRes_scaled= tdf.make<TH1F>("Z0_phistarRes_scaled","Z0_phistarRes(Gen-Reco/1.0)",200,-0.2,0.2);
-    atRes_scaled= tdf.make<TH1F>("Z0_atRes_scaled","Z0_atRes(Gen-Reco/M_Z)",200,-0.2,0.2);
-    ptRes_scaled= tdf.make<TH1F>("Z0_ptRes_scaled","Z0_ptRes(Gen-Reco/(M_Z sqrt 2) )",200,-0.2,0.2);
-
-    phistarRes_plain= tdf.make<TH1F>("Z0_phistarRes_plain","Z0_phistarRes(Gen-Reco)",400,-2,2);
-    atRes_plain= tdf.make<TH1F>("Z0_atRes_plain","Z0_atRes(Gen-Reco)",400,-40,40);
-    ptRes_plain= tdf.make<TH1F>("Z0_ptRes_plain","Z0_ptRes(Gen-Reco)",400,-60,60);
+  phiStarTL_phiStar_matrix_= tdf.make<TH2F>("phiStarTL_vs_phistar_matrix","phiStarTL_vs_phiStar_matrix;#phi^{*};#phi^{*}_{treeLevel}" ,npsb,psBins, npsb,psBins);
     
-
-
-    //at/al/phistar
-
-
-
-    deta_= tdf.make<TH1F>("e_deltaEta","Z0_at;#Delta#eta", 200, -10,10);
-    dphi_= tdf.make<TH1F>("e_deltaPhi","Z0_at;#Delta#phi", 150, -0.001, 1.001*pi);
- 
-
-    MCatZ_ = tdf.make<TH1F>("Z0_at_MC","Z0_at_MC;a_{T,Z0}", 150, 0, 150.);
-    MCalZ_ = tdf.make<TH1F>("Z0_al_MC","Z0_al_MC;a_{l,Z0}", 150, 0, 150.);
-    MCphiStar_ = tdf.make<TH1F>("wZ0_phiStar_MC","Z0_phiStar_MC;phiStar_{T,Z0}", 1000, 0, 1.);
-
-
-
-    atTL_at_= tdf.make<TH2F>("atTL_vs_at","atTL_vs_at;a_{T};a_{T treeLevel}" ,150, 0, 150., 150, 0, 150.); 
-
-    phiStarTL_phiStar_= tdf.make<TH2F>("phiStarTL_phiStar","phiStarTL_vs_phiStar;#phi^{*};#phi^{*}_{treeLevel}" ,1000, 0, 1., 1000, 0, 1.);
-    atTL_at_matrix_= tdf.make<TH2F>("atTL_vs_at_matrix","atTL_vs_at_matrix;a_{T};a_{T treeLevel}" ,100, 0, 90., 100, 0, 90.); 
-
-    phiStarTL_phiStar_matrix_= tdf.make<TH2F>("phiStarTL_vs_phistar_matrix","phiStarTL_vs_phiStar_matrix;#phi^{*};#phi^{*}_{treeLevel}" ,1000, 0, 1., 1000, 0, 1.);
+  ptTL_phiStar_= tdf.make<TH2F>("ptTL_phiStar_","ptTL_vs_phiStar;phiStar_{Z};Pt_{ZtreeLevel}" ,npsb,psBins,200, 0, maxPt);
     
-    ptTL_phiStar_= tdf.make<TH2F>("ptTL_phiStar_","ptTL_vs_phiStar;phiStar_{Z};Pt_{ZtreeLevel}" ,1000, 0, 1.,200, 0, maxPt);
-    
-    ptTL_at_= tdf.make<TH2F>("ptTL_at","ptTL_vs_at;at_{Z};Pt_{ZtreeLevel}" ,150, 0, 150.,200, 0, maxPt);
+  ptTL_at_= tdf.make<TH2F>("ptTL_at","ptTL_vs_at;at_{Z};Pt_{ZtreeLevel}" ,150, 0, 150.,200, 0, maxPt);
         
-    //Now make the 2-D histograms
+  //Now make the 2-D histograms
 
-    mZ_Y_ = tdf.make<TH2F>("Z0_Y_v_mass","Z0_Y_v_mass;Y_{Z0};m_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max, 3*binsZmass, minZmass-10, maxZmass);
-    pt_Y_ = tdf.make<TH2F>("Z0_Y_v_pt","Z0_Y_v_pt;Y_{Z0};p_{T,Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max, zshape::pt_bins, zshape::pt_binning);
-    mZ_pt_ = tdf.make<TH2F>("Z0_pt_v_mass","Z0_pt_v_mass;p_{T,Z0};m_{Z0}", zshape::pt_bins,zshape::pt_binning,3*binsZmass, minZmass-10, maxZmass-10);
+  mZ_Y_ = tdf.make<TH2F>("Z0_Y_v_mass","Z0_Y_v_mass;Y_{Z0};m_{Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max, 3*binsZmass, minZmass-10, maxZmass);
+  pt_Y_ = tdf.make<TH2F>("Z0_Y_v_pt","Z0_Y_v_pt;Y_{Z0};p_{T,Z0}", zshape::y_bins, -zshape::y_max, zshape::y_max, zshape::pt_bins, zshape::pt_binning);
+  mZ_pt_ = tdf.make<TH2F>("Z0_pt_v_mass","Z0_pt_v_mass;p_{T,Z0};m_{Z0}", zshape::pt_bins,zshape::pt_binning,3*binsZmass, minZmass-10, maxZmass-10);
 
-    e1eta_YZ_    = tdf.make<TH2F>("e1_eta_vs_Z0Y","e1_eta_vs_Z0Y;detector #eta_{e1};Y_{Z0}", 50, -5, 5,zshape::y_bins, -zshape::y_max, zshape::y_max );
-    e2eta_YZ_    = tdf.make<TH2F>("e2_eta_vs_Z0Y","e2_eta_vs_Z0Y;detector #eta_{e2};Y_{Z0}", 50, -5, 5,zshape::y_bins, -zshape::y_max, zshape::y_max );
-    e1eta_ptZ_   = tdf.make<TH2F>("e1_eta_vs_Ptz","e1_eta_vs_PtZ;detector #eta_{e1};p_{T,Z0}", 50, -5, 5, zshape::pt_bins, zshape::pt_binning);
-    e2eta_ptZ_   = tdf.make<TH2F>("e2_eta_vs_Ptz","e2_eta_vs_PtZ;detector #eta_{e2};p_{T,Z0}", 50, -5, 5,zshape::pt_bins, zshape::pt_binning);
-    e1eta_e2eta_ = tdf.make<TH2F>("e1_eta_vs_e2_eta","e1_eta_vs_e2_eta;detector #eta_{e1};detector #eta_{e2}", 50, -5, 5,50, -5, 5 );
-    e1pt_e2pt_   = tdf.make<TH2F>("e1_pt_vs_e2_pt","e1_pt_vs_e2_pt;#p{t}_{e1}; #p{t}_{e2}", 200, 0., 100., 200, 0., 100.);
+  e1eta_YZ_    = tdf.make<TH2F>("e1_eta_vs_Z0Y","e1_eta_vs_Z0Y;detector #eta_{e1};Y_{Z0}", 50, -5, 5,zshape::y_bins, -zshape::y_max, zshape::y_max );
+  e2eta_YZ_    = tdf.make<TH2F>("e2_eta_vs_Z0Y","e2_eta_vs_Z0Y;detector #eta_{e2};Y_{Z0}", 50, -5, 5,zshape::y_bins, -zshape::y_max, zshape::y_max );
+  e1eta_ptZ_   = tdf.make<TH2F>("e1_eta_vs_Ptz","e1_eta_vs_PtZ;detector #eta_{e1};p_{T,Z0}", 50, -5, 5, zshape::pt_bins, zshape::pt_binning);
+  e2eta_ptZ_   = tdf.make<TH2F>("e2_eta_vs_Ptz","e2_eta_vs_PtZ;detector #eta_{e2};p_{T,Z0}", 50, -5, 5,zshape::pt_bins, zshape::pt_binning);
+  e1eta_e2eta_ = tdf.make<TH2F>("e1_eta_vs_e2_eta","e1_eta_vs_e2_eta;detector #eta_{e1};detector #eta_{e2}", 50, -5, 5,50, -5, 5 );
+  e1pt_e2pt_   = tdf.make<TH2F>("e1_pt_vs_e2_pt","e1_pt_vs_e2_pt;#p{t}_{e1}; #p{t}_{e2}", 200, 0., 100., 200, 0., 100.);
 
-    YZTL_YZ_       = tdf.make<TH2F>("YZTL_vs_YZ","YZTL_vs_YZ;Y_{Z};Y_{ZtreeLevel}",zshape::y_bins,-zshape::y_max,zshape::y_max,zshape::y_bins,-zshape::y_max,zshape::y_max); 
-    YZTL_YZ_matrix_= tdf.make<TH2F>("YZTL_vs_YZ_matrix","YZTL_vs_YZ_matrix;Y_{Z};Y_{ZtreeLevel}",zshape::y_bins,-zshape::y_max,zshape::y_max,zshape::y_bins,-zshape::y_max,zshape::y_max); 
+  YZTL_YZ_       = tdf.make<TH2F>("YZTL_vs_YZ","YZTL_vs_YZ;Y_{Z};Y_{ZtreeLevel}",zshape::y_bins,-zshape::y_max,zshape::y_max,zshape::y_bins,-zshape::y_max,zshape::y_max); 
+  YZTL_YZ_matrix_= tdf.make<TH2F>("YZTL_vs_YZ_matrix","YZTL_vs_YZ_matrix;Y_{Z};Y_{ZtreeLevel}",zshape::y_bins,-zshape::y_max,zshape::y_max,zshape::y_bins,-zshape::y_max,zshape::y_max); 
 
-    ptZTL_ptZ_       = tdf.make<TH2F>("PtTL_vs_PtZ","PtZTL_vs_PtZ;Pt_{Z};Pt_{ZtreeLevel}",zshape::pt_bins, zshape::pt_binning,zshape::pt_bins, zshape::pt_binning); 
-    ptZTL_ptZ_zoom_  = tdf.make<TH2F>("PtTL_vs_PtZ_zoom","PtZTL_vs_PtZ_zoom;Pt_{Z};Pt_{ZtreeLevel}",100,0.0,130.0,100,0.0,130.0);
+  ptZTL_ptZ_       = tdf.make<TH2F>("PtTL_vs_PtZ","PtZTL_vs_PtZ;Pt_{Z};Pt_{ZtreeLevel}",zshape::pt_bins, zshape::pt_binning,zshape::pt_bins, zshape::pt_binning); 
+  ptZTL_ptZ_zoom_  = tdf.make<TH2F>("PtTL_vs_PtZ_zoom","PtZTL_vs_PtZ_zoom;Pt_{Z};Pt_{ZtreeLevel}",100,0.0,130.0,100,0.0,130.0);
 
-    //Now make the 2-D histogram
-    //  mZ_e2pt_e2eta_ = tdf.make<TH3F>("Z0_mass_vs_e2_pt_vs_e2_eta","Z0_mass_vs_e2_pt_vs_e2_eta;p_{T,e2};#eta_{e2};m_{Z0}", zshape::e_pt_bins,zshape::e_pt_binning,zshape::e_eta_bins,zshape::e_eta_binning,110, ZmassBins );
+  //Now make the 2-D histogram
+  //  mZ_e2pt_e2eta_ = tdf.make<TH3F>("Z0_mass_vs_e2_pt_vs_e2_eta","Z0_mass_vs_e2_pt_vs_e2_eta;p_{T,e2};#eta_{e2};m_{Z0}", zshape::e_pt_bins,zshape::e_pt_binning,zshape::e_eta_bins,zshape::e_eta_binning,110, ZmassBins );
 
-    if (massFinals_) {
-        mZ_binned_finals.e1eta_ = tdf.make<TH2F>("mZ_vs_e1_eta_","mZ_vs_e1_eta;detector #eta_{e1};m_{ee}", 50, -5, 5,55,40,150);
-        mZ_binned_finals.e2eta_ = tdf.make<TH2F>("mZ_vs_e2_eta_","mZ_vs_e2_eta;detector #eta_{e2};m_{ee}", 50, -5, 5,55,40,150);
-        mZ_binned_finals.hfeta_ = tdf.make<TH2F>("mZ_vs_hfeta_","mZ_vs_hf_eta;detector #eta_{e};m_{ee}", 13*7, 3.0, 5.0,55,40,150);
-        mZ_binned_finals.e1phi_ = tdf.make<TH2F>("mZ_vs_e1_phi_","mZ_vs_e1_phi;#phi_{e1};m_{ee}", 50, -pi, pi,55,40,150);
-        mZ_binned_finals.e2phi_ = tdf.make<TH2F>("mZ_vs_e2_phi_","mZ_vs_e2_phi;#phi_{e2};m_{ee}", 50,  -pi, pi,55,40,150);
-        mZ_binned_finals.e1pt_  = tdf.make<TH2F>("mZ_vs_e1_P_t_","mZ_vs_e1_P_t;p_{T,e1};m_{ee}", 200, 0, maxPt,55,40,150);
-        mZ_binned_finals.e2pt_  = tdf.make<TH2F>("mZ_vs_e2_P_t_","mZ_vs_e2_P_t;p_{T,e2};m_{ee}", 200, 0, maxPt,55,40,150);
-    }
+  if (massFinals_) {
+    mZ_binned_finals.e1eta_ = tdf.make<TH2F>("mZ_vs_e1_eta_","mZ_vs_e1_eta;detector #eta_{e1};m_{ee}", 50, -5, 5,55,40,150);
+    mZ_binned_finals.e2eta_ = tdf.make<TH2F>("mZ_vs_e2_eta_","mZ_vs_e2_eta;detector #eta_{e2};m_{ee}", 50, -5, 5,55,40,150);
+    mZ_binned_finals.hfeta_ = tdf.make<TH2F>("mZ_vs_hfeta_","mZ_vs_hf_eta;detector #eta_{e};m_{ee}", 13*7, 3.0, 5.0,55,40,150);
+    mZ_binned_finals.e1phi_ = tdf.make<TH2F>("mZ_vs_e1_phi_","mZ_vs_e1_phi;#phi_{e1};m_{ee}", 50, -pi, pi,55,40,150);
+    mZ_binned_finals.e2phi_ = tdf.make<TH2F>("mZ_vs_e2_phi_","mZ_vs_e2_phi;#phi_{e2};m_{ee}", 50,  -pi, pi,55,40,150);
+    mZ_binned_finals.e1pt_  = tdf.make<TH2F>("mZ_vs_e1_P_t_","mZ_vs_e1_P_t;p_{T,e1};m_{ee}", 200, 0, maxPt,55,40,150);
+    mZ_binned_finals.e2pt_  = tdf.make<TH2F>("mZ_vs_e2_P_t_","mZ_vs_e2_P_t;p_{T,e2};m_{ee}", 200, 0, maxPt,55,40,150);
+  }
 
-    //Now mkae some Event histograms
-    evt_PVz_ =  tdf.make<TH1F>("evt_PVz","PV_z;PV_{z}", 50, -20,20);
-    evt_BSz_ =  tdf.make<TH1F>("evt_BSz","BS_z;PBS{z}", 50, -1.5,3);
-    evt_MET_ =  tdf.make<TH1F>("evt_MET","Calo MET;MET", 50, 0,100);
-    evt_TCMET_ =  tdf.make<TH1F>("evt_TCMET","tcMET;tcMET", 50, 0,100);
-    evt_PFMET_ =  tdf.make<TH1F>("evt_PFMET","pfMET;pfMET", 50, 0,100);
+  //Now mkae some Event histograms
+  evt_PVz_ =  tdf.make<TH1F>("evt_PVz","PV_z;PV_{z}", 50, -20,20);
+  evt_BSz_ =  tdf.make<TH1F>("evt_BSz","BS_z;PBS{z}", 50, -1.5,3);
+  evt_MET_ =  tdf.make<TH1F>("evt_MET","Calo MET;MET", 50, 0,100);
+  evt_TCMET_ =  tdf.make<TH1F>("evt_TCMET","tcMET;tcMET", 50, 0,100);
+  evt_PFMET_ =  tdf.make<TH1F>("evt_PFMET","pfMET;pfMET", 50, 0,100);
 
 
 } 
@@ -202,7 +210,7 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
         std::cerr << "Attempt to fill without booking!\n";
         return;
     }
- const float pi       = 3.141593;
+ const float pi       = 3.141592654;
 
     XYZTLorentzVector p1(e1.p4_);
     XYZTLorentzVector p2(e2.p4_);
@@ -231,17 +239,6 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
 
 
 
-
-
-    //  debug
-    //  std::cout << "this is e1:"  << p1 << std::endl;
-    //  std::cout << "this is e2:"  << p2 << std::endl;
-    //  std::cout << "this is Z:"  << pZ << std::endl;
-    //  float rapidity = 0.5 * log( ( pZ.E()+pZ.Pz() ) / ( pZ.E()-pZ.Pz() ) );  
-    //  std::cout << "rapidity calculated: " << rapidity  << " while from method: " << pZ.Rapidity() << std::endl;
-    //   rapidity = 0.5 * log( ( pTLZ.E()+pTLZ.Pz() ) / ( pTLZ.E()-pTLZ.Pz() ) );   
-    //   std::cout << "rapidity calculated: " << rapidity  << " while from method: " << pTLZ.Rapidity() << std::endl;
-
     float zMass = sqrt ( pZ.Dot(pZ) );
     float zY    = pZ.Rapidity();
     float zPt   = pZ.Pt();
@@ -260,13 +257,12 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
 
     float em1eta = eTL1.Eta();
     float em1phi = pTL1.Phi();
-
-
+    float em1Pt  = pTL1.Pt();
+    
     float em2eta = eTL2.Eta();
     float em2phi = pTL2.Phi();
-
-
-
+    float em2Pt  = pTL2.Pt();
+        
     //calculate at, al, t
 
 
@@ -296,13 +292,19 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
     if(delPhi>pi){delPhi=2*pi-delPhi;}
     double delEta=-((e1.charge_*e1eta)-(e1.charge_*e2eta));
    
-    double phiStar=tan((pi-delPhi)/2)*sin(thetaStar);
+    double phiStar=(1.0/tan(delPhi/2.0))*(1.0/cosh(delEta/2.0));//tan((pi-delPhi)/2)*sin(thetaStar);
     //test new ps form;
-    double newps=(1.0/tan(delPhi/2.0))*(1.0/cosh(delEta/2.0));
+    double newps;//=(1.0/tan(delPhi/2.0))*(1.0/cosh(delEta/2.0));
+    if(e1.PS_==e2.PS_){
+      newps=e1.PS_;
+    }else{
+      newps=phiStar+1;
+    }
+
     double delPS=phiStar-newps; 
     if((fabs(newps)> 100) && (fabs(phiStar)>100)) 
       delPS=0;
-    if(delPS>0.004)  {  std::cout<<"Broken phi start old:"<<phiStar<<" new:"<<newps<<" delta:"<<delPS<<" dphi:"<<delPhi<<" "<<delEta <<std::endl;}
+    // if(delPS>0.004)  {  std::cout<<"Broken phi start old:"<<phiStar<<" new:"<<newps<<" delta:"<<delPS<<" dphi:"<<delPhi<<" "<<delEta <<std::endl;}
 
     //calculate at, al, t for MC, (i.e. atm, alm, tm)
 
@@ -330,65 +332,116 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
     }
     if(mdelPhi>pi){mdelPhi=2*pi-mdelPhi;}
     double mphiStar=tan((pi-mdelPhi)/2)*sin(mthetaStar);
-    mZ_-> Fill(zMass,wgt);
-    mZ_zoom -> Fill(zMass,wgt);
-    atZ_->Fill(at,wgt); 
-    alZ_->Fill(al,wgt);
-    phiStar_->Fill(phiStar,wgt);
-    phiStar_lr->Fill(phiStar,wgt);
-    newphistar_->Fill(delPS,wgt);
-
-    atZ_v_mz_->Fill(at,zMass,wgt); 
+    if(zMass>=60 && zMass <=120){
+      mZ_-> Fill(zMass,wgt);
+      mZ_zoom -> Fill(zMass,wgt);
+      atZ_->Fill(at,wgt); 
+      alZ_->Fill(al,wgt);
+      phiStar_->Fill(phiStar,wgt);
+      phiStar_lr->Fill(phiStar,wgt);
+      newphistar_->Fill(delPS,wgt);
+      h_wgt_->Fill(wgt);
+      atZ_v_mz_->Fill(at,zMass,wgt); 
    
-    phiStar_v_mz_->Fill(phiStar,zMass,wgt);
-    mZ_v_mz_-> Fill(zMass,zMass,wgt);
+      phiStar_v_mz_->Fill(phiStar,zMass,wgt);
+      mZ_v_mz_-> Fill(zMass,zMass,wgt);
     
 
-    if(e2eta<-2.9){mz_hfn  -> Fill(zMass,wgt);}
-    else if(e2eta>2.9) {mz_hfp -> Fill(zMass,wgt);}
+      if(e2eta<-2.9){mz_hfn  -> Fill(zMass,wgt);}
+      else if(e2eta>2.9) {mz_hfp -> Fill(zMass,wgt);}
     
-    YZ_  -> Fill(zY,wgt);
-    ptZ_ -> Fill(zPt,wgt);
+      YZ_  -> Fill(zY,wgt);
+      ptZ_ -> Fill(zPt,wgt);
+      e1eta_ -> Fill(e1eta,wgt);
+      e1pt_  -> Fill(e1Pt,wgt);
+      e1phi_ -> Fill(e1phi,wgt);
+      e1charge_ -> Fill(e1.charge_,wgt);
+      e2eta_ -> Fill(e2eta,wgt);
+      e2pt_  -> Fill(e2Pt,wgt);
+      e2phi_ -> Fill(e2phi,wgt);
+      e2charge_ -> Fill(e2.charge_,wgt);
+      eeta_ -> Fill(e1eta,wgt);
+      eeta_ -> Fill(e2eta,wgt);
+      ephi_ -> Fill(e1phi,wgt);
+      ephi_ -> Fill(e2phi,wgt);
 
+    }// end if mass cut
     YZ_v_mz_  -> Fill(zY,zMass,wgt);
     ptZ_v_mz_ -> Fill(zPt,zMass,wgt);
-
-
-    if (zMass >= massWindowLow_ && zMass < massWindowHigh_) {
-        YZmasscut_  -> Fill(zY,wgt);
-        ptZmasscut_ -> Fill(zPt,wgt);    
-
-        // tree level rapidity VS fast reco-ed rapidity 
-        if (doMC && zTLMass >= massWindowLow_ && zTLMass <=massWindowHigh_){
-            YZTL_YZ_ -> Fill(zY,zTLY,wgt); 
-            ptZTL_ptZ_  -> Fill(zPt,zTLPt,wgt); 
-            ptZTL_ptZ_zoom_  -> Fill(zPt,zTLPt,wgt); 
-            phiStarTL_phiStar_-> Fill(phiStar,mphiStar,wgt);
-            atTL_at_-> Fill(at,atm,wgt);
-	    ptTL_phiStar_-> Fill(phiStar,zTLPt,wgt);
-	    atTL_at_matrix_-> Fill(at,atm,wgt);
-	    phiStarTL_phiStar_matrix_-> Fill(phiStar,zTLPt,wgt);
-	    ptTL_at_-> Fill(at,zTLPt,wgt);
-	    phistarRes->Fill((-phiStar+mphiStar)*1.0/mphiStar,wgt);
-	    atRes->Fill((atm-at)*1.0/atm,wgt);
-	    ptRes->Fill((-zPt+zTLPt)*1.0/zTLPt,wgt);
-	    phistarRes_scaled->Fill((-phiStar+mphiStar),wgt);
-	    atRes_scaled->Fill((atm-at)/91.188,wgt);
-	    ptRes_scaled->Fill((-zPt+zTLPt)/(sqrt(2.0)*91.188),wgt);
-	    phistarRes_plain->Fill((-phiStar+mphiStar),wgt);
-	    atRes_plain->Fill((atm-at),wgt);
-	    ptRes_plain->Fill((-zPt+zTLPt),wgt);
+    evt_nvert_->Fill(e1.PU_,wgt);
+    
 
 
 
 
-        }
+  
+    bool isBB=false;
+    bool isEE=false;
+    bool isHH=false;
+    bool isBBmc=false;
+    bool isEEmc=false;
+    bool isHHmc=false;
+    
+    // (fabs(eeta)<1.444) EB
+    // (eeta>1.566 && eeta<2.50) EE
+    // (eeta>3.10 && eta<4.60) HF
+    if ((fabs(e1eta)<1.444)  && (fabs(e2eta)<1.444)) isBB=true;
+    if ((fabs(em1eta)<1.444) && (fabs(em2eta)<1.444))isBBmc=true;
+
+    if ( ((fabs(e1eta)<1.444) && (e2eta>1.566 && e2eta<2.50)) ||
+	 ((fabs(e2eta)<1.444) && (e1eta>1.566 && e1eta<2.50)) ) isEE=true;
+    
+    if ( ((fabs(em1eta)<1.444) && (em2eta>1.566 && em2eta<2.50)) ||
+	 ((fabs(em2eta)<1.444) && (em1eta>1.566 && em1eta<2.50)) ) isEEmc=true;
+
+    if ( ((e1eta>1.566 && e1eta<2.50)  && (e2eta>3.10 && e2eta<4.60)) ||
+	 ((e2eta>1.566 && e2eta<2.50)  && (e1eta>3.10 && e1eta<4.60)) )isHH=true;
+    
+    if ( ((em1eta>1.566 && em1eta<2.50)  && (em2eta>3.10 && em2eta<4.60)) ||
+	 ((em2eta>1.566 && em2eta<2.50)  && (em1eta>3.10 && em1eta<4.60)) )isHHmc=true;
+    
+    if ((zMass >= massWindowLow_) && (zMass < massWindowHigh_) && (e1Pt>20) && (e2Pt>20) ) {
+      if(isBB)fid_ps_BB->Fill(phiStar);
+      if(isEE)fid_ps_EB->Fill(phiStar);
+      if(isHH)fid_ps_EH->Fill(phiStar);
     }
-
+    if (doMC && (zTLMass >= massWindowLow_) && (zTLMass <=massWindowHigh_) && (em1Pt>20) && (em2Pt>20) ){
+      if(isBBmc)fid_ps_BB_MC->Fill(mphiStar);
+      if(isEEmc)fid_ps_EB_MC->Fill(mphiStar);
+      if(isHHmc)fid_ps_EH_MC->Fill(mphiStar);
+    }
+    if (zMass >= massWindowLow_ && zMass < massWindowHigh_) {
+      YZmasscut_  -> Fill(zY,wgt);
+      ptZmasscut_ -> Fill(zPt,wgt);    
+      
+      // tree level rapidity VS fast reco-ed rapidity 
+      if (doMC && zTLMass >= massWindowLow_ && zTLMass <=massWindowHigh_){
+	YZTL_YZ_ -> Fill(zY,zTLY,wgt); 
+	ptZTL_ptZ_  -> Fill(zPt,zTLPt,wgt); 
+	ptZTL_ptZ_zoom_  -> Fill(zPt,zTLPt,wgt); 
+	phiStarTL_phiStar_-> Fill(phiStar,mphiStar,wgt);
+	atTL_at_-> Fill(at,atm,wgt);
+	ptTL_phiStar_-> Fill(phiStar,zTLPt,wgt);
+	atTL_at_matrix_-> Fill(at,atm,wgt);
+	phiStarTL_phiStar_matrix_-> Fill(phiStar,zTLPt,wgt);
+	ptTL_at_-> Fill(at,zTLPt,wgt);
+	phistarRes->Fill((-phiStar+mphiStar)*1.0/mphiStar,wgt);
+	atRes->Fill((atm-at)*1.0/atm,wgt);
+	ptRes->Fill((-zPt+zTLPt)*1.0/zTLPt,wgt);
+	phistarRes_scaled->Fill((-phiStar+mphiStar),wgt);
+	atRes_scaled->Fill((atm-at)/91.188,wgt);
+	ptRes_scaled->Fill((-zPt+zTLPt)/(sqrt(2.0)*91.188),wgt);
+	phistarRes_plain->Fill((-phiStar+mphiStar),wgt);
+	atRes_plain->Fill((atm-at),wgt);
+	ptRes_plain->Fill((-zPt+zTLPt),wgt);
+		
+      }
+    }
+    
     ptZmon_ -> Fill(zPt,wgt);
-
+    
     if (doMC) 
-    {
+      {
         mZTL_  -> Fill(zTLMass,wgt);
         YZTL_  -> Fill(zTLY,wgt);
         ptZTL_-> Fill(zTLPt,wgt);
@@ -406,18 +459,7 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
 
     }
 
-    e1eta_ -> Fill(e1eta,wgt);
-    e1pt_  -> Fill(e1Pt,wgt);
-    e1phi_ -> Fill(e1phi,wgt);
-    e1charge_ -> Fill(e1.charge_,wgt);
-    e2eta_ -> Fill(e2eta,wgt);
-    e2pt_  -> Fill(e2Pt,wgt);
-    e2phi_ -> Fill(e2phi,wgt);
-    e2charge_ -> Fill(e2.charge_,wgt);
-    eeta_ -> Fill(e1eta,wgt);
-    eeta_ -> Fill(e2eta,wgt);
-    ephi_ -> Fill(e1phi,wgt);
-    ephi_ -> Fill(e2phi,wgt);
+   
 
     e1eta_v_mz_ -> Fill(e1eta,zMass,wgt);
     e1pt_v_mz_  -> Fill(e1Pt,zMass,wgt);
@@ -521,6 +563,6 @@ void EffHistos::FillEvt(const  ZShapeEvent& zevt, double wgt, bool justPV) {
     evt_TCMET_->Fill(zevt.EvtTCMET(),wgt);    
     evt_PFMET_->Fill(zevt.EvtPFMET(),wgt);  
   }
-  evt_nvert_->Fill(zevt.nvert(),wgt);
+  
   evt_npu_->Fill(zevt.npu(),wgt);
 }

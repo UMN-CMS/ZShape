@@ -527,22 +527,7 @@ double ZSmearingProducer::smearECALCB(double eta, double et, MyDetType det)
   double sf = ( det == mdt_EB) ? (1.0) : (EEPrams_.mean);
   crystalball_->SetParameters(params);
   return crystalball_->GetRandom()*sf;
-  /*Crystal Ball from a binned file.
-  //First I need to find which efficiency bin we need
-  int index = smearTable_->GetBandIndex(et,eta,pu);
-  //Then I need to get the crystal ball paramters from that bin
-  std::vector<float> parVals = smearTable_->correctionEff(index);
-  double myVals[10];
-  for ( uint val = 0; val < parVals.size(); ++val)
-  {
-      myVals[val] = parVals[val]; 
-  }
-  //Then I need to set the crystal ball parameters for the function
-  //crystalBall *cryballfunc = new crystalBall();
-  crystalball_->SetParameters(&myVals[1]);
-  //lastly, I need to get a random number from the function
-  return crystalball_->GetRandom();
-  */
+  
 
 }
 

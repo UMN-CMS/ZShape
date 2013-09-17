@@ -1,5 +1,6 @@
 #include "TProfile.h"
 #include "ZShape/Base/interface/EfficiencyStatistics.h"
+#include "ZShape/Base/interface/EffTableReader.h"
 #include "ZShape/EffAcc/interface/ZEfficiencyCalculator.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -27,15 +28,15 @@ ZEfficiencyCalculator::ZEfficiencyCalculator(const edm::ParameterSet& iConfig) :
 {
   //
   //now do what ever initialization is needed
- if (doPDFreweight_) {
-   pdfReweightBaseName=iConfig.getUntrackedParameter<std::string>("pdfReweightBaseName");
-   pdfReweightTargetName=iConfig.getUntrackedParameter<std::string>("pdfReweightTargetName");
-   pdfReweightBaseId=iConfig.getUntrackedParameter<int>("pdfReweightBaseId",0);
-   pdfReweightTargetId=iConfig.getUntrackedParameter<int>("pdfReweightTargetId",0);
-   pdfReweightAddZmass_=iConfig.getUntrackedParameter<bool>("pdfReweightAddZMass",true); // fix POWHEG bug 
-   std::cout << "PDF Reweighting from " << pdfReweightBaseName << ":" << pdfReweightBaseId
-	     << " to " << pdfReweightTargetName << ":" << pdfReweightTargetId
-	     << " AddZMass = " << pdfReweightAddZmass_ << std::endl;
+  if (doPDFreweight_) {
+    pdfReweightBaseName=iConfig.getUntrackedParameter<std::string>("pdfReweightBaseName");
+    pdfReweightTargetName=iConfig.getUntrackedParameter<std::string>("pdfReweightTargetName");
+    pdfReweightBaseId=iConfig.getUntrackedParameter<int>("pdfReweightBaseId",0);
+    pdfReweightTargetId=iConfig.getUntrackedParameter<int>("pdfReweightTargetId",0);
+    pdfReweightAddZmass_=iConfig.getUntrackedParameter<bool>("pdfReweightAddZMass",true); // fix POWHEG bug 
+    std::cout << "PDF Reweighting from " << pdfReweightBaseName << ":" << pdfReweightBaseId
+	      << " to " << pdfReweightTargetName << ":" << pdfReweightTargetId
+	      << " AddZMass = " << pdfReweightAddZmass_ << std::endl;
   }
 
 
@@ -103,29 +104,29 @@ ZEfficiencyCalculator::ZEfficiencyCalculator(const edm::ParameterSet& iConfig) :
 
   // setting up other systematic variations
   systematicVariation_ = iConfig.getUntrackedParameter<std::string>("systematic","");
-
+  m_systematics.m_scale = iConfig.getUntrackedParameter<double>("systematicScale",0.01);
   if (systematicVariation_=="ECALScale+") {
-    m_systematics.energyScale=new zshape::EnergyScale(1,0,false);
+    m_systematics.energyScale=new zshape::EnergyScale(1,0,false,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing positive ECAL energy scale variation";
     std::cout << "Performing positive ECAL energy scale variation\n";
   } else if (systematicVariation_=="ECALScale-") {
-    m_systematics.energyScale=new zshape::EnergyScale(-1,0,false);
+    m_systematics.energyScale=new zshape::EnergyScale(-1,0,false,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing negative ECAL energy scale variation";
     std::cout << "Performing negative ECAL energy scale variation\n";
   } else if (systematicVariation_=="ECALTransp+") {
-    m_systematics.energyScale=new zshape::EnergyScale(1,0,true);
+    m_systematics.energyScale=new zshape::EnergyScale(1,0,true,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing negative ECAL transparency variation";
     std::cout << "Performing negative ECAL energy transparency variation\n";
   } else if (systematicVariation_=="ECALTransp-") {
-    m_systematics.energyScale=new zshape::EnergyScale(-1,0,true);
+    m_systematics.energyScale=new zshape::EnergyScale(-1,0,true,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing negative ECAL transparency scale variation";
     std::cout << "Performing negative ECAL energy scale variation\n";
   } else if (systematicVariation_=="HFScale-") {
-    m_systematics.energyScale=new zshape::EnergyScale(0,1,false);
+    m_systematics.energyScale=new zshape::EnergyScale(0,1,false,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing positive HF energy scale variation";
     std::cout << "Performing positive HF energy scale variation\n";
   } else if (systematicVariation_=="HFScale-") {
-    m_systematics.energyScale=new zshape::EnergyScale(0,-1,false);
+    m_systematics.energyScale=new zshape::EnergyScale(0,-1,false,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing negative HF energy scale variation";
     std::cout << "Performing negative HF energy scale variation\n";
   } else m_systematics.energyScale=0;
@@ -245,6 +246,7 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
   EfficiencyCut* keep=0;
   //std::cout<<"    here are the stats box trials.......:"<<statsBox_.trials<<std::endl;
   int pass=0;
+  double w1_=0,w2_=0,w3_=0,w20_=0,w50_=0;
   do {
     if (statsBox_.trials>=1) {
       // swap to alternate universe
@@ -260,12 +262,39 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
 	  //std::cout << "*** Looking at Cut " << cut->first << " Electron " << ne << std::endl;
 	  evt_.elec(ne).cutResult(cut->first,cut->second->passesCut(evt_.elec(ne)));
 	  evt_.elec(ne).setWeight(cut->first,cut->second->weightForCut(evt_.elec(ne)));
-	}
-      }
-    } else {
+	  if(cut->first.find("Supercluster")!=std::string::npos){//=="C02-Supercluster-Eta"){  
+	    w1_= evt_.elec(ne).weight(cut->first);//test, can be removed}
+	    if (w1_<1 && evt_.elec(ne).p4_.Pt()>=20){
+	      double weta=evt_.elec(ne).detEta_;
+	      double wpt=evt_.elec(ne).p4_.Pt(); 
+	      double wps=evt_.elec(ne).PS_;
+	      double wpu=evt_.elec(ne).PU_;
+	      printf("SuperBuster: e%i wgt=%0.3f, eta: %0.3f  pt: %0.3f pile-up: %0.3f phiStar: %0.3f weight for cut: %0.3f %d\n ",ne,w1_,weta,wpt,wpu,wps,cut->second->weightForCut(evt_.elec(ne)),cut->second->indexOf(evt_.elec(ne)));
+
+	      EffTableReader::magic_debug=5;
+	      cut->second->indexOf(evt_.elec(ne));
+	      EffTableReader::magic_debug=0;
+
+
+	    }//end if w1
+	  }//end if super cut
+	}//end ne loop
+      }//end 'cut' loop
+    } else { //end if pass = 0
       EfficiencyCut* statCut=theCuts_[statsBox_.targetEffStat];
       for (int ne=0; ne<2; ne++) {
 	evt_.elec(ne).cutResult(statsBox_.targetEffStat,statCut->passesCut(evt_.elec(ne),keep->lastRandomLevel()));
+	// add weight setting from alternate universe
+	evt_.elec(ne).setWeight(statsBox_.targetEffStat,statCut->weightForCut(evt_.elec(ne)));
+	if (pass==1 && ne==1){
+	  w2_=evt_.elec(ne).weight(statsBox_.targetEffStat);
+	}else if(pass==2 && ne==1){
+	  w3_=evt_.elec(ne).weight(statsBox_.targetEffStat);
+	}else if(pass==20 && ne==1){
+	  w20_=evt_.elec(ne).weight(statsBox_.targetEffStat);
+	}else if(pass==50 && ne==1){
+	  w50_=evt_.elec(ne).weight(statsBox_.targetEffStat);
+	}
       }
     }
 
@@ -274,16 +303,38 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
     //                           ++ decouple ++
     // all what is after this point goes to a separate analyzer
     //------------------------------------------------------------------//
-    
+  
+    //    bool dump2=false;
+    bool dump2=false;
     bool pairing;
     double save_weight=weight;
     if (pass==0) {
       if (!quiet_) evt_.dump();
+      if(evt_.elec(0).detEta_>9)dump2=false;
+      if((evt_.elec(0).p4_+evt_.elec(1).p4_).mass()<50)dump2=false;
+      if( (fabs(evt_.elec(0).detEta_) > 1.442) &&  (fabs(evt_.elec(0).detEta_) < 1.566)  ) dump2=false;
+      if( (fabs(evt_.elec(1).detEta_) > 1.442) &&  (fabs(evt_.elec(1).detEta_) < 1.566)  ) dump2=false;
+      if( (fabs(evt_.elec(0).detEta_) > 2.5) &&  (fabs(evt_.elec(0).detEta_) < 3.1)  ) dump2=false;
+      if( (fabs(evt_.elec(1).detEta_) > 2.5) &&  (fabs(evt_.elec(1).detEta_) < 3.1)  ) dump2=false;
+      if( (fabs(evt_.elec(0).detEta_) > 4.6)  ) dump2=false;
+      if( (fabs(evt_.elec(1).detEta_) > 4.6) ) dump2=false;
 
-     
-
+      if(dump2){ printf("@------------------\n");
+	printf("@Z: m: %0.2f pu: %i \n",(evt_.elec(0).p4_+evt_.elec(1).p4_).mass(),evt_.elec(0).PU_);
+	printf("@e1: pt: %0.2f eta: %0.2f phi: %0.2f \n",evt_.elec(0).p4_.Pt(),evt_.elec(0).detEta_,evt_.elec(0).p4_.Phi());
+	printf("@e1: pt: %0.2f eta: %0.2f phi: %0.2f \n",evt_.elec(1).p4_.Pt(),evt_.elec(1).detEta_,evt_.elec(1).p4_.Phi());  
+	printf("@------------------\n");
+      }//end dump out
+      
+      
+      
+      //  printf("Pile-up: %i",evt_.elec(0).PU_);
+      //       printf("\n electrons for e1: eta: %0.2f pt: %0.2f\n",evt_.elec(0).detEta_,evt_.elec(0).p4_.Pt());
+      //       printf(" electrons for e2: eta: %0.2f pt: %0.2f\n",evt_.elec(1).detEta_,evt_.elec(1).p4_.Pt());
       // selections done at first pass, no matter whether there are trials or not
       for (std::map<std::string,ZShapeZDef*>::const_iterator q=zdefs_.begin(); q!=zdefs_.end(); ++q) {
+
+	weight=save_weight;
 	// plots is EffHistos object pertaining to the present Z definition
 	ZPlots* plots=zplots_[q->first];
 	// acceptance is always the first cut
@@ -297,14 +348,18 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
 
 	// next n-cuts
 	bool ok=true;
-	for (int j=1; ok && j<q->second->criteriaCount(ZShapeZDef::crit_E1); j++) {
+	for (int j=1; ok  && j<q->second->criteriaCount(ZShapeZDef::crit_E1); j++) {
 	  ok=q->second->pass(evt_,j+1,j+1,0,&pairing);
 	  if(doWeight_){	
 	    double e0Weight=((pairing)?(evt_.elec(1).weight(q->second->criteria(ZShapeZDef::crit_E1,j))):(evt_.elec(0).weight(q->second->criteria(ZShapeZDef::crit_E1,j)))); 
 	    double e1Weight=((pairing)?(evt_.elec(0).weight(q->second->criteria(ZShapeZDef::crit_E2,j))):(evt_.elec(1).weight(q->second->criteria(ZShapeZDef::crit_E2,j))));
-	    //printf("wgt1: %0.3f wgt2: %0.3f \n",e1Weight,e0Weight);
+
+
+	    //printf("#  Zdef is %s  for cut %s-%s  wgt1: %0.3f wgt2: %0.3f weight Before: %0.3f ",q->first.c_str(),q->second->criteria(ZShapeZDef::crit_E1,j).c_str(),q->second->criteria(ZShapeZDef::crit_E2,j).c_str(),e1Weight,e0Weight,weight);
 	    weight*=e1Weight*e0Weight;
+	    //printf(" weight after: %0.3f \n",weight);
 	  }//end weighting
+	 
 	  if (ok || doWeight_) { 
 	    plots->postCut_[j-1].FillEvt(evt_,weight,true); //ONLY WORKS ON FULL MC if false
 	    if (!pairing)  
@@ -313,7 +368,9 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
 	      plots->postCut_[j-1].Fill(evt_.elec(1), evt_.elec(0), evt_.elecTreeLevel(1).polarP4(), evt_.elecTreeLevel(0).polarP4(),weight);
 	  }
 	} // now the Z cuts
-	for (int j=0; ok && j<q->second->criteriaCount(ZShapeZDef::crit_Z); j++) {
+	//	printf("\n");
+	//	printf("loop done\n");
+	for (int j=0; ok  && j<q->second->criteriaCount(ZShapeZDef::crit_Z); j++) {
 	  ok=q->second->pass(evt_,1000,1000,j+1,&pairing);
 	  
           if (ok) {
@@ -324,22 +381,31 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
               plots->zCut_[j].Fill(evt_.elec(1), evt_.elec(0), evt_.elecTreeLevel(1).polarP4(), evt_.elecTreeLevel(0).polarP4(),weight);	
 	  }
         }// criteria  
-       
+	//	printf("Zdef for %s is done\n",q->first.c_str()) ;
       }// Z definitions 
+      //printf("passing is done for\n\n") ;
     }// end if pass==0 
 
     // selections specific in case of trials
     if (statsBox_.trials>0 && pass>0) { 
       for (std::map<std::string,ZShapeZDef*>::const_iterator q=zdefs_.begin(); q!=zdefs_.end(); ++q) {
-     
+	weight=save_weight;
 	ZShapeZDef* zdef=q->second; 
-	if (zdef->pass(evt_,zdef->criteriaCount(ZShapeZDef::crit_E1),zdef->criteriaCount(ZShapeZDef::crit_E2),0,&pairing)) {
+	for (int j=1; j<q->second->criteriaCount(ZShapeZDef::crit_E1); j++) {
+	  if(doWeight_){	
+	    double e0Weight=((pairing)?(evt_.elec(1).weight(q->second->criteria(ZShapeZDef::crit_E1,j))):(evt_.elec(0).weight(q->second->criteria(ZShapeZDef::crit_E1,j)))); 
+	    double e1Weight=((pairing)?(evt_.elec(0).weight(q->second->criteria(ZShapeZDef::crit_E2,j))):(evt_.elec(1).weight(q->second->criteria(ZShapeZDef::crit_E2,j))));	    
+	    weight*=e1Weight*e0Weight;
+	  }//end if dowieght
+	}//end j loop
+	if (zdef->pass(evt_,zdef->criteriaCount(ZShapeZDef::crit_E1),zdef->criteriaCount(ZShapeZDef::crit_E2),0,&pairing)||doWeight_) {
+	 
 	  statsBox_.hists[q->first][pass-1].FillEvt(evt_,weight,true); //Decided these plots aren't needed... yet... for false
 	  if (!pairing)  
 	    statsBox_.hists[q->first][pass-1].Fill(evt_.elec(0), evt_.elec(1), evt_.elecTreeLevel(0).polarP4(), evt_.elecTreeLevel(1).polarP4(),weight); 
 	  else 
 	    statsBox_.hists[q->first][pass-1].Fill(evt_.elec(1), evt_.elec(0), evt_.elecTreeLevel(1).polarP4(), evt_.elecTreeLevel(0).polarP4(),weight); 
-	}
+	}///if pass
       }
     }
     pass++;
@@ -347,8 +413,10 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
     weight=save_weight;
 
   } while (statsBox_.trials>0 && pass<=statsBox_.trials);
-  
+  // if(w1_>0.01)
+    // printf("compare weight: real world %0.3f, 1st odd world: %0.3f, 2nd odd world: %0.3f, 20th odd world: %0.3f 50th odd world: %0.3f\n",w1_,w2_,w3_,w20_,w50_); 
   if (keep!=0) theCuts_[statsBox_.targetEffStat]=keep;
+  // printf("\n\n");
 }
 
 void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeeParticles, 
@@ -414,14 +482,27 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
   evt_.elec(0).PU_=nvtx_;
   evt_.elec(1).PU_=nvtx_;
   
+  //calculate pi
+  const float pi       = 3.141592654;
+  double delPhi=elecs[0].Phi()-elecs[1].Phi();
+  if(delPhi<0){
+    if(delPhi>-pi)delPhi=fabs(delPhi);
+    if(delPhi<-pi)delPhi+=2*pi;
+  }
+  if(delPhi>pi){delPhi=2*pi-delPhi;}
+  double delEta=-((me[0]->charge()*elecs[0].Eta())-(me[0]->charge()*elecs[1].Eta()));
+  ps_=(1.0/tan(delPhi/2.0))*(1.0/cosh(delEta/2.0));
+  
+  evt_.elec(0).PS_=ps_;
+  evt_.elec(1).PS_=ps_;
   // end loop on particles
   evt_.n_elec=ne;
 
   
   /*
-  std::cout << ngot[0] << "->" << elecs[0].energy() <<
+    std::cout << ngot[0] << "->" << elecs[0].energy() <<
     " " << elecs[0].eta() << " " << elecs[0].phi() << std::endl;
-  std::cout << ngot[1] << "->" << elecs[1].energy() <<
+    std::cout << ngot[1] << "->" << elecs[1].energy() <<
     " " << elecs[1].eta() << " " << elecs[1].phi() << std::endl;
   */
   //
@@ -450,7 +531,7 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
 
   // flipping order only if necessary
   if (pt2 > pt1){
-  //if(fabs(evt_.elec(0).detEta_)>fabs(evt_.elec(1).detEta_)){
+    //if(fabs(evt_.elec(0).detEta_)>fabs(evt_.elec(1).detEta_)){
     std::swap( evt_.elec(0), evt_.elec(1));
   }
   //  evt_.dump(std::cout);
