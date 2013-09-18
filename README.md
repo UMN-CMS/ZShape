@@ -9,6 +9,6 @@ scram project CMSSW CMSSW_4_4_2_patch10
 cd CMSSW_4_4_2_patch10
 git clone git@github.com:UMN-CMS/ZShape_Analysis.git src/
 cmsenv
-cd scr
-scram b -j 4
+cd src
+scram build -j 4
 ```
