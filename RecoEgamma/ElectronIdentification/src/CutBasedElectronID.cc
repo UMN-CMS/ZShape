@@ -3,12 +3,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-//#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-//#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-#include <stdio>
-
 
 #include <algorithm>
 
