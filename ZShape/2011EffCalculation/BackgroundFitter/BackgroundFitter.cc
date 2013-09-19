@@ -103,7 +103,7 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     background->SetParameter(1, 100.);
     background->SetParLimits(1, 0.1, 1000.);
     background->SetParameter(2, 0.01);
-    background->SetParLimits(2, 0.0001, 0.3.);
+    background->SetParLimits(2, 0.0001, 0.3);
     background->SetParameter(3, 10.);
     background->SetParLimits(3, 1., 80.);
     histoToFit->Fit(background, "QMRWL");
