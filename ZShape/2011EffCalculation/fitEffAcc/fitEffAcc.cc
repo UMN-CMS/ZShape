@@ -51,7 +51,7 @@ void getBinEdges(std::vector<double> &vec, const double minX, const double maxX,
         case EBp:
         case EBm:
             ss_peak = 2;
-            ss_tail = 10;
+            ss_tail = 2;
             break;
         case EE:
         case EEp:
@@ -284,7 +284,9 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
     const double midPU = (eventrq.maxPU + eventrq.minPU)/2.;
     brg.setBackground(midX, midPU, usePhiStar); // TODO: Fill in pt, pu
     if (brg.current == 0){
-        std::cout << "Failed to get background model." <<std::endl;
+        std::stringstream ss;
+         ss << "Failed to get background model for point: midX " << midX << " midPU " << midPU << " usePhiStar " << usePhiStar << std::endl;
+         std::cout << ss.str() << std::flush;
         // No background for your area.
         return 1;
     }
@@ -467,8 +469,8 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
             /* Check cuts */
             if (    eXCut0 <= eX0 && eXCut1 <= eX1  // Both Es pass min pt/phistar
                     && xBin.minX <= eX1 && eX1 <= xBin.maxX // Probe in pt bin
-                    //&& ze->reco.isSelected(tagNumber, "HLT-GSF") // Tag is HLT-GSF
-                    //&& ze->reco.isSelected(tagNumber, "WP80") // Tag is WP80
+                    && ze->reco.isSelected(tagNumber, "HLT-GSF") // Tag is HLT-GSF
+                    && ze->reco.isSelected(tagNumber, "WP80") // Tag is WP80
                ){
                 /* Check the acceptance of the electrons */
                 const bool tagPass = inAcceptance(tagLoc, ze->reco.eta[tagNumber]);
@@ -496,9 +498,7 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
                         case HF:
                         case HFp:
                         case HFm:
-                            //if (ze->reco.isSelected(probeNumber,"HFSuperCluster-Et")){
-                            //    basePass = true;
-                            //}
+                            // We only check acceptance, and it has already passed
                             basePass = true;
                             break;
                     }
@@ -532,7 +532,7 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
     baseFitFunc->SetParameter(1, 1000.);
     baseHisto->Sumw2(); // Insure errors are handled correctly when scaled.
     //baseHisto->Scale(1); // Scale by 1, and then divide each bin by its width.
-    baseHisto->Fit(baseFitFunc, "RMEWLQ");
+    baseHisto->Fit(baseFitFunc, "RMWLQ");
     baseHisto->Draw("E");
     TH1D* baseBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("baseBG");
     baseBG->Scale(baseFitFunc->GetParameter(0));
@@ -551,7 +551,7 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
     postFitFunc->SetParameter(1, 1000.);
     postcutHisto->Sumw2();
     //postcutHisto->Scale(1);
-    postcutHisto->Fit(postFitFunc, "RMEWLQ");
+    postcutHisto->Fit(postFitFunc, "RMWLQ");
     postcutHisto->Draw("E");
     TH1D* postBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("postBG");
     postBG->Scale(postFitFunc->GetParameter(0));
@@ -709,8 +709,8 @@ int main(int argc, char* argv[]){
             case HF:
             case HFp:
             case HFm:
-                probeWP = "HFTID";
-                //probeWP = "HFElectronId-EtaDet";
+                //probeWP = "HFTID";
+                probeWP = "HFElectronId-EtaDet";
                 break;
         }
 
