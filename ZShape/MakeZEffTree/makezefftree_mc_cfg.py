@@ -60,8 +60,9 @@ process.theHLTGsf.hltTag = cms.untracked.VInputTag(
         cms.InputTag("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v4","","HLT")
         ) #remove the ones you don't want
 
-# Alex's tuple maker
-process.tuplemaker = cms.EDAnalyzer('MakeZEffTree',
+# Alex's tuple makers
+## GSF-GSF
+process.tuplemakerGSFGSF = cms.EDAnalyzer('MakeZEffTree',
         quiet = cms.untracked.bool(True),
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfElectrons'), # No trigger matching
         CutNames = cms.untracked.vstring( 
@@ -94,6 +95,12 @@ process.tuplemaker = cms.EDAnalyzer('MakeZEffTree',
             ),
         )
 
+## GSF-HF
+process.tuplemakerGSFHF = process.tuplemakerGSFGSF.clone(
+        TagProbeProducer = cms.untracked.InputTag('tpMapGsfAndHFSC'),
+        )
+
+
 ## Jets for Isolation Cuts
 process.load('RecoJets.JetProducers.kt4PFJets_cfi') # For isolation calculation
 process.kt6PFJets = process.kt4PFJets.clone(
@@ -115,5 +122,6 @@ process.p1 = cms.Path(
         * process.patElectronIDs
         * process.hfEMClusteringSequence
         * process.lepton_cands
-        * process.tuplemaker
+        #* process.tuplemakerGSFGSF
+        * process.tuplemakerGSFHF
         )
