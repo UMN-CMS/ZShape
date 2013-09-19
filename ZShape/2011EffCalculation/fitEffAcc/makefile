@@ -6,7 +6,16 @@ ROOT_ALL=`root-config --cflags --libs`
 CC=g++ -O2 -g
 CCC=${CC} -c
 
-all: fitEffAcc.exe
+all: fitEffAcc.exe fitEffAcc_trigger.exe
+
+fitEffAcc_trigger.exe: ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o
+	${CC} -o fitEffAcc_trigger.exe \
+	fitEffAcc_trigger.cc \
+	ZEffTree.o \
+	BackgroundTable.o \
+	BackgroundFunctions.o \
+	ElectronLocation.o \
+	${ROOT_ALL}
 
 fitEffAcc.exe: ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o
 	${CC} -o fitEffAcc.exe \
@@ -30,4 +39,4 @@ ElectronLocation.o: ../ElectronLocation/ElectronLocation.h ../ElectronLocation/E
 	${CCC} ../ElectronLocation/ElectronLocation.cc
 
 clean:
-	rm -f ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe
+	rm -f ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe
