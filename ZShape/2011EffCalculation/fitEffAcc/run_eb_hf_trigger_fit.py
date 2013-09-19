@@ -18,7 +18,7 @@ else:  # Only runs when try succeeds
 
 # Input Files
 fitFile = "/home/user1/gude/CMS/work/zshape/kevin_background/hf_trigger_background_from_ele27.txt"
-signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/gsf_hfsc_mc_july_15_from_kevins_list/gsf_hfsc_mc_july_15_from_kevins_list_summed.root"
+signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_hfsc_mc/20130918_gsf_hfsc_mc_summed.root"
 dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120914/2012_kevin_thesis_trigger_eff_with_charge/SingleElectron_ele27/res/SingleElectron_ele27_summed.root"
 # Mass_Z
 minMZ = 50
@@ -28,7 +28,7 @@ tag="ET"
 # Use Phistar (Pt else)
 usePhiStar = True
 # Program
-exe = "./fitEffAcc.exe"
+exe = "./fitEffAcc_trigger.exe"
 
 # Output dir
 outdir = mkdtemp(prefix="hf_trigger_eff_fits_")
