@@ -1,5 +1,6 @@
 #include "../../MakeZEffTree/src/ZEffTree.h"
 #include "../ElectronLocation/ElectronLocation.h"  // inAcceptance
+#include "../BackgroundLibrary/BackgroundFunctions.h"  // AnalyticBackground
 
 #include <TFile.h>
 #include <TH1F.h>
@@ -24,10 +25,6 @@ struct binningDef{
     int minPU;
     int maxPU;
 };
-
-double backgroundFunction(const double *v, const double *par){
-    return TMath::Erfc((par[0]-v[0])/par[3])*par[1]*TMath::Exp(-par[2]*v[0]);
-}
 
 int fitBackground(const std::string &inFileName, const std::string &outFileName, const std::string &tagWP, const std::string &probeWP, const tagCuts &cuts, const binningDef &binDef, const bool usePhiStar=false) {
     // Root style
@@ -72,7 +69,7 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
                 eX = ze->reco.pt[1];
             }
 
-            if (    
+            if (
                     binDef.minX <= eX && eX <= binDef.maxX // Must be in Pt binning window
                     && inAcceptance(ET, ze->reco.eta[0])
                     && inAcceptance(HF, ze->reco.eta[1])
@@ -86,17 +83,17 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     /* Fit our histogram */
     // TF1 *func = new TF1("bg",bgFunc,50,160,3)
     const int paranum = 4;
-    TF1 *background = new TF1("background", backgroundFunction, cuts.minMZ, cuts.maxMZ, paranum);
-    background->SetParName(0,"alpha");
-    background->SetParName(1,"beta");
-    background->SetParName(2,"gamma");
-    background->SetParName(3,"delta");
+    TF1 *background = new TF1("background", bg::analyticBackground, cuts.minMZ, cuts.maxMZ, paranum);
+    background->SetParName(0, "alpha");
+    background->SetParName(1, "beta");
+    background->SetParName(2, "gamma");
+    background->SetParName(3, "delta");
 
     /* Set error near the peak to be very large so that it is ignored by the fit */
-    for(int i = 0; i <= nBins+1; i++) {
+    for(int i = 0; i <= nBins + 1; i++) {
         const int mass = cuts.minMZ + i;
         if ( 80 <= mass && mass <= 100){ // Around Z Peak
-            histoToFit->SetBinError(i,100);
+            histoToFit->SetBinError(i, 100);
         }
     }
 
@@ -110,13 +107,6 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     background->SetParameter(3, 10.);
     background->SetParLimits(3, 1., 40.);
     histoToFit->Fit("background","QMRWL");
-
-    /* Run Refit */
-    //background->SetParameter(0, background->GetParameter(0));
-    //background->SetParameter(1, background->GetParameter(1));
-    //background->SetParameter(2, background->GetParameter(2));
-    //background->SetParameter(3, background->GetParameter(3));
-    //histoToFit->Fit("background","QMRWL");
 
     /* Output to stdout the parameters in order */
     std::cout << "\t" << binDef.minX << "\t" << binDef.maxX << "\t" << binDef.minPU << "\t" << binDef.maxPU << "\t" << cuts.minMZ << "\t" << cuts.maxMZ;
