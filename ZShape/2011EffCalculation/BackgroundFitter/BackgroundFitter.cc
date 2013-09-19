@@ -57,9 +57,9 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
         if (
                 binDef.minPU <= ze->reco.nverts && ze->reco.nverts <= binDef.maxPU // Must be in the pile up binning window
                 && cuts.minMZ <= ze->reco.mz && ze->reco.mz <= cuts.maxMZ          // Must be near Z peak in all cases
-                && ze->reco.isSelected(0, tagWP)                                    // Tag must pass a cut
+                && !ze->reco.isSelected(0, tagWP)                                    // Tag must pass a cut
                 && !ze->reco.isSelected(1, probeWP)                                 // Probe must fail a cut
-                && ze->reco.pt[0] > 27  // Trigger puts a cut on the first electron of 27
+                && ze->reco.pt[0] > 30  // Trigger puts a cut on the first electron of 27
            ){
             /* Use Phistar or Pt */
             double eX;
@@ -92,7 +92,7 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     /* Set error near the peak to be very large so that it is ignored by the fit */
     for(int i = 0; i <= nBins + 1; i++) {
         const int mass = cuts.minMZ + i;
-        if ( 80 <= mass && mass <= 100){ // Around Z Peak
+        if ( 86 <= mass && mass <= 96){ // Around Z Peak
             histoToFit->SetBinError(i, 100);
         }
     }
@@ -102,11 +102,11 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     background->SetParLimits(0, 40., 120.);
     background->SetParameter(1, 100.);
     background->SetParLimits(1, 0.1, 1000.);
-    background->SetParameter(2, 0.1);
-    background->SetParLimits(2, 0.0001, 1.);
+    background->SetParameter(2, 0.01);
+    background->SetParLimits(2, 0.0001, 0.3.);
     background->SetParameter(3, 10.);
-    background->SetParLimits(3, 1., 40.);
-    histoToFit->Fit("background","QMRWL");
+    background->SetParLimits(3, 1., 80.);
+    histoToFit->Fit(background, "QMRWL");
 
     /* Output to stdout the parameters in order */
     std::cout << "\t" << binDef.minX << "\t" << binDef.maxX << "\t" << binDef.minPU << "\t" << binDef.maxPU << "\t" << cuts.minMZ << "\t" << cuts.maxMZ;

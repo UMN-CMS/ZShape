@@ -11,6 +11,20 @@
  * The background function is of the form:
  *
  * beta * erfc((alpha - x) / delta) * exp(-gamma * x)
+ *
+ * alpha: Controls the location of the peak (although is not the peak
+ * location), smaller numbers are at lower x. It also changes the overall
+ * amplitude somewhat.
+ *
+ * beta: Controls the total amplitude, with 0 being no amplitude.
+ *
+ * gamma: Controls the shape of the exponential tail, with near 0 being a flat
+ * tail (like a step function) and near 1 making the fall off so fast that we
+ * get something delta function like. It also controls the peak location.
+ *
+ * delta: Controls the width of the peak and the sharpness of the rise, with a
+ * low value being very sharp, and a high value being very broad. This also has
+ * the side effect of moving the peak, even if all other values are fixed.
  */
 
 namespace bg{
