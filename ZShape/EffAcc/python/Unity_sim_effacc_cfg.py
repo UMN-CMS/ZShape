@@ -37,18 +37,19 @@ process.load("ZShape.EffAcc.ZEfficiencyUnity_cfi")
 #process.mcEff.zsrc = cms.untracked.InputTag("noFullSimSmearedElectronsProducer","ZEventParticles")
 #process.mcEff.zElectronsCollection = cms.untracked.InputTag("noFullSimSmearedElectronsProducer","ZEventParticles")
 
-process.mcEff.zsrc = cms.untracked.InputTag("f2s","ZEventParticles")
-process.mcEff.zElectronsCollection = cms.untracked.InputTag("f2s","ZEventParticles")
+process.mcEff.zsrc = cms.untracked.InputTag("fullSimLoad","ZEventParticles")
+process.mcEff.zElectronsCollection = cms.untracked.InputTag("fullSimLoad","ZEventParticles")
 
-process.mcEff.zTreeLevelElectronsCollection = cms.untracked.InputTag("f2s","ZEventEle3")
+process.mcEff.zTreeLevelElectronsCollection = cms.untracked.InputTag("fullSimLoad","ZEventEle3")
 
-process.f2s = cms.EDProducer("ZFullSim2Event",
-                             hfRecoTag = cms.untracked.InputTag("hfRecoEcalCandidateMC")
-                             )
+
 process.load("RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff")
+process.load("ZShape.EffAcc.fullSimLoader_cff")
 process.hfRecoEcalCandidateMC.intercept2DCut = cms.double(-99)
 process.hfRecoEcalCandidateMC.intercept2DSlope = cms.double(-99)
 process.hfRecoEcalCandidateMC.e9e25Cut = cms.double(0)
 #process.p = cms.Path(process.makePatElectrons+process.f2s)
 #process.p = cms.Path(process.hfEMClusters+process.hfRecoEcalCandidateMC+process.f2s+process.noFullSimSmearedElectronsProducer+process.mcEff)
-process.p = cms.Path(process.hfEMClusters+process.hfRecoEcalCandidateMC+process.f2s+process.mcEff)
+process.p = cms.Path(process.hfEMClusters+process.hfRecoEcalCandidateMC+process.f2s_sequence+process.mcEff)
+
+
