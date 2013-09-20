@@ -17,27 +17,29 @@ else:  # Only runs when try succeeds
         NJOBS = int(floor(mp.cpu_count() * 1.5))
 
 # Input Files
-fitFile = "background_ele27.txt"
-signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_gsf_mc/20130918_gsf_gsf_mc_summed.root"
-dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_gsf_mc/20130918_gsf_gsf_mc_summed.root"
+fitFile = "/home/user1/gude/CMS/work/zshape/kevin_background/hf_trigger_background_from_ele27.txt"
+signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_hfsc_mc/20130918_gsf_hfsc_mc_summed.root"
+dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120914/2012_kevin_thesis_trigger_eff_with_charge/SingleElectron_ele27/res/SingleElectron_ele27_summed.root"
 # Mass_Z
-minMZ = 60
+minMZ = 50
 maxMZ = 150
 # Tag Location
-tag="EB"
+tag="ET"
 # Use Phistar (Pt else)
-usePhiStar = False
+usePhiStar = True
 # Program
-exe = "./fitEffAcc.exe"
+exe = "./fitEffAcc_trigger.exe"
 
 # Output dir
-outdir = mkdtemp(prefix="gsf_gsf_mc_run_as_data_")
+outdir = mkdtemp(prefix="hf_trigger_eff_fits_")
 print "# Output directory: ", outdir
 
 # Bins
-probeLocs = ("EB", "EEp", "EEm")
-PUs = ((0, 4), (5, 10), (11, 101))
-Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (50, 55), (55, 60), (60, 500))
+probeLocs = ("HF",)
+PUs = ((0, 4), (5, 101))
+#Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (55, 500))
+#Xs = ((20, 25), (25, 27.5), (27.5, 30), (30, 32.5), (32.5, 35), (35, 37.5), (37.5, 40), (40, 45), (45, 50), (55, 500))
+Xs = ((0., 0.05), (0.05, 0.1), (0.1, 0.2), (0.2, 1.))
 
 # List to store points to run over before passing to the multiprocessing pool
 inputList = []
