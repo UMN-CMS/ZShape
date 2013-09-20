@@ -481,6 +481,15 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
   evt_.elec(1).charge_=me[1]->charge();
   evt_.elec(0).PU_=nvtx_;
   evt_.elec(1).PU_=nvtx_;
+
+  // set the cuts from MC
+  for (int ik=0; ik<2; ik++) {
+    int eid=me[ik]->status();
+    evt_.elec(ik).cutResult("FULL-ID",(eid&0x1));    
+    evt_.elec(ik).cutResult("FULL-ISO",(eid&0x2));
+    evt_.elec(ik).cutResult("FULL-CONV",(eid&0x4));
+    evt_.elec(ik).cutResult("FULL-WP",(eid&0x7)==7);
+  }
   
   //calculate pi
   const float pi       = 3.141592654;

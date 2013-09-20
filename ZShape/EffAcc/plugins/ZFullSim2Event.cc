@@ -21,6 +21,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/AssociativeIterator.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -292,10 +294,18 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	return; // RETURN if no elecs in the event
       }
       
+
+      edm::Handle<edm::ValueMap<float> > hEid;
+      iEvent.getByLabel("simpleEleId80relIso", hEid);
+
       const reco::GsfElectronCollection& pElecs = *gsfElectrons.product();
       reco::GsfElectronCollection::const_iterator i, ecalE=pElecs.end();
-      
+      int ci=0;
+
       for (i=pElecs.begin(); i!=pElecs.end(); i++) {
+	reco::GsfElectronRef eref(gsfElectrons,ci);
+	ci++;
+	//	std::cout << (*hEid)[eref] << std::endl;
 	for (int k=0; k<2; k++) {
 	  double qf=reco::deltaR(*i,(*pZeeEle3)[k]);
 	  //if (dilep.M()>60 && dump) printf("## EC current quality:%0.3f ::: quality %i: %0.3f  test:  eta:%0.3f phi:%0.3f\n",qualityOfMatch[k],(int)k,qf,i->eta(),i->phi());
@@ -304,7 +314,7 @@ ZFullSim2Event::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				       i->p4(),
 				       i->vertex(),
 				       11,
-				       100,
+				       int((*hEid)[eref]),
 				       true);
 	    qualityOfMatch[k]=qf;
 	  }
