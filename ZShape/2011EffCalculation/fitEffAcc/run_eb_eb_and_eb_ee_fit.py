@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from subprocess import call  # Access external programs
 from tempfile import mkdtemp  # Secure methods of generating random directories
