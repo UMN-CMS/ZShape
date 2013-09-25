@@ -225,6 +225,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             }
             // We select "randomly" by using the event ID
             const int tpNum = iEvent.id().event() % tpsize;
+            m_ze->reco.ntp = tpNum;  // Set the number of electrons
 
             const reco::CandidateBaseRef &tag = tagprobes->at(tpNum).daughter(0)->masterClone();
             const reco::CandidateBaseRef &vprobes = tagprobes->at(tpNum).daughter(1)->masterClone(); // Maybe an arrow...

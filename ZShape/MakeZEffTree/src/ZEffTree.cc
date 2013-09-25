@@ -44,7 +44,7 @@ void ZEffTree::Print(){
     ss << "\tgen.yz: " << gen.yz << endl;
     ss << "\tgen.ptz: " << gen.ptz << endl;
     ss << "\tgen.nverts: " << gen.nverts << endl;
-    ss << "\tgen.reject: " << gen.reject << endl;
+    ss << "\tgen.ntp: " << gen.ntp << endl;
     ss << "\tgen.eta[0]: " << gen.eta[0] << endl;
     ss << "\tgen.eta[1]: " << gen.eta[1] << endl;
     ss << "\tgen.phi[0]: " << gen.phi[0] << endl;
@@ -64,7 +64,7 @@ void ZEffTree::Print(){
     ss << "\treco.yz: " << reco.yz << endl;
     ss << "\treco.ptz: " << reco.ptz << endl;
     ss << "\treco.nverts: " << reco.nverts << endl;
-    ss << "\treco.reject: " << reco.reject << endl;
+    ss << "\treco.ntp: " << reco.ntp << endl;
     ss << "\treco.eta[0]: " << reco.eta[0] << endl;
     ss << "\treco.eta[1]: " << reco.eta[1] << endl;
     ss << "\treco.phi[0]: " << reco.phi[0] << endl;
