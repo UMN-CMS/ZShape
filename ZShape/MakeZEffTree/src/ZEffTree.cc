@@ -35,34 +35,46 @@ void ZEffTree::ZInfo::setBit(const int ielec, const std::string& bitname, const 
 // Print all the contents
 void ZEffTree::Print(){
     std::cout << "ZEffTreeEntry:" << std::endl;
+    std::cout << "\tgen.mz: " << gen.mz << std::endl;
+    std::cout << "\tgen.yz: " << gen.yz << std::endl;
+    std::cout << "\tgen.ptz: " << gen.ptz << std::endl;
+    std::cout << "\tgen.nverts: " << gen.nverts << std::endl;
+    std::cout << "\tgen.reject: " << gen.reject << std::endl;
     std::cout << "\tgen.eta[0]: " << gen.eta[0] << std::endl;
     std::cout << "\tgen.eta[1]: " << gen.eta[1] << std::endl;
     std::cout << "\tgen.phi[0]: " << gen.phi[0] << std::endl;
     std::cout << "\tgen.phi[1]: " << gen.phi[1] << std::endl;
     std::cout << "\tgen.pt[0]: " << gen.pt[0] << std::endl;
     std::cout << "\tgen.pt[1]: " << gen.pt[1] << std::endl;
-    std::cout << "\tgen.mz: " << gen.mz << std::endl;
-    std::cout << "\tgen.yz: " << gen.yz << std::endl;
-    std::cout << "\tgen.ptz: " << gen.ptz << std::endl;
-    std::cout << "\tgen.bits[0]: " << gen.bits[0] << std::endl;
-    std::cout << "\tgen.bits[1]: " << gen.bits[1] << std::endl;
-    std::cout << "\tgen.nverts: " << gen.nverts << std::endl;
     std::cout << "\tgen.charge[0]: " << gen.charge[0] << std::endl;
     std::cout << "\tgen.charge[1]: " << gen.charge[1] << std::endl;
     std::cout << "\tgen.phistar: " << gen.phistar << std::endl;
+    std::cout << "\tgen.ece9[0]: " << gen.ece9[0] << std::endl;
+    std::cout << "\tgen.ece9[1]: " << gen.ece9[1] << std::endl;
+    std::cout << "\tgen.e9e25[0]: " << gen.e9e25[0] << std::endl;
+    std::cout << "\tgen.e9e25[1]: " << gen.e9e25[1] << std::endl;
+    std::cout << "\tgen.esel[0]: " << gen.esel[0] << std::endl;
+    std::cout << "\tgen.esel[1]: " << gen.esel[1] << std::endl;
+    std::cout << "\treco.mz: " << reco.mz << std::endl;
+    std::cout << "\treco.yz: " << reco.yz << std::endl;
+    std::cout << "\treco.ptz: " << reco.ptz << std::endl;
+    std::cout << "\treco.nverts: " << reco.nverts << std::endl;
+    std::cout << "\treco.reject: " << reco.reject << std::endl;
     std::cout << "\treco.eta[0]: " << reco.eta[0] << std::endl;
     std::cout << "\treco.eta[1]: " << reco.eta[1] << std::endl;
     std::cout << "\treco.phi[0]: " << reco.phi[0] << std::endl;
     std::cout << "\treco.phi[1]: " << reco.phi[1] << std::endl;
     std::cout << "\treco.pt[0]: " << reco.pt[0] << std::endl;
     std::cout << "\treco.pt[1]: " << reco.pt[1] << std::endl;
-    std::cout << "\treco.mz: " << reco.mz << std::endl;
-    std::cout << "\treco.yz: " << reco.yz << std::endl;
-    std::cout << "\treco.ptz: " << reco.ptz << std::endl;
-    std::cout << "\treco.nverts: " << reco.nverts << std::endl;
     std::cout << "\treco.charge[0]: " << reco.charge[0] << std::endl;
     std::cout << "\treco.charge[1]: " << reco.charge[1] << std::endl;
     std::cout << "\treco.phistar: " << reco.phistar << std::endl;
+    std::cout << "\treco.ece9[0]: " << reco.ece9[0] << std::endl;
+    std::cout << "\treco.ece9[1]: " << reco.ece9[1] << std::endl;
+    std::cout << "\treco.e9e25[0]: " << reco.e9e25[0] << std::endl;
+    std::cout << "\treco.e9e25[1]: " << reco.e9e25[1] << std::endl;
+    std::cout << "\treco.esel[0]: " << reco.esel[0] << std::endl;
+    std::cout << "\treco.esel[1]: " << reco.esel[1] << std::endl;
 
     // Loop over all the cuts
     std::cout << "\tCuts:" << std::endl;
