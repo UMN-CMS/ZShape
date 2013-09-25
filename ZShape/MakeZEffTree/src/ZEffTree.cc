@@ -100,6 +100,54 @@ void ZEffTree::Print(){
     }
 }
 
+/* Clear the data */
+void ZEffTree::Clear() {
+    gen.eta[0] = -10;
+    gen.eta[1] = -10;
+    gen.phi[0] = -10;
+    gen.phi[1] = -10;
+    gen.pt[0] = -1;
+    gen.pt[1] = -1;
+    gen.mz = -1;
+    gen.yz = -100;
+    gen.ptz = -100;
+    gen.bits[0] = 0;
+    gen.bits[1] = 0;
+    gen.nverts = -1;
+    gen.charge[0] = 0;
+    gen.charge[1] = 0;
+    gen.phistar = -999.;
+    gen.esel[0] = -1.;
+    gen.esel[1] = -1.;
+    gen.e9e25[0] = -1.;
+    gen.e9e25[1] = -1.;
+    gen.ece9[0] = -1.;
+    gen.ece9[1] = -1.;
+    gen.ntp = -1;
+    reco.eta[0] = -10;
+    reco.eta[1] = -10;
+    reco.phi[0] = -10;
+    reco.phi[1] = -10;
+    reco.pt[0] = -1;
+    reco.pt[1] = -1;
+    reco.mz = -1;
+    reco.yz = -100;
+    reco.ptz = -100;
+    reco.bits[0] = 0;
+    reco.bits[1] = 0;
+    reco.nverts = -1;
+    reco.charge[0] = 0;
+    reco.charge[1] = 0;
+    reco.phistar = -999.;
+    reco.esel[0] = -1.;
+    reco.esel[1] = -1.;
+    reco.e9e25[0] = -1.;
+    reco.e9e25[1] = -1.;
+    reco.ece9[0] = -1.;
+    reco.ece9[1] = -1.;
+    reco.ntp = -1;
+}
+
 /* Map from names to bitnums  */
 std::map<std::string, int> ZEffTree::cutToBits_;
 
