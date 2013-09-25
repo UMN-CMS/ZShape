@@ -1,3 +1,6 @@
+#include <iostream>
+#include <sstream>
+
 #include "ZEffTree.h"
 
 ZEffTree::ZEffTree(TFile& f, const bool writable) : m_file(f) {
@@ -34,61 +37,66 @@ void ZEffTree::ZInfo::setBit(const int ielec, const std::string& bitname, const 
 
 // Print all the contents
 void ZEffTree::Print(){
-    std::cout << "ZEffTreeEntry:" << std::endl;
-    std::cout << "\tgen.mz: " << gen.mz << std::endl;
-    std::cout << "\tgen.yz: " << gen.yz << std::endl;
-    std::cout << "\tgen.ptz: " << gen.ptz << std::endl;
-    std::cout << "\tgen.nverts: " << gen.nverts << std::endl;
-    std::cout << "\tgen.reject: " << gen.reject << std::endl;
-    std::cout << "\tgen.eta[0]: " << gen.eta[0] << std::endl;
-    std::cout << "\tgen.eta[1]: " << gen.eta[1] << std::endl;
-    std::cout << "\tgen.phi[0]: " << gen.phi[0] << std::endl;
-    std::cout << "\tgen.phi[1]: " << gen.phi[1] << std::endl;
-    std::cout << "\tgen.pt[0]: " << gen.pt[0] << std::endl;
-    std::cout << "\tgen.pt[1]: " << gen.pt[1] << std::endl;
-    std::cout << "\tgen.charge[0]: " << gen.charge[0] << std::endl;
-    std::cout << "\tgen.charge[1]: " << gen.charge[1] << std::endl;
-    std::cout << "\tgen.phistar: " << gen.phistar << std::endl;
-    std::cout << "\tgen.ece9[0]: " << gen.ece9[0] << std::endl;
-    std::cout << "\tgen.ece9[1]: " << gen.ece9[1] << std::endl;
-    std::cout << "\tgen.e9e25[0]: " << gen.e9e25[0] << std::endl;
-    std::cout << "\tgen.e9e25[1]: " << gen.e9e25[1] << std::endl;
-    std::cout << "\tgen.esel[0]: " << gen.esel[0] << std::endl;
-    std::cout << "\tgen.esel[1]: " << gen.esel[1] << std::endl;
-    std::cout << "\treco.mz: " << reco.mz << std::endl;
-    std::cout << "\treco.yz: " << reco.yz << std::endl;
-    std::cout << "\treco.ptz: " << reco.ptz << std::endl;
-    std::cout << "\treco.nverts: " << reco.nverts << std::endl;
-    std::cout << "\treco.reject: " << reco.reject << std::endl;
-    std::cout << "\treco.eta[0]: " << reco.eta[0] << std::endl;
-    std::cout << "\treco.eta[1]: " << reco.eta[1] << std::endl;
-    std::cout << "\treco.phi[0]: " << reco.phi[0] << std::endl;
-    std::cout << "\treco.phi[1]: " << reco.phi[1] << std::endl;
-    std::cout << "\treco.pt[0]: " << reco.pt[0] << std::endl;
-    std::cout << "\treco.pt[1]: " << reco.pt[1] << std::endl;
-    std::cout << "\treco.charge[0]: " << reco.charge[0] << std::endl;
-    std::cout << "\treco.charge[1]: " << reco.charge[1] << std::endl;
-    std::cout << "\treco.phistar: " << reco.phistar << std::endl;
-    std::cout << "\treco.ece9[0]: " << reco.ece9[0] << std::endl;
-    std::cout << "\treco.ece9[1]: " << reco.ece9[1] << std::endl;
-    std::cout << "\treco.e9e25[0]: " << reco.e9e25[0] << std::endl;
-    std::cout << "\treco.e9e25[1]: " << reco.e9e25[1] << std::endl;
-    std::cout << "\treco.esel[0]: " << reco.esel[0] << std::endl;
-    std::cout << "\treco.esel[1]: " << reco.esel[1] << std::endl;
+    using namespace std;
+    stringstream ss;
+    ss << "ZEffTreeEntry:" << endl;
+    ss << "\tgen.mz: " << gen.mz << endl;
+    ss << "\tgen.yz: " << gen.yz << endl;
+    ss << "\tgen.ptz: " << gen.ptz << endl;
+    ss << "\tgen.nverts: " << gen.nverts << endl;
+    ss << "\tgen.reject: " << gen.reject << endl;
+    ss << "\tgen.eta[0]: " << gen.eta[0] << endl;
+    ss << "\tgen.eta[1]: " << gen.eta[1] << endl;
+    ss << "\tgen.phi[0]: " << gen.phi[0] << endl;
+    ss << "\tgen.phi[1]: " << gen.phi[1] << endl;
+    ss << "\tgen.pt[0]: " << gen.pt[0] << endl;
+    ss << "\tgen.pt[1]: " << gen.pt[1] << endl;
+    ss << "\tgen.charge[0]: " << gen.charge[0] << endl;
+    ss << "\tgen.charge[1]: " << gen.charge[1] << endl;
+    ss << "\tgen.phistar: " << gen.phistar << endl;
+    ss << "\tgen.ece9[0]: " << gen.ece9[0] << endl;
+    ss << "\tgen.ece9[1]: " << gen.ece9[1] << endl;
+    ss << "\tgen.e9e25[0]: " << gen.e9e25[0] << endl;
+    ss << "\tgen.e9e25[1]: " << gen.e9e25[1] << endl;
+    ss << "\tgen.esel[0]: " << gen.esel[0] << endl;
+    ss << "\tgen.esel[1]: " << gen.esel[1] << endl;
+    ss << "\treco.mz: " << reco.mz << endl;
+    ss << "\treco.yz: " << reco.yz << endl;
+    ss << "\treco.ptz: " << reco.ptz << endl;
+    ss << "\treco.nverts: " << reco.nverts << endl;
+    ss << "\treco.reject: " << reco.reject << endl;
+    ss << "\treco.eta[0]: " << reco.eta[0] << endl;
+    ss << "\treco.eta[1]: " << reco.eta[1] << endl;
+    ss << "\treco.phi[0]: " << reco.phi[0] << endl;
+    ss << "\treco.phi[1]: " << reco.phi[1] << endl;
+    ss << "\treco.pt[0]: " << reco.pt[0] << endl;
+    ss << "\treco.pt[1]: " << reco.pt[1] << endl;
+    ss << "\treco.charge[0]: " << reco.charge[0] << endl;
+    ss << "\treco.charge[1]: " << reco.charge[1] << endl;
+    ss << "\treco.phistar: " << reco.phistar << endl;
+    ss << "\treco.ece9[0]: " << reco.ece9[0] << endl;
+    ss << "\treco.ece9[1]: " << reco.ece9[1] << endl;
+    ss << "\treco.e9e25[0]: " << reco.e9e25[0] << endl;
+    ss << "\treco.e9e25[1]: " << reco.e9e25[1] << endl;
+    ss << "\treco.esel[0]: " << reco.esel[0] << endl;
+    ss << "\treco.esel[1]: " << reco.esel[1] << endl;
 
     // Loop over all the cuts
-    std::cout << "\tCuts:" << std::endl;
-    typedef std::map<std::string, int>::const_iterator map_it;
+    ss << "\tCuts:" << endl;
+    typedef map<string, int>::const_iterator map_it;
     for (map_it i = cutToBits_.begin(); i != cutToBits_.end(); ++i){
-        std::cout << "\t\t" << i->first << std::endl;
-        std::cout << "\t\t\t";
-        std::cout << "Gen e0: " << gen.isSelected(0, i->first);
-        std::cout << " e1: " << gen.isSelected(1, i->first);
-        std::cout << std::endl;
-        std::cout << "\t\t\t";
-        std::cout << "Reco e0: " << reco.isSelected(0, i->first);
-        std::cout << " e1: " << reco.isSelected(1, i->first);
-        std::cout << std::endl;
+        ss << "\t\t" << i->first << endl;
+        ss << "\t\t\t";
+        ss << "Gen e0: " << gen.isSelected(0, i->first);
+        ss << " e1: " << gen.isSelected(1, i->first);
+        ss << endl;
+        ss << "\t\t\t";
+        ss << "Reco e0: " << reco.isSelected(0, i->first);
+        ss << " e1: " << reco.isSelected(1, i->first);
+        ss << endl;
+
+    // Output text
+    cout << ss.str() << flush;
     }
 }
 
