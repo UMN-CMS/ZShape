@@ -1,10 +1,23 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from subprocess import call  # Access external programs
 from tempfile import mkdtemp  # Secure methods of generating random directories
 
+# Multiprocessing does not exist on some of the older versions of Scientific
+# Linux that we still use at CERN
+HasMP = True
+NJOBS = 1
+try:
+    import multiprocessing as mp
+except ImportError:
+    HasMP = False
+else:  # Only runs when try succeeds
+    from math import floor
+    if HasMP:
+        NJOBS = int(floor(mp.cpu_count() * 1.5))
+
 # Input Files
-inputFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120914/2012_kevin_thesis_trigger_eff_with_charge/SingleElectron_ele27/res/SingleElectron_ele27_summed.root"
+inputFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20130920/SingleElectron_ele27_summed.root"
 
 # Mass_Z
 minMZ = 50
@@ -15,7 +28,7 @@ tagWP = "WP95"
 probeWP = "HFTightElectronId-EtaDet"
 
 # Use Phistar (Pt else)
-usePhiStar = False
+usePhiStar = True
 
 # Program
 exe = "./BackgroundFitter.exe"
@@ -25,10 +38,14 @@ outdir = mkdtemp(prefix="hf_trigger_background_fits_")
 print "# Output directory: ", outdir
 
 # Bins
-PUs = ((0, 4), (5, 10), (11, 101))
 PUs = ((0, 4), (5, 101))
-Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (55, 60), (60, 500))
-Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (55, 500))
+if usePhiStar:
+    Xs = ((0., 0.05), (0.05, 0.1), (0.1, 0.2), (0.2, 1.))
+else:
+    Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (55, 500))
+
+# List to store points to run over before passing to the multiprocessing pool
+inputList = []
 
 for (minPU, maxPU) in PUs:
     for (minX, maxX) in Xs:
@@ -56,4 +73,14 @@ for (minPU, maxPU) in PUs:
                 str(maxMZ),
                 str(int(usePhiStar))
                 )
-        call(command)
+        inputList.append(command) 
+
+# Run jobs in parallel
+if HasMP and NJOBS > 1:
+    pool = mp.Pool(processes=NJOBS)
+    pool.map(call, inputList)  # Note, no return values so we don't care about them
+    pool.close()  # No more tasks to add
+    pool.join()  # Wait for jobs to finish
+else:
+    for il in inputList:
+        call(il)

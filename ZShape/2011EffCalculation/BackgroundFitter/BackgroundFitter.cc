@@ -44,7 +44,7 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     TCanvas *canvas = new TCanvas("bg", "bg", 800, 600);
 
     /* Setup Histogram of background */
-    const int nBins = cuts.maxMZ - cuts.minMZ;
+    const int nBins = (cuts.maxMZ - cuts.minMZ);
     TH1F *histoToFit;
     histoToFit = new TH1F("histoToFit", "Z Mass", nBins, cuts.minMZ, cuts.maxMZ);
     histoToFit->SetMarkerStyle(20);  // Use Circles for points
@@ -57,8 +57,8 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
         if (
                 binDef.minPU <= ze->reco.nverts && ze->reco.nverts <= binDef.maxPU // Must be in the pile up binning window
                 && cuts.minMZ <= ze->reco.mz && ze->reco.mz <= cuts.maxMZ          // Must be near Z peak in all cases
-                && !ze->reco.isSelected(0, tagWP)                                    // Tag must pass a cut
-                && !ze->reco.isSelected(1, probeWP)                                 // Probe must fail a cut
+                //&& ze->reco.isSelected(0, tagWP)                                    // Tag must pass a cut
+                //&& !ze->reco.isSelected(1, probeWP)                                 // Probe must fail a cut
                 && ze->reco.pt[0] > 30  // Trigger puts a cut on the first electron of 27
            ){
             /* Use Phistar or Pt */
@@ -92,7 +92,7 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     /* Set error near the peak to be very large so that it is ignored by the fit */
     for(int i = 0; i <= nBins + 1; i++) {
         const int mass = cuts.minMZ + i;
-        if ( 86 <= mass && mass <= 96){ // Around Z Peak
+        if ( 80 <= mass && mass <= 100){ // Around Z Peak
             histoToFit->SetBinError(i, 100);
         }
     }
@@ -100,8 +100,8 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     /* Run fit */
     background->SetParameter(0, 60.);
     background->SetParLimits(0, 40., 120.);
-    background->SetParameter(1, 100.);
-    background->SetParLimits(1, 0.1, 1000.);
+    background->SetParameter(1, 1000.);
+    background->SetParLimits(1, 0.1, 1000000.);
     background->SetParameter(2, 0.01);
     background->SetParLimits(2, 0.0001, 0.3);
     background->SetParameter(3, 10.);
@@ -114,8 +114,8 @@ int fitBackground(const std::string &inFileName, const std::string &outFileName,
     std::cout << "\t" << background->GetParameter(3) << "\t" << usePhiStar << std::endl;
 
     /* Set range and draw histogram */
-    histoToFit->SetMaximum(300);
-    histoToFit->SetMinimum(0);
+    //histoToFit->SetMaximum(100);
+    //histoToFit->SetMinimum(0);
     histoToFit->Draw();
 
     /* Save png */
