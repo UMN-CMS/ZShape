@@ -120,7 +120,7 @@ process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 process.p1 = cms.Path(
         process.kt6PFJets
         * process.patElectronIDs
-        * process.hfEMClusteringSequence
+        * process.hfEMClusteringSequence  # Needed in MC
         * process.lepton_cands
         #* process.tuplemakerGSFGSF
         * process.tuplemakerGSFHF

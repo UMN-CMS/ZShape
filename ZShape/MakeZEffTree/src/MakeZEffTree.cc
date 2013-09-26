@@ -39,13 +39,18 @@ Implementation:
 #include "ZEffTree.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+// HF Superclusters
+#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"  // HFEMClusterShape
+#include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"  // HFEMClusterShapeAssociationCollection
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"  // SuperClusterCollection
+#include "DataFormats/Common/interface/Ref.h"  // edm::Ref<>
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
@@ -82,6 +87,7 @@ class MakeZEffTree : public edm::EDAnalyzer {
         bool ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, const edm::Handle<reco::CandidateView>& passprobes);
         bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
         double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
+        const reco::HFEMClusterShape* getHFEMClusterShape( const edm::Event& iEvent, const double eta, const double phi );
         // ----------member data ---------------------------
         ZEffTree *m_ze;
         edm::InputTag tnpProducer_;
@@ -243,6 +249,19 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             m_ze->reco.mz = tpP4.M();
             m_ze->reco.yz = tpP4.Rapidity();
             m_ze->reco.ptz = tpP4.pt();
+            // Assign HF Variables
+            const reco::HFEMClusterShape* hfemcs0 = getHFEMClusterShape(iEvent, tag->p4().eta(), tag->p4().phi());
+            if (hfemcs0 != NULL){
+                m_ze->reco.esel[0] = hfemcs0->eSeL();
+                m_ze->reco.ece9[0] = hfemcs0->eCOREe9();
+                m_ze->reco.e9e25[0] = hfemcs0->e9e25();
+            }  // If it is NULL, the default values have already been set by the ZEffTree class
+            const reco::HFEMClusterShape* hfemcs1 = getHFEMClusterShape(iEvent, vprobes->p4().eta(), vprobes->p4().phi());
+            if (hfemcs1 != NULL){
+                m_ze->reco.esel[1] = hfemcs1->eSeL();
+                m_ze->reco.ece9[1] = hfemcs1->eCOREe9();
+                m_ze->reco.e9e25[1] = hfemcs1->e9e25();
+            }
 
             /* Use the electron that we have a charge for to set the PhiStar */
             m_ze->reco.phistar = MakeZEffTree::getPhiStar( m_ze->reco.eta[1], m_ze->reco.phi[1], m_ze->reco.eta[0], m_ze->reco.phi[0]);
@@ -380,6 +399,36 @@ double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const doub
     /* PhiStar */
     const double phiStar = ( 1 / cosh( dEta / 2 ) ) * (1 / tan( dPhi / 2 ) );
     return phiStar;
+}
+
+const reco::HFEMClusterShape* MakeZEffTree::getHFEMClusterShape(const edm::Event& iEvent, const double eta, const double phi){
+    double dr = 1000;
+    const reco::HFEMClusterShape* cluster = NULL;
+    const double feta = fabs(eta);
+    if (3.1 < feta && feta < 4.6){  // Check that we're in HF
+        // Load HF Clusters
+        edm::InputTag hfClusterShapes_("hfEMClusters");
+
+        edm::Handle<reco::HFEMClusterShapeAssociationCollection> ClusterAssociation;
+        iEvent.getByLabel(hfClusterShapes_, ClusterAssociation);
+
+        edm::Handle<reco::SuperClusterCollection> HFSC;
+        iEvent.getByLabel(hfClusterShapes_, HFSC);
+        // Loop until to find the closet match
+        for (unsigned int j=0; j < HFSC->size(); ++j){
+
+            const reco::SuperCluster sc = (*HFSC)[j];  // Get Super Cluster
+            const double newdr = deltaR(eta, phi, sc.eta(), sc.phi());
+            if (newdr < dr && newdr < delRMatchingCut_){  // New dr is smaller, and under our maximum
+                const reco::SuperClusterRef theClusRef = edm::Ref<reco::SuperClusterCollection>(HFSC, j);  // Get reference to SC
+                const reco::HFEMClusterShape* newcluster = &(*ClusterAssociation->find(theClusRef)->val);  // Find the Shape Reference and dereference and then get the pointer
+                dr = newdr;
+                cluster = newcluster;
+                // Assign HFEMClusterShape
+            }
+        }
+    }
+    return cluster;
 }
 
 //define this as a plug-in
