@@ -289,7 +289,7 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
          std::cout << ss.str() << std::flush;
         // No background for your area.
         return 1;
-    }
+    } 
 
     // Open signal file and make histograms
     TFile ZSFile(signalFile.c_str(), "READ");
@@ -520,26 +520,8 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
 
     delete ze;
 
-    // Perform fit
-    canvas->cd(1);
-    TF1* baseFitFunc = new TF1("baseFitFunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, 2);
-    baseFitFunc->SetLineWidth(1);
-    baseFitFunc->SetParLimits(0, 0.0001, 100000.);
-    baseFitFunc->SetParLimits(1, 0.0001, 100000.);
-    baseFitFunc->SetParameter(0, 100.);
-    baseFitFunc->SetParameter(1, 1000.);
-    baseHisto->Sumw2(); // Insure errors are handled correctly when scaled.
-    //baseHisto->Scale(1); // Scale by 1, and then divide each bin by its width.
-    baseHisto->Fit(baseFitFunc, "RMWLQ");
-    baseHisto->Draw("E");
-    TH1D* baseBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("baseBG");
-    baseBG->Scale(baseFitFunc->GetParameter(0));
-    baseBG->SetLineStyle(2);
-    baseBG->Draw("same");
-
-    // Extract background histo
-    TH1D* backgroundHisto = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("baseBG");
-
+    // Fit the post cut first (and use the fit signal size to constrain the
+    // first fit
     canvas->cd(2);
     TF1* postFitFunc = new TF1("postFitFunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, 2);
     postFitFunc->SetLineWidth(1);
@@ -548,13 +530,36 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
     postFitFunc->SetParameter(0, 100.);
     postFitFunc->SetParameter(1, 1000.);
     postcutHisto->Sumw2();
-    //postcutHisto->Scale(1);
     postcutHisto->Fit(postFitFunc, "RMWLQ");
     postcutHisto->Draw("E");
     TH1D* postBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("postBG");
     postBG->Scale(postFitFunc->GetParameter(0));
     postBG->SetLineStyle(2);
+    postBG->SetLineColor(kBlack);
     postBG->Draw("same");
+
+    // Perform a fit of the pre-cut histogram
+    canvas->cd(1);
+    TF1* baseFitFunc = new TF1("baseFitFunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, 2);
+    baseFitFunc->SetLineWidth(1);
+    const double par1 = postFitFunc->GetParameter(1);
+    const double percent = 1.0;  // Allow Par 1 to vary by this amount
+    baseFitFunc->SetParLimits(0, 0.0001, 100000.);
+    baseFitFunc->SetParLimits(1, par1, par1*(1+percent));  // The trigger can't create events, so lower limit is par1
+    baseFitFunc->SetParameter(0, 100.);
+    baseFitFunc->SetParameter(1, par1);
+    baseHisto->Sumw2(); // Insure errors are handled correctly when scaled.
+    baseHisto->Fit(baseFitFunc, "RMWLQ");
+    baseHisto->Draw("E");
+    TH1D* baseBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("baseBG");
+    baseBG->Scale(baseFitFunc->GetParameter(0));
+    baseBG->SetLineStyle(2);
+    baseBG->SetLineColor(kBlack);
+    baseBG->Draw("same");
+
+    // Extract background histo
+    TH1D* backgroundHisto = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("baseBG");
+
 
     // Calculate Eff
     effs countEff = effFromCounting(baseHisto, postcutHisto, backgroundHisto, backgroundHisto, baseFitFunc->GetParameter(0), baseFitFunc->GetParError(0), postFitFunc->GetParameter(0), postFitFunc->GetParError(0));
