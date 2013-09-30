@@ -6,25 +6,27 @@ ROOT_ALL=`root-config --cflags --libs`
 CC=g++ -O2 -g
 CCC=${CC} -c
 
-all: fitEffAcc.exe fitEffAcc_trigger.exe
+all: fitEffAcc_trigger.exe
 
-fitEffAcc_trigger.exe: ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o
+fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o
 	${CC} -o fitEffAcc_trigger.exe \
-	fitEffAcc_trigger.cc \
+	fitEffAcc_trigger.o \
+	ZEffTree.o \
+	BackgroundFunctions.o \
+	ElectronLocation.o \
+	${ROOT_ALL}
+
+fitEffAcc.exe: ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o
+	${CC} -o fitEffAcc.exe \
+	fitEffAcc.o \
 	ZEffTree.o \
 	BackgroundTable.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
 	${ROOT_ALL}
 
-fitEffAcc.exe: ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o
-	${CC} -o fitEffAcc.exe \
-	fitEffAcc.cc \
-	ZEffTree.o \
-	BackgroundTable.o \
-	BackgroundFunctions.o \
-	ElectronLocation.o \
-	${ROOT_ALL}
+%.o:%.cc
+	${CCC} ${ROOT_INCLUDES} $< -o $@
 
 ZEffTree.o: ../../MakeZEffTree/src/ZEffTree.h ../../MakeZEffTree/src/ZEffTree.cc
 	${CCC} ../../MakeZEffTree/src/ZEffTree.cc ${ROOT_INCLUDES}

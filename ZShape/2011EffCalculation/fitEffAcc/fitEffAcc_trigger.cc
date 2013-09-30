@@ -1,4 +1,3 @@
-#include "../BackgroundLibrary/BackgroundTable.h"
 #include "../BackgroundLibrary/BackgroundFunctions.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
@@ -132,6 +131,36 @@ double getHFSlope( const double eta ){
     }
 }
 
+TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const eventRequirements& eventrq){
+    // Set our exclude regions
+    //bgfunc.setExclude();
+    // Make our function
+    TF1* tf1 = new TF1(name.c_str(), bgfunc, eventrq.minMZ, eventrq.maxMZ, bgfunc.nparams);
+    tf1->SetLineWidth(1);
+    // Set names
+    tf1->SetParName(0, "alpha");
+    tf1->SetParName(1, "beta");
+    tf1->SetParName(2, "gamma");
+    tf1->SetParName(3, "delta");
+    //tf1->SetParName(4, "Signal Amplitude");
+    // Set limits
+    tf1->SetParLimits(0, 0., 10000.);
+    tf1->SetParLimits(0, 40., 120.);
+    tf1->SetParLimits(1, 0., 100000.);
+    tf1->SetParLimits(1, 0.1, 1000000.);
+    tf1->SetParLimits(2, 0.0001, 0.3);
+    tf1->SetParLimits(3, 3., 80.);
+    // Set starting value
+    tf1->SetParameter(0, 100.);
+    tf1->SetParameter(0, 60.);
+    tf1->SetParameter(1, 1000.);
+    tf1->SetParameter(1, 1000.);
+    tf1->SetParameter(2, 0.01);
+    tf1->SetParameter(3, 10.);
+
+    return tf1;
+}
+
 effs effFromCounting(TH1D* baseData, TH1D* postData, TH1D* baseBG, TH1D* postBG, const double baseP, const double baseE, const double postP, const double postE, const double minMZ=60., const double maxMZ=120.){
     /*
      * postD = postData count
@@ -256,7 +285,7 @@ void printEffs(const electronLocation probeLoc, const eventRequirements eventrq,
     cout << ss.str() << flush;
 }
 
-int fitDistributions(const std::string bgfitfile, const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const eventRequirements eventrq, const bin xBin, const bool usePhiStar=false){
+int fitDistributions(const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const eventRequirements eventrq, const bin xBin, const bool usePhiStar=false){
     // Some commont variables
     const double tagXCutPt = 20.;
     const double probeXCutPt = 20.;
@@ -277,19 +306,6 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
     }
     double* xbins_ar = &xbins[0];
     TH1D* signalHisto = new TH1D("signalHisto", "signal", nbins, xbins_ar);
-
-    // Get our background
-    bg::BackgroundTable brg(bgfitfile);
-    const double midX = (xBin.maxX + xBin.minX)/2.;
-    const double midPU = (eventrq.maxPU + eventrq.minPU)/2.;
-    brg.setBackground(midX, midPU, usePhiStar); // TODO: Fill in pt, pu
-    if (brg.current == 0){
-        std::stringstream ss;
-         ss << "Failed to get background model for point: midX " << midX << " midPU " << midPU << " usePhiStar " << usePhiStar << std::endl;
-         std::cout << ss.str() << std::flush;
-        // No background for your area.
-        return 1;
-    }
 
     // Open signal file and make histograms
     TFile ZSFile(signalFile.c_str(), "READ");
@@ -351,9 +367,6 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
     }
 
     delete zes;
-
-    // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc(brg, signalHisto);
 
     // Prepare output
     TFile* outfile;
@@ -520,100 +533,162 @@ int fitDistributions(const std::string bgfitfile, const std::string signalFile, 
 
     delete ze;
 
-    // Perform fit
-    canvas->cd(1);
-    TF1* baseFitFunc = new TF1("baseFitFunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, 2);
-    baseFitFunc->SetLineWidth(1);
-    baseFitFunc->SetParLimits(0, 0.0001, 100000.);
-    baseFitFunc->SetParLimits(1, 0.0001, 100000.);
-    baseFitFunc->SetParameter(0, 100.);
-    baseFitFunc->SetParameter(1, 1000.);
-    baseHisto->Sumw2(); // Insure errors are handled correctly when scaled.
-    //baseHisto->Scale(1); // Scale by 1, and then divide each bin by its width.
-    baseHisto->Fit(baseFitFunc, "RMWLQ");
-    baseHisto->Draw("E");
-    TH1D* baseBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("baseBG");
-    baseBG->Scale(baseFitFunc->GetParameter(0));
-    baseBG->SetLineStyle(2);
-    baseBG->Draw("same");
 
-    // Extract background histo
-    TH1D* backgroundHisto = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("baseBG");
-
+    // Fit the post cut first (and use the fit signal size to constrain the
+    // first fit
     canvas->cd(2);
-    TF1* postFitFunc = new TF1("postFitFunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, 2);
-    postFitFunc->SetLineWidth(1);
-    postFitFunc->SetParLimits(0, 0., 10000.);
-    postFitFunc->SetParLimits(1, 0., 100000.);
-    postFitFunc->SetParameter(0, 100.);
-    postFitFunc->SetParameter(1, 1000.);
+    TH1D* signaltemp = new TH1D("signaltemp", "signal", nbins, xbins_ar);
+    bg::BinnedBackground bgfunc(signaltemp);
+
+    TF1* postBGFunc = getBGFitFunc(std::string("postBGFunc"), bgfunc, eventrq);
     postcutHisto->Sumw2();
-    //postcutHisto->Scale(1);
-    postcutHisto->Fit(postFitFunc, "RMWLQ");
+    // Fit the Exponential
+    postBGFunc->SetParLimits(0, 100., 100.);
+    postBGFunc->SetParLimits(3, 10., 10.);
+    postcutHisto->Fit(postBGFunc, "MWLQ", "", 110, eventrq.maxMZ);
+
+    double var1=postBGFunc->GetParameter(1);
+    double var2=postBGFunc->GetParameter(2);
+    postBGFunc->SetParLimits(0, 40., 120.);
+    postBGFunc->FixParameter(1, var1);
+    postBGFunc->FixParameter(2, var2);
+    postBGFunc->SetParLimits(3, 3., 80.);
+
+    postcutHisto->Fit(postBGFunc, "MWLQ", "", eventrq.minMZ, 75);
+ 
+    double var0=postBGFunc->GetParameter(0);
+    double var3=postBGFunc->GetParameter(3);
+
+    // Set up background fitter object
+    bg::BinnedBackgroundAndSignal bgfitfunc(signalHisto);
+    TF1* postBGandSigFunc = new TF1("bgfitfunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, bgfitfunc.nparams);
+    postBGandSigFunc->SetParName(0, "alpha");
+    postBGandSigFunc->SetParName(1, "beta");
+    postBGandSigFunc->SetParName(2, "gamma");
+    postBGandSigFunc->SetParName(3, "delta");
+    postBGandSigFunc->SetParName(4, "Signal Amplitude");
+    postBGandSigFunc->FixParameter(0, var0);
+    postBGandSigFunc->FixParameter(1, var1);
+    postBGandSigFunc->FixParameter(2, var2);
+    postBGandSigFunc->FixParameter(3, var3);
+    postBGandSigFunc->SetParameter(4, 1.);
+    postBGandSigFunc->SetParLimits(4, 0.,10000);
+
+    postcutHisto->Fit(postBGandSigFunc, "MWLQ");
+
     postcutHisto->Draw("E");
-    TH1D* postBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("postBG");
-    postBG->Scale(postFitFunc->GetParameter(0));
+    TH1D* postBG = (TH1D*)bgfunc.getBackgroundHisto()->Clone("postBG");
     postBG->SetLineStyle(2);
+    postBG->SetLineColor(kBlack);
     postBG->Draw("same");
 
-    // Calculate Eff
-    effs countEff = effFromCounting(baseHisto, postcutHisto, backgroundHisto, backgroundHisto, baseFitFunc->GetParameter(0), baseFitFunc->GetParError(0), postFitFunc->GetParameter(0), postFitFunc->GetParError(0));
-    effs sigEff = effFromSignal( signalHisto, signalHisto, baseFitFunc->GetParameter(1), baseFitFunc->GetParError(1), postFitFunc->GetParameter(1), postFitFunc->GetParError(1));
+    // Perform a fit of the pre-cut histogram
+    canvas->cd(1);
+    // Fit the background function
+    TF1* preBGFunc = getBGFitFunc(std::string("preBGFunc"), bgfunc, eventrq);
+    baseHisto->Sumw2();
+    // Fit the Exponential
+    preBGFunc->SetParLimits(0, 100., 100.);
+    preBGFunc->SetParLimits(3, 10., 10.);
+    baseHisto->Fit(preBGFunc, "MWLQ", "", 110, eventrq.maxMZ);
 
-    canvas->cd(0);
+    var1=preBGFunc->GetParameter(1);
+    var2=preBGFunc->GetParameter(2);
+    preBGFunc->SetParLimits(0, 40., 120.);
+    preBGFunc->FixParameter(1, var1);
+    preBGFunc->FixParameter(2, var2);
+    preBGFunc->SetParLimits(3, 3., 80.);
+
+    baseHisto->Fit(preBGFunc, "MWLQ", "", eventrq.minMZ, 75);
+ 
+    var0=preBGFunc->GetParameter(0);
+    var3=preBGFunc->GetParameter(3);
+
+    // Set up background fitter object
+    bg::BinnedBackgroundAndSignal bgfitfunc2(signalHisto);
+    TF1* preBGandSigFunc = new TF1("bgfitfunc2", bgfitfunc2, eventrq.minMZ, eventrq.maxMZ, bgfitfunc2.nparams);
+    preBGandSigFunc->SetParName(0, "alpha");
+    preBGandSigFunc->SetParName(1, "beta");
+    preBGandSigFunc->SetParName(2, "gamma");
+    preBGandSigFunc->SetParName(3, "delta");
+    preBGandSigFunc->SetParName(4, "Signal Amplitude");
+    preBGandSigFunc->FixParameter(0, var0);
+    preBGandSigFunc->FixParameter(1, var1);
+    preBGandSigFunc->FixParameter(2, var2);
+    preBGandSigFunc->FixParameter(3, var3);
+    preBGandSigFunc->SetParameter(4, 1.);
+    preBGandSigFunc->SetParLimits(4, 0.,10000);
+
+    baseHisto->Fit(preBGandSigFunc, "MWLQ");
+
+    baseHisto->Draw("E");
+    TH1D* preBG = (TH1D*)bgfunc.getBackgroundHisto()->Clone("preBG");
+    preBG->SetLineStyle(2);
+    preBG->SetLineColor(kBlack);
+    preBG->Draw("same");
+
+
+    // // Extract background histo
+    // TH1D* backgroundHisto = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("baseBG");
+
+    // // Calculate Eff
+    // effs countEff = effFromCounting(baseHisto, postcutHisto, backgroundHisto, backgroundHisto, baseFitFunc->GetParameter(0), baseFitFunc->GetParError(0), postFitFunc->GetParameter(0), postFitFunc->GetParError(0));
+    // effs sigEff = effFromSignal( signalHisto, signalHisto, baseFitFunc->GetParameter(1), baseFitFunc->GetParError(1), postFitFunc->GetParameter(1), postFitFunc->GetParError(1));
+
+    // canvas->cd(0);
+
 
     const std::string name(outFile.begin(), outFile.end()-5);
     const std::string pngname = name + std::string(".png");
     canvas->Print(pngname.c_str(), "png");
     outfile->Write();
 
-    //Prints eff stats for text file
-    const double baseD = baseHisto->Integral(baseHisto->FindBin(eventrq.minMZ), baseHisto->FindBin(eventrq.maxMZ));
-    const double baseB = backgroundHisto->Integral(backgroundHisto->FindBin(eventrq.minMZ), backgroundHisto->FindBin(eventrq.maxMZ));
 
-    const double denom = (baseD - (baseFitFunc->GetParameter(0)*baseB));
-    printEffs(probeLoc, eventrq, xBin, sigEff.eff, countEff.eff, denom, usePhiStar);
+
+
+    //Prints eff stats for text file
+    //const double baseD = baseHisto->Integral(baseHisto->FindBin(eventrq.minMZ), baseHisto->FindBin(eventrq.maxMZ));
+    //const double baseB = backgroundHisto->Integral(backgroundHisto->FindBin(eventrq.minMZ), backgroundHisto->FindBin(eventrq.maxMZ));
+
+    //const double denom = (baseD - (baseFitFunc->GetParameter(0)*baseB));
+    //printEffs(probeLoc, eventrq, xBin, sigEff.eff, countEff.eff, denom, usePhiStar);
 
     return 0;
 }
 
 int main(int argc, char* argv[]){
-    const int argcCorrect = 14;
+    const int argcCorrect = 13;
     if (argc < argcCorrect) {
-        std::cout<<"Not enough arguments. Use:\nfitEffAcc.exe bgfitFile signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Not enough arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else if (argc > argcCorrect){
-        std::cout<<"Too many arguments. Use:\nfitEffAcc.exe bgfitFile signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Too many arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else {
         // Read in arguments
         std::istringstream inStream;
 
-        std::string bgfitFile;
         std::string signalFile;
         std::string ZEffFile;
         std::string outFile;
 
         inStream.str(argv[1]);
-        inStream >> bgfitFile;
-        inStream.clear();
-        inStream.str(argv[2]);
         inStream >> signalFile;
         inStream.clear();
-        inStream.str(argv[3]);
+        inStream.str(argv[2]);
         inStream >> ZEffFile;
         inStream.clear();
-        inStream.str(argv[4]);
+        inStream.str(argv[3]);
         inStream >> outFile;
         inStream.clear();
 
         std::string tagL;
         std::string probeL;
 
-        inStream.str(argv[5]);
+        inStream.str(argv[4]);
         inStream >> tagL;
         inStream.clear();
-        inStream.str(argv[6]);
+        inStream.str(argv[5]);
         inStream >> probeL;
         inStream.clear();
         std::map<std::string, electronLocation> conv;
@@ -634,30 +709,30 @@ int main(int argc, char* argv[]){
         electronLocation probeLoc = conv[probeL];
 
         eventRequirements eventrq;
-        inStream.str(argv[7]);
+        inStream.str(argv[6]);
         inStream >> eventrq.minPU;
         inStream.clear();
-        inStream.str(argv[8]);
+        inStream.str(argv[7]);
         inStream >> eventrq.maxPU;
         inStream.clear();
-        inStream.str(argv[9]);
+        inStream.str(argv[8]);
         inStream >> eventrq.minMZ;
         inStream.clear();
-        inStream.str(argv[10]);
+        inStream.str(argv[9]);
         inStream >> eventrq.maxMZ;
         inStream.clear();
 
         bin xBin;
 
-        inStream.str(argv[11]);
+        inStream.str(argv[10]);
         inStream >> xBin.minX;
         inStream.clear();
-        inStream.str(argv[12]);
+        inStream.str(argv[11]);
         inStream >> xBin.maxX;
         inStream.clear();
 
         bool usePhiStar;
-        inStream.str(argv[13]);
+        inStream.str(argv[12]);
         inStream >> usePhiStar;
         inStream.clear();
 
@@ -718,7 +793,6 @@ int main(int argc, char* argv[]){
 
         //std::cout << " Tag: " << tagWP << " Probe: " << probeWP << " MinPt: " << xBin.minX << " MaxPt: " << xBin.maxX << " MinPU: " << eventrq.minPU << " MaxPU: " << eventrq.maxPU << std::endl;
         return fitDistributions(
-                bgfitFile,
                 signalFile,
                 ZEffFile,
                 outFile,
