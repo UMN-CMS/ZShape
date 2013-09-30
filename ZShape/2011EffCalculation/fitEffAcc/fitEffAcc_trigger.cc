@@ -161,7 +161,7 @@ TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const e
     return tf1;
 }
 
-effs effFromCounting(TH1D* baseData, TH1D* postData, TH1D* baseBG, TH1D* postBG, const double baseP, const double baseE, const double postP, const double postE, const double minMZ=60., const double maxMZ=120.){
+effs effFromCounting(TH1D* baseData, TH1D* postData, TH1D* baseBG, TH1D* postBG, const double baseE, const double postE, const double minMZ=60., const double maxMZ=120.){
     /*
      * postD = postData count
      * postP = postData param
@@ -177,34 +177,23 @@ effs effFromCounting(TH1D* baseData, TH1D* postData, TH1D* baseBG, TH1D* postBG,
     const double baseDerr = sqrt(baseD);
     const double postDerr = sqrt(postD);
 
-    //std::cout << "baseD " << baseD << std::endl;
-    //std::cout << "postD " << postD << std::endl;
-    //std::cout << "baseB " << baseB << std::endl;
-    //std::cout << "postB " << postB << std::endl;
-    //std::cout << "baseDerr " << baseDerr << std::endl;
-    //std::cout << "postDerr " << postDerr << std::endl;
-
-    tmp.eff = (postD - (postP*postB)) / (baseD - (baseP*baseB));
+    tmp.eff = (postD - postB) / (baseD - baseB);
     /* Note: dEff = Eff * Sqrt((da^2+db^2)/(a-b)^2 + (dc^2-dd^2)/(c-d)^2) */
     tmp.err = tmp.eff * sqrt(
-            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postP * postB ) * ( postD - postP * postB ) )
-            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseP * baseB ) * ( baseD - baseP * baseB ) )
+            ( ( postE * postE ) + ( postDerr * postDerr ) ) / ( ( postD - postB ) * ( postD - postB ) )
+            +  ( ( baseE * baseE ) + (baseDerr * baseDerr ) ) / ( ( baseD - baseB ) * ( baseD - baseB ) )
             );
 
     return tmp;
 }
 
-effs effFromSignal(TH1D* baseSig, TH1D* postSig, const double baseP, const double baseE, const double postP, const double postE, const double minMZ=60., const double maxMZ=120.){
+effs effFromSignal(TH1D* baseSig, TH1D* postSig, const double baseE, const double postE, const double minMZ=60., const double maxMZ=120.){
     effs tmp;
     double baseS = baseSig->Integral(baseSig->FindBin(minMZ), baseSig->FindBin(maxMZ));
     double postS = postSig->Integral(postSig->FindBin(minMZ), postSig->FindBin(maxMZ));
 
-    //std::cout << "baseS " << baseS << std::endl;
-    //std::cout << "postS " << postS << std::endl;
-
-    tmp.eff = ( postS * postP ) / ( baseS * baseP );
-    tmp.err = tmp.eff * sqrt( (baseE * baseE)/(( baseS * baseP )*( baseS * baseP )) + (postE * postE) / (( postS * postP )*( postS * postP )) );
-
+    tmp.eff = postS / baseS;
+    tmp.err = tmp.eff * sqrt( (baseE * baseE)/(baseS * baseS) + (postE * postE) / (postS * postS) );
 
     // TODO: Double check formula
     return tmp;
@@ -576,7 +565,8 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
     postcutHisto->Draw("E");
-    TH1D* postBG = (TH1D*)bgfunc.getBackgroundHisto()->Clone("postBG");
+    TH1D* postBG = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("postBG");
+    TH1D* postSignal = (TH1D*)bgfitfunc.getSignalHisto()->Clone("postSignal");
     postBG->SetLineStyle(2);
     postBG->SetLineColor(kBlack);
     postBG->Draw("same");
@@ -621,36 +611,41 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 
     baseHisto->Draw("E");
-    TH1D* preBG = (TH1D*)bgfunc.getBackgroundHisto()->Clone("preBG");
+    TH1D* preBG = (TH1D*)bgfitfunc2.getBackgroundHisto()->Clone("preBG");
+    TH1D* preSignal = (TH1D*)bgfitfunc2.getSignalHisto()->Clone("preSignal");
     preBG->SetLineStyle(2);
     preBG->SetLineColor(kBlack);
     preBG->Draw("same");
 
+    // Calculate Eff
+    effs countEff = effFromCounting(
+            baseHisto,
+            postcutHisto,
+            preBG,
+            postBG,
+            preBGandSigFunc->GetParError(1),
+            postBGandSigFunc->GetParError(1)
+            );
+    effs sigEff = effFromSignal( 
+            preSignal,
+            postSignal,
+            preBGandSigFunc->GetParError(1),
+            postBGandSigFunc->GetParError(1)
+            );
 
-    // // Extract background histo
-    // TH1D* backgroundHisto = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("baseBG");
-
-    // // Calculate Eff
-    // effs countEff = effFromCounting(baseHisto, postcutHisto, backgroundHisto, backgroundHisto, baseFitFunc->GetParameter(0), baseFitFunc->GetParError(0), postFitFunc->GetParameter(0), postFitFunc->GetParError(0));
-    // effs sigEff = effFromSignal( signalHisto, signalHisto, baseFitFunc->GetParameter(1), baseFitFunc->GetParError(1), postFitFunc->GetParameter(1), postFitFunc->GetParError(1));
-
-    // canvas->cd(0);
-
+    canvas->cd(0);
 
     const std::string name(outFile.begin(), outFile.end()-5);
     const std::string pngname = name + std::string(".png");
     canvas->Print(pngname.c_str(), "png");
     outfile->Write();
 
-
-
-
     //Prints eff stats for text file
-    //const double baseD = baseHisto->Integral(baseHisto->FindBin(eventrq.minMZ), baseHisto->FindBin(eventrq.maxMZ));
-    //const double baseB = backgroundHisto->Integral(backgroundHisto->FindBin(eventrq.minMZ), backgroundHisto->FindBin(eventrq.maxMZ));
+    const double baseD = baseHisto->Integral(baseHisto->FindBin(eventrq.minMZ), baseHisto->FindBin(eventrq.maxMZ));
+    const double baseB = preBG->Integral(preBG->FindBin(eventrq.minMZ), preBG->FindBin(eventrq.maxMZ));
 
-    //const double denom = (baseD - (baseFitFunc->GetParameter(0)*baseB));
-    //printEffs(probeLoc, eventrq, xBin, sigEff.eff, countEff.eff, denom, usePhiStar);
+    const double denom = (baseD - baseB);
+    printEffs(probeLoc, eventrq, xBin, sigEff.eff, countEff.eff, denom, usePhiStar);
 
     return 0;
 }

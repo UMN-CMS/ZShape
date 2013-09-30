@@ -1,8 +1,7 @@
-#ifndef BACKGROUNDFUNCTIONS_H
-#define BACKGROUNDFUNCTIONS_H
+#ifndef ZSHAPE_2011EFFCALCULATION_BACKGROUNDLIBRARY_BACKGROUNDFUNCTIONS_H_
+#define ZSHAPE_2011EFFCALCULATION_BACKGROUNDLIBRARY_BACKGROUNDFUNCTIONS_H_
 
 #include <TF1.h>  
-#include <TMath.h>  // Erfc, Exp
 #include <TH1.h>  // TH1D
 
 #include "BackgroundTable.h"  // Background Table
@@ -32,18 +31,23 @@ namespace bg{
 
     class BinnedBackground{
         public:
-            // Constructor
-            BinnedBackground(const double alpha, const double gamma, const double delta, TH1D* bgHisto);
-            BinnedBackground(const BackgroundTable bgtab, TH1D* bgHisto);
-            BinnedBackground() {}  // Needed because BinnedBackgroundAndSignal calls it
+            BinnedBackground(TH1D* bgHisto);
+            BinnedBackground() {};  // Needed for inheritance
 
             // Histogram
-            TH1D* getNormalizedBackgroundHisto();
             TH1D* getBackgroundHisto();
-            TH1D* getScaledBackgroundHisto(const double beta);
+
+            // Set exclude
+            void setExclude(const bool ex){ exclude_ = ex; };
+            void setExcludeRange(const double xmin, const double xmax){
+                exclude_min_ = xmin; exclude_max_ = xmax;
+            }
 
             // Access to the function
             double operator() (const double *x, const double *par);
+
+            // Number of parameters this class needs
+            static const int nparams = 4;
 
         protected:
             // Generated internal quantities
@@ -51,50 +55,38 @@ namespace bg{
             TF1* internalFunc_;
 
             // Functions used to set up the class during construction
-            void fillBackgroundHisto_(const double beta, const bool normalize = false);
+            void fillBackgroundHisto_(const double* par);
 
             // Internal variables used to initialize for baseFunc_
-            static const int nparams_ = 1;
+            static const int nparams_ = 4;
             static const double minMZ_ = 0.;
             static const double maxMZ_ = 200.;
 
-            /*
-             * The function we use to make the TF1
-             *
-             * We use a class because, for some reason I have not figured out,
-             * using bg::BinnedBackground::baseFunc_ doesn't work if it is just
-             * a function.
-             */
-            class baseFuncClass_{
-                public:
-                    baseFuncClass_(const double alpha, const double gamma, const double delta);
-                    double operator() (const double *x, const double *par);
-
-                private:
-                    double baseFunc_(const double *x, const double *par);
-                    double alpha_;
-                    double gamma_;
-                    double delta_;
-            };
+            // Internal variables used to ignore rangex
+            double exclude_min_;
+            double exclude_max_;
+            bool exclude_;
     };
 
     class BinnedBackgroundAndSignal: public BinnedBackground{
         public:
-            BinnedBackgroundAndSignal(const double alpha, const double gamma, const double delta,  TH1D* signalHisto);
-            BinnedBackgroundAndSignal(const BackgroundTable bgtab, TH1D* signalHisto);
+            BinnedBackgroundAndSignal(TH1D* signalHisto);
+            BinnedBackgroundAndSignal() {};  // Needed for inheritance
 
             // Histogram
+            TH1D* getSignalHisto();
+
+            // Access to the function
             double operator() (const double *x, const double *par);
 
-            // Return the signal histogram
-            TH1D* getNormalizedSignalHisto();
-            TH1D* getSignalHisto();
-            TH1D* getScaledSignalHisto(const double beta);
+            // Number of parameters this class needs
+            static const int nparams = 5;
 
         protected:
             TH1D* signalHisto_;
             // Internal variables used to initialize for baseFunc_
             static const int nparams_ = 2;
     };
+
 }
-#endif
+#endif // define ZSHAPE_2011EFFCALCULATION_BACKGROUNDLIBRARY_BACKGROUNDFUNCTIONS_H_
