@@ -18,7 +18,11 @@ else:  # Only runs when try succeeds
 
 # Input Files
 #fitFile = "hf_trigger_background_from_ele27.txt"
+<<<<<<< HEAD
 #fitFile = "hf_background.txt"
+=======
+fitFile = "hf_background.txt"
+>>>>>>> d8d0f28364a0121c05c1331e5bfb64ef7c6cd2b7
 signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_hfsc_mc/20130918_gsf_hfsc_mc_summed.root"
 dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120914/2012_kevin_thesis_trigger_eff_with_charge/SingleElectron_ele27/res/SingleElectron_ele27_summed.root"
 # Mass_Z

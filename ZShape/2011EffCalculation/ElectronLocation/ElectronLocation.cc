@@ -3,6 +3,8 @@
 bool inAcceptance(const electronLocation loc, const double eta){
     const double feta = fabs(eta);
     switch (loc){
+        case ALL:
+            return true;
         case EB:
             if (feta < 1.4442){
                 return true; 
@@ -19,22 +21,22 @@ bool inAcceptance(const electronLocation loc, const double eta){
             }
             break;
         case EE:
-            if (1.566 < feta && feta < 2.5){
+            if (1.566 < feta && feta < 2.850){
                 return true; 
             }
             break;
         case EEp:
-            if (1.566 < eta && eta < 2.5){
+            if (1.566 < eta && eta < 2.850){
                 return true; 
             }
             break;
         case EEm:
-            if (-1.566 > eta && eta > -2.5){
+            if (-1.566 > eta && eta > -2.850){
                 return true; 
             }
             break;
         case ET:
-            if (feta < 1.4442 || (1.566 < feta && feta < 2.5)){
+            if (feta < 1.4442 || (1.566 < feta && feta < 2.850)){
                 return true; 
             }
             break;

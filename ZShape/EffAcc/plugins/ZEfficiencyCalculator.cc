@@ -210,6 +210,7 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
     stdCuts_.acceptanceCuts(evt_.elec(ne));
     stdCuts_.ptCuts(evt_.elec(ne));    
     stdCuts_.gen_ptCuts(evt_.elecTreeLevel(ne),evt_.elec(ne)); // ordering might not be perfect, but should be ok for most purposes!
+
     stdCuts_.dummyCuts(evt_.elec(ne));
   }
 
@@ -489,6 +490,12 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
     evt_.elec(ik).cutResult("FULL-ISO",(eid&0x2));
     evt_.elec(ik).cutResult("FULL-CONV",(eid&0x4));
     evt_.elec(ik).cutResult("FULL-WP",(eid&0x7)==7);
+
+
+    evt_.elec(ik).setWeight("FULL-ID",(eid&0x1)?(1.0):(0.0));    
+    evt_.elec(ik).setWeight("FULL-ISO",(eid&0x2)?(1.0):(0.0));
+    evt_.elec(ik).setWeight("FULL-CONV",(eid&0x4)?(1.0):(0.0));
+    evt_.elec(ik).setWeight("FULL-WP",((eid&0x7)==7)?(1.0):(0.0));
   }
   
   //calculate pi
