@@ -307,19 +307,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     double* xbins_ar = &xbins[0];
     TH1D* signalHisto = new TH1D("signalHisto", "signal", nbins, xbins_ar);
 
-    // Get our background
-    bg::BackgroundTable brg(bgfitfile);
-    const double midX = (xBin.maxX + xBin.minX)/2.;
-    const double midPU = (eventrq.maxPU + eventrq.minPU)/2.;
-    brg.setBackground(midX, midPU, usePhiStar); // TODO: Fill in pt, pu
-    if (brg.current == 0){
-        std::stringstream ss;
-         ss << "Failed to get background model for point: midX " << midX << " midPU " << midPU << " usePhiStar " << usePhiStar << std::endl;
-         std::cout << ss.str() << std::flush;
-        // No background for your area.
-        return 1;
-    } 
-
     // Open signal file and make histograms
     TFile ZSFile(signalFile.c_str(), "READ");
     ZEffTree* zes;
@@ -549,42 +536,50 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     // Fit the post cut first (and use the fit signal size to constrain the
     // first fit
     canvas->cd(2);
-    TF1* postFitFunc = new TF1("postFitFunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, 2);
-    postFitFunc->SetLineWidth(1);
-    postFitFunc->SetParLimits(0, 0., 10000.);
-    postFitFunc->SetParLimits(1, 0., 100000.);
-    postFitFunc->SetParameter(0, 100.);
-    postFitFunc->SetParameter(1, 1000.);
+    TH1D* signaltemp = new TH1D("signaltemp", "signal", nbins, xbins_ar);
+    bg::BinnedBackground bgfunc(signaltemp);
+
+    TF1* postBGFunc = getBGFitFunc(std::string("postBGFunc"), bgfunc, eventrq);
     postcutHisto->Sumw2();
-    postcutHisto->Fit(postFitFunc, "RMWLQ");
+    // Fit the Exponential
+    postBGFunc->SetParLimits(0, 100., 100.);
+    postBGFunc->SetParLimits(3, 10., 10.);
+    postcutHisto->Fit(postBGFunc, "MWLQ", "", 110, eventrq.maxMZ);
+
+    double var1=postBGFunc->GetParameter(1);
+    double var2=postBGFunc->GetParameter(2);
+    postBGFunc->SetParLimits(0, 40., 120.);
+    postBGFunc->FixParameter(1, var1);
+    postBGFunc->FixParameter(2, var2);
+    postBGFunc->SetParLimits(3, 3., 80.);
+
+    postcutHisto->Fit(postBGFunc, "MWLQ", "", eventrq.minMZ, 75);
+ 
+    double var0=postBGFunc->GetParameter(0);
+    double var3=postBGFunc->GetParameter(3);
+
+    // Set up background fitter object
+    bg::BinnedBackgroundAndSignal bgfitfunc(signalHisto);
+    TF1* postBGandSigFunc = new TF1("bgfitfunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, bgfitfunc.nparams);
+    postBGandSigFunc->SetParName(0, "alpha");
+    postBGandSigFunc->SetParName(1, "beta");
+    postBGandSigFunc->SetParName(2, "gamma");
+    postBGandSigFunc->SetParName(3, "delta");
+    postBGandSigFunc->SetParName(4, "Signal Amplitude");
+    postBGandSigFunc->FixParameter(0, var0);
+    postBGandSigFunc->FixParameter(1, var1);
+    postBGandSigFunc->FixParameter(2, var2);
+    postBGandSigFunc->FixParameter(3, var3);
+    postBGandSigFunc->SetParameter(4, 1.);
+    postBGandSigFunc->SetParLimits(4, 0.,10000);
+
+    postcutHisto->Fit(postBGandSigFunc, "MWLQ");
+
     postcutHisto->Draw("E");
-    TH1D* postBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("postBG");
-    postBG->Scale(postFitFunc->GetParameter(0));
+    TH1D* postBG = (TH1D*)bgfunc.getBackgroundHisto()->Clone("postBG");
     postBG->SetLineStyle(2);
     postBG->SetLineColor(kBlack);
     postBG->Draw("same");
-
-    // Perform a fit of the pre-cut histogram
-    canvas->cd(1);
-    TF1* baseFitFunc = new TF1("baseFitFunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, 2);
-    baseFitFunc->SetLineWidth(1);
-    const double par1 = postFitFunc->GetParameter(1);
-    const double percent = 1.0;  // Allow Par 1 to vary by this amount
-    baseFitFunc->SetParLimits(0, 0.0001, 100000.);
-    baseFitFunc->SetParLimits(1, par1, par1*(1+percent));  // The trigger can't create events, so lower limit is par1
-    baseFitFunc->SetParameter(0, 100.);
-    baseFitFunc->SetParameter(1, par1);
-    baseHisto->Sumw2(); // Insure errors are handled correctly when scaled.
-    baseHisto->Fit(baseFitFunc, "RMWLQ");
-    baseHisto->Draw("E");
-    TH1D* baseBG = (TH1D*)bgfitfunc.getNormalizedBackgroundHisto()->Clone("baseBG");
-    baseBG->Scale(baseFitFunc->GetParameter(0));
-    baseBG->SetLineStyle(2);
-    baseBG->SetLineColor(kBlack);
-    baseBG->Draw("same");
-
-    // Extract background histo
-    TH1D* backgroundHisto = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("baseBG");
 
     // Perform a fit of the pre-cut histogram
     canvas->cd(1);
