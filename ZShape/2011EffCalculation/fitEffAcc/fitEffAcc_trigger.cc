@@ -307,8 +307,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     double* xbins_ar = &xbins[0];
     TH1D* signalHisto = new TH1D("signalHisto", "signal", nbins, xbins_ar);
 
-<<<<<<< HEAD
-=======
     // Get our background
     bg::BackgroundTable brg(bgfitfile);
     const double midX = (xBin.maxX + xBin.minX)/2.;
@@ -322,7 +320,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         return 1;
     } 
 
->>>>>>> d8d0f28364a0121c05c1331e5bfb64ef7c6cd2b7
     // Open signal file and make histograms
     TFile ZSFile(signalFile.c_str(), "READ");
     ZEffTree* zes;
@@ -549,56 +546,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 
     delete ze;
 
-<<<<<<< HEAD
-
-    // Fit the post cut first (and use the fit signal size to constrain the
-    // first fit
-    canvas->cd(2);
-    TH1D* signaltemp = new TH1D("signaltemp", "signal", nbins, xbins_ar);
-    bg::BinnedBackground bgfunc(signaltemp);
-
-    TF1* postBGFunc = getBGFitFunc(std::string("postBGFunc"), bgfunc, eventrq);
-    postcutHisto->Sumw2();
-    // Fit the Exponential
-    postBGFunc->SetParLimits(0, 100., 100.);
-    postBGFunc->SetParLimits(3, 10., 10.);
-    postcutHisto->Fit(postBGFunc, "MWLQ", "", 110, eventrq.maxMZ);
-
-    double var1=postBGFunc->GetParameter(1);
-    double var2=postBGFunc->GetParameter(2);
-    postBGFunc->SetParLimits(0, 40., 120.);
-    postBGFunc->FixParameter(1, var1);
-    postBGFunc->FixParameter(2, var2);
-    postBGFunc->SetParLimits(3, 3., 80.);
-
-    postcutHisto->Fit(postBGFunc, "MWLQ", "", eventrq.minMZ, 75);
- 
-    double var0=postBGFunc->GetParameter(0);
-    double var3=postBGFunc->GetParameter(3);
-
-    // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc(signalHisto);
-    TF1* postBGandSigFunc = new TF1("bgfitfunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, bgfitfunc.nparams);
-    postBGandSigFunc->SetParName(0, "alpha");
-    postBGandSigFunc->SetParName(1, "beta");
-    postBGandSigFunc->SetParName(2, "gamma");
-    postBGandSigFunc->SetParName(3, "delta");
-    postBGandSigFunc->SetParName(4, "Signal Amplitude");
-    postBGandSigFunc->FixParameter(0, var0);
-    postBGandSigFunc->FixParameter(1, var1);
-    postBGandSigFunc->FixParameter(2, var2);
-    postBGandSigFunc->FixParameter(3, var3);
-    postBGandSigFunc->SetParameter(4, 1.);
-    postBGandSigFunc->SetParLimits(4, 0.,10000);
-
-    postcutHisto->Fit(postBGandSigFunc, "MWLQ");
-
-    postcutHisto->Draw("E");
-    TH1D* postBG = (TH1D*)bgfunc.getBackgroundHisto()->Clone("postBG");
-    postBG->SetLineStyle(2);
-    postBG->SetLineColor(kBlack);
-    postBG->Draw("same");
-=======
     // Fit the post cut first (and use the fit signal size to constrain the
     // first fit
     canvas->cd(2);
@@ -638,8 +585,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 
     // Extract background histo
     TH1D* backgroundHisto = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("baseBG");
-
->>>>>>> d8d0f28364a0121c05c1331e5bfb64ef7c6cd2b7
 
     // Perform a fit of the pre-cut histogram
     canvas->cd(1);
