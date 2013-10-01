@@ -400,85 +400,45 @@ theHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
 
         InputProducer = cms.InputTag("theId"),                          
         hltTag = cms.untracked.VInputTag(
-            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
-            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
-            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","","HLT"),
+            # ECAL - HF
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
+            # ECAL - ECAL
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","","HLT"),
-
-            cms.InputTag("HLT_Photon15_Cleaned_L1R","","HLT"),
-            cms.InputTag("HLT_Ele15_SW_L1R","","HLT"),
-            cms.InputTag("HLT_Ele15_SW_CaloEleId_L1R","","HLT"),
-            cms.InputTag("HLT_Ele17_SW_CaloEleId_L1R","","HLT"),
-            cms.InputTag("HLT_Ele17_SW_EleId_L1R","","HLT"),
-            cms.InputTag("HLT_Ele17_SW_TightEleId_L1R","","HLT"),
-            cms.InputTag("HLT_Ele17_SW_LooseEleId_L1R","","HLT"),
-            cms.InputTag("HLT_Ele27_SW_TightCaloEleIdTrack_L1R ","","HLT"),
-            #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R","","HLT"),
-            #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1","","HLT"),
-            #cms.InputTag("HLT_DoubleEle15_SW_L1R","","HLT"),
-            #cms.InputTag("HLT_DoubleEle15_SW_L1R_v1","","HLT"),
-            cms.InputTag("HLT_Ele22_SW_CaloEleId_L1R","","HLT"),
-            cms.InputTag("HLT_Ele17_SW_TighterEleIdIsol_L1R_v1","","HLT"),
-            cms.InputTag("HLT_Ele17_SW_TighterEleIdIsol_L1R_v2","","HLT"),
-            cms.InputTag("HLT_Ele17_SW_TighterEleIdIsol_L1R_v3","","HLT"),
-            cms.InputTag("HLT_Ele22_SW_TighterEleId_L1R_v2","","HLT"),
-            cms.InputTag("HLT_Ele22_SW_TighterCaloIdIsol_L1R_v1","","HLT"),
-            #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R","","HLT"),
-            #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1","","HLT"),
-            #cms.InputTag("HLT_DoubleEle17_SW_L1R","","HLT"),
-            cms.InputTag("HLT_Ele32_SW_TighterEleId_L1R","","HLT")),
-        triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
-
-)
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","","HLT"),
+            triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
+            )
 
 theHLTGsf = cms.EDProducer("trgMatchedGsfElectronProducer",                     
     InputProducer = cms.InputTag("PassingGsf"),                          
     hltTag = cms.untracked.VInputTag(
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),
+        # ECAL - HF
         cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","","HLT"),cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
+        # ECAL - ECAL
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),
         cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","","HLT"),
-        cms.InputTag("HLT_Photon15_Cleaned_L1R","","HLT"),
-        cms.InputTag("HLT_Ele15_SW_L1R","","HLT"),
-        cms.InputTag("HLT_Ele15_SW_CaloEleId_L1R","","HLT"),
-        cms.InputTag("HLT_Ele17_SW_CaloEleId_L1R","","HLT"),
-        cms.InputTag("HLT_Ele17_SW_EleId_L1R","","HLT"),
-        cms.InputTag("HLT_Ele17_SW_TightEleId_L1R","","HLT"),
-        cms.InputTag("HLT_Ele17_SW_LooseEleId_L1R","","HLT"),
-        cms.InputTag("HLT_Ele27_SW_TightCaloEleIdTrack_L1R ","","HLT"),
-        #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R","","HLT"),
-        #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1","","HLT"),
-        #cms.InputTag("HLT_DoubleEle15_SW_L1R","","HLT"),
-        #cms.InputTag("HLT_DoubleEle15_SW_L1R_v1","","HLT"),
-        cms.InputTag("HLT_Ele22_SW_CaloEleId_L1R","","HLT"),
-        cms.InputTag("HLT_Ele17_SW_TighterEleIdIsol_L1R_v1","","HLT"),
-        cms.InputTag("HLT_Ele17_SW_TighterEleIdIsol_L1R_v2","","HLT"),
-        cms.InputTag("HLT_Ele17_SW_TighterEleIdIsol_L1R_v3","","HLT"),
-        cms.InputTag("HLT_Ele22_SW_TighterEleId_L1R_v2","","HLT"),
-        cms.InputTag("HLT_Ele22_SW_TighterCaloIdIsol_L1R_v1","","HLT"),
-        #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R","","HLT"),
-        #cms.InputTag("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1","","HLT"),
-        #cms.InputTag("HLT_DoubleEle17_SW_L1R","","HLT"),
-        cms.InputTag("HLT_Ele32_SW_TighterEleId_L1R","","HLT")),                
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
-)
+        triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
+        )
 
 
 theHFHLT = cms.EDProducer("trgMatchedEcalCandidateProducer",                     
-    InputProducer = cms.InputTag("theHFSC"),                          
-    hltTag = cms.untracked.VInputTag(
-           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
-           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
-           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
-           cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
-)
-
-
-
-
+        InputProducer = cms.InputTag("theHFSC"),                          
+        hltTag = cms.untracked.VInputTag(
+            # ECAL - HF
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
+        triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
+        )
 
 theGsfHFLoose =  cms.EDProducer("CandViewMerger",
     src = cms.VInputTag(cms.InputTag("PassingGsf"), cms.InputTag("HFElectronID"), cms.InputTag("NTElecLoose"))
