@@ -53,17 +53,17 @@ process.hltPickTriggered = cms.EDFilter('TriggerResultsFilter',
         l1techIgnorePrescales   = cms.bool(False),                  # read L1 technical bits from PSB#9, bypassing the prescales
         daqPartitions           = cms.uint32(0x01),                 # used by the definition of the L1 mask
         throw                   = cms.bool(False),                  # throw exception on unknown trigger names
-        triggerConditions       = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*')
+        triggerConditions       = cms.vstring('HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*') 
         )
 
 process.load("ZShape.ZFromData.ZFromDataElectrons_cfi")
 
-# Used to set which triggers cound for HFTID
+# Used to set which triggers cound for HLT-GSF
 process.theHLTGsf.hltTag = cms.untracked.VInputTag(
-        cms.InputTag("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1","","HLT"),
-        cms.InputTag("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","","HLT"),
-        cms.InputTag("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","","HLT"),
-        cms.InputTag("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v4","","HLT")
+        cms.InputTag("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1","","HLT"),
+        cms.InputTag("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","","HLT"),
+        cms.InputTag("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","","HLT"),
+        cms.InputTag("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v4","","HLT"),
         ) #remove the ones you don't want
 
 # Alex's tuple maker
