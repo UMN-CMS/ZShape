@@ -12,6 +12,9 @@
 #Root
 *.root
 
+#Crab
+crab.history
+
 #Network File System
 .nfs*
 
