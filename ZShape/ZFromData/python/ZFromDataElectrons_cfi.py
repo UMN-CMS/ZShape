@@ -397,33 +397,34 @@ theHFSC = cms.EDFilter("RecoEcalCandidateRefSelector",
 
 # Trigger  ##################
 theHLT = cms.EDProducer("trgMatchedGsfElectronProducer",                     
-
         InputProducer = cms.InputTag("theId"),                          
         hltTag = cms.untracked.VInputTag(
             # ECAL - HF
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
-            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT"),
             # ECAL - ECAL
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","","HLT"),
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","","HLT"),
-            triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
-            )
+            ),
+        triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
+        )
 
 theHLTGsf = cms.EDProducer("trgMatchedGsfElectronProducer",                     
-    InputProducer = cms.InputTag("PassingGsf"),                          
-    hltTag = cms.untracked.VInputTag(
-        # ECAL - HF
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
-        # ECAL - ECAL
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","","HLT"),
+        InputProducer = cms.InputTag("PassingGsf"),                          
+        hltTag = cms.untracked.VInputTag(
+            # ECAL - HF
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT"),
+            # ECAL - ECAL
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","","HLT"),
+            ),
         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
         )
 
@@ -436,7 +437,8 @@ theHFHLT = cms.EDProducer("trgMatchedEcalCandidateProducer",
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
             cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
-            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")),               
+            cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v4","","HLT")
+            ),               
         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
         )
 
