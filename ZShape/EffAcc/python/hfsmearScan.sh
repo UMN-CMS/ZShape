@@ -43,8 +43,8 @@ echo >> $cfg
 
 
 
-echo ${process} \= ZShape.EffAcc.ZEfficiencyKevin_cfi.mcEff.clone\(\) >> $cfg
-echo ${process}.zTreeLevelElectronsCollection \= cms.untracked.InputTag\(\"f2s\",\"ZEventEle3\"\) >> $cfg
+echo ${process} \= ZShape.EffAcc.ZEfficiencyUnity_cfi.mcEff.clone\(\) >> $cfg
+echo ${process}.zTreeLevelElectronsCollection \= cms.untracked.InputTag\(\"fullSimLoad\",\"ZEventEle3\"\) >> $cfg
 echo ${process}.zsrc \= cms.untracked.InputTag\(\"${Sname}\",\"ZEventParticles\"\) >> $cfg
 echo ${process}.zElectronsCollection \= cms.untracked.InputTag\(\"${Sname}\",\"ZEventParticles\"\) >> $cfg
 echo >> $cfg

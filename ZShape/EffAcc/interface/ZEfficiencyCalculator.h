@@ -114,8 +114,11 @@ private:
 
   // other systematics
   std::string systematicVariation_;
+  std::string positionVariation_;
   struct SystematicsBlock {
     zshape::EnergyScale* energyScale;
+    zshape::PositionScale* positionScale;
+    std::vector<double>posScale;
     double m_scale;
   } m_systematics;
 

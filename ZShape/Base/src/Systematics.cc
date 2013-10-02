@@ -33,4 +33,35 @@ namespace zshape {
 
   }
 
-}
+
+  
+  PositionScale::PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFeta,double HFphi){  ebpos_[0]=(EBeta);ebpos_[1]=(EBphi); eepos_[0]=(EEeta);eepos_[1]=(EEphi);hfpos_[0]=(HFeta);hfpos_[1]=(HFphi);
+  }
+
+
+  void PositionScale::posRescale(ZShapeElectron& electron){
+    EtaAcceptance accept;
+   double escale=0;
+    double pscale=0;
+    if (accept.isInAcceptance(electron,EtaAcceptance::zone_EB)) {
+      escale=ebpos_[0];
+      pscale= ebpos_[1];
+    } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_EE)) {
+      escale=eepos_[0];
+      pscale= eepos_[1];
+    } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_HF)) {
+      escale=hfpos_[0];
+      pscale= hfpos_[1];
+      
+    }
+    electron.p4_= math::PtEtaPhiMLorentzVector(electron.p4_.Pt(),
+					       electron.p4_.eta()+escale,
+					       electron.p4_.phi()+pscale,
+					       electron.p4_.M());
+    
+  }//end posRescale
+  
+  //if delta phi, may need to add  pscale=(eta>0)?(+ebpos_[1]):(-ebpos_[1]);
+  
+  
+}//end namespace

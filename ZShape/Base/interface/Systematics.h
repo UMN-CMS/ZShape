@@ -15,6 +15,17 @@ namespace zshape {
     double m_scale;
   };
 
+  class PositionScale {
+  public:
+    PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFeta,double HFphi);
+    void posRescale(ZShapeElectron& electron);
+  private:
+    double ebpos_[2];
+    double eepos_[2];
+    double hfpos_[2];
+    
+  };
+
 }
 
 #endif // ZShape_Base_Systematics_h_included

@@ -97,27 +97,27 @@ mcEff = cms.EDAnalyzer("ZEfficiencyCalculator",
 	),
 
 
-cms.PSet( 
-            name = cms.untracked.string('EE-EB0'),
-            e1 = cms.untracked.vstring("ACC(EE+TRK)","PT20","Supercluster-Eta","PT20",
-                                       "GsfTrack-EtaDet","FULL-ID","FULL-WP"),
-            e2 = cms.untracked.vstring("ACC(EB)","PT20","Supercluster-Eta","PT20",
-                                       "GsfTrack-EtaDet","PT20","PT20"),
+## cms.PSet( 
+##             name = cms.untracked.string('EE-EB0'),
+##             e1 = cms.untracked.vstring("ACC(EE+TRK)","PT20","Supercluster-Eta","PT20",
+##                                        "GsfTrack-EtaDet","FULL-ID","FULL-WP"),
+##             e2 = cms.untracked.vstring("ACC(EB)","PT20","Supercluster-Eta","PT20",
+##                                        "GsfTrack-EtaDet","PT20","PT20"),
                    
-            Z = cms.untracked.vstring('m(60,120)'),
-            ptorder = cms.untracked.bool (False)
-	),
+##             Z = cms.untracked.vstring('m(60,120)'),
+##             ptorder = cms.untracked.bool (False)
+## 	),
 
 
-cms.PSet( 
-            name = cms.untracked.string('EE0-EB'),
-            e1 = cms.untracked.vstring("ACC(EE+TRK)","PT20","Supercluster-Eta","PT20",
-                                       "GsfTrack-EtaDet","PT20","PT20"),            
-            e2 = cms.untracked.vstring("ACC(EB)","PT20","Supercluster-Eta","PT20",
-                                       "GsfTrack-EtaDet","FULL-ID","FULL-WP"),		
-            Z = cms.untracked.vstring('m(60,120)'),
-            ptorder = cms.untracked.bool (False)
-	),
+## cms.PSet( 
+##             name = cms.untracked.string('EE0-EB'),
+##             e1 = cms.untracked.vstring("ACC(EE+TRK)","PT20","Supercluster-Eta","PT20",
+##                                        "GsfTrack-EtaDet","PT20","PT20"),            
+##             e2 = cms.untracked.vstring("ACC(EB)","PT20","Supercluster-Eta","PT20",
+##                                        "GsfTrack-EtaDet","FULL-ID","FULL-WP"),		
+##             Z = cms.untracked.vstring('m(60,120)'),
+##             ptorder = cms.untracked.bool (False)
+## 	),
 
   cms.PSet( 
             name = cms.untracked.string('EE-EB'),

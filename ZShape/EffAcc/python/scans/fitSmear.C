@@ -16,7 +16,7 @@
 fitSmear(_file0,_file1,0) 
 last number=1,-1,0 for hf plus, minus, or not hf
 */
-//root data/rereco_zfd_Template/Mar21_rereco_zfd_Template_1615.root data/EB_mean_Apr02_1215/Ap*t
+//root data/rereco_zfd_Template/Jan31_rereco_zfd_Template_1552.root data/EB_c_Feb06_1540/ 
 struct FitSmearPoint {
   std::string dirName, detName;
   float pointVal;
@@ -26,24 +26,8 @@ struct FitSmearPoint {
   bool operator<(const FitSmearPoint& fsp) const { return pointVal<fsp.pointVal; }
 };
 
-TH1F* m_h1;
-
-Double_t sigFit(Double_t xvar){
-  //double xvar=*x;
-  int theBin=m_h1->FindBin(xvar);
-  double value= 1.0*m_h1->GetBinContent(theBin)/(1.0*m_h1->GetMaximum());
-
-
-  return value;
-}
-
-
-
-
-
-
 float determineChi2(TFile* f_data, TFile* f_smear,TLegend* t1, const FitSmearPoint& pt,int mode);
-TH1* bkgRemover(TH1* h1,TH1* h3,int i);
+TH1* bkgRemover(TH1* h1,int i);
 
 void fitSmear(TFile* f_data, TFile* f_smear,int pm) {
   gROOT->SetStyle("Plain");
@@ -61,7 +45,6 @@ void fitSmear(TFile* f_data, TFile* f_smear,int pm) {
     if (strchr(val,'X')!=0) *(strchr(val,'X'))='.';
     if (strchr(val,'m')!=0) *(strchr(val,'m'))='-';
     fval=atof(val);
-    // if(fval >0.1 && fval< 9.0061)continue;
     FitSmearPoint pt;
     pt.dirName=itemKey->GetName();
     pt.detName=detector;
@@ -128,28 +111,28 @@ float determineChi2(TFile* f_data, TFile* f_smear, TLegend* t1,const FitSmearPoi
   int bin_low=0, bin_high=120;
 
   if (pt.detName=="EB") {
-    sprintf(smear_h_name,"%s/EB-EB/C08-m(60,120)/Z0_mass_zoom",pt.dirName.c_str());
-    sprintf(data_h_name,"ZFromData/EB-EB/C07-m(60,120)/Z0_mass_zoom");
+    sprintf(smear_h_name,"%s/EB-EB/C06-FULL-WP/Z0_mass_zoom",pt.dirName.c_str());
+    sprintf(data_h_name,"ZFromData/EB-EB/C04-WP80/Z0_mass_zoom");
     bin_low=41;
     bin_high=80;
   }
   if (pt.detName=="EE") {
-    sprintf(smear_h_name,"%s/EE-EB/C08-m(60,120)/Z0_mass_zoom",pt.dirName.c_str());
-    sprintf(data_h_name,"ZFromData/EE-EB/C07-m(60,120)/Z0_mass_zoom");
+    sprintf(smear_h_name,"%s/EE-EB/C06-FULL-WP/Z0_mass_zoom",pt.dirName.c_str());
+    sprintf(data_h_name,"ZFromData/EE-EB/C04-WP80/Z0_mass_zoom");
     bin_low=41;
     bin_high=80;
   }
 
  if (pt.detName=="HF" && mode == 1) {
-    sprintf(smear_h_name,"%s/EE-HF/C08-m(60,120)/HFpos_mass_zoom",pt.dirName.c_str());
+    sprintf(smear_h_name,"%s/EE-HF/C07-PT20-HFElectronId-EtaDet/HFpos_mass_zoom",pt.dirName.c_str());
     printf("%s",smear_h_name);
-    sprintf(data_h_name,"ZFromData/EE-HF/C06-m(60,120)/HFpos_mass_zoom");
+    sprintf(data_h_name,"ZFromData/EE-HF/C04-WP80/HFpos_mass_zoom");
     bin_low=41;
     bin_high=80;
   }else if (pt.detName=="HF" && mode == -1){
-    sprintf(smear_h_name,"%s/EE-HF/C08-m(60,120)/HFneg_mass_zoom",pt.dirName.c_str());
+    sprintf(smear_h_name,"%s/EE-HF/C07-PT20-HFElectronId-EtaDet/HFneg_mass_zoom",pt.dirName.c_str());
     printf("%s",smear_h_name);
-    sprintf(data_h_name,"ZFromData/EE-HF/C06-m(60,120)/HFneg_mass_zoom");
+    sprintf(data_h_name,"ZFromData/EE-HF/C04-WP80/HFneg_mass_zoom");
     bin_low=41;
     bin_high=80;
   }else if (pt.detName=="HF" && mode == 0){
@@ -167,7 +150,7 @@ float determineChi2(TFile* f_data, TFile* f_smear, TLegend* t1,const FitSmearPoi
    
   //background remover!!
 
-  data_h=bkgRemover(data_h,smear_h,pt.ipt);
+  //data_h=bkgRemover(data_h,pt.ipt);
 
 
 
@@ -184,7 +167,8 @@ float determineChi2(TFile* f_data, TFile* f_smear, TLegend* t1,const FitSmearPoi
     chi2+=pow(vsmear-vdata,2)/pow(edata,2);
   }
   
-
+  //data_h->Rebin(3);
+  //smear_h->Rebin(3);
   smear_h->SetLineColor(pt.color);
   smear_h->SetLineWidth(2);
   
@@ -203,51 +187,37 @@ float determineChi2(TFile* f_data, TFile* f_smear, TLegend* t1,const FitSmearPoi
   return chi2;
 }
 
-TH1* bkgRemover(TH1* h1,TH1* h3,int i){
+TH1* bkgRemover(TH1* h1,int i){
  
   //remove later
   // h1->Rebin(3);
   //end remove
   char name[256];  
-  sprintf(name,"c_%i",i);
+ sprintf(name,"c_%i",i);
   TCanvas* c1=new TCanvas(name,"The Heck",600,600);
   c1->cd();
   
   sprintf(name,"clone_%i",i);
   TH1* h2=(TH1*)h1->Clone(name);
   h2->Reset();
-  double bmax=h1->GetMaximum();
-
-
-
-
-  /*
-  TF1 *f1 = new TF1 ("f1","([0]*exp(-0.5*((x-[1])/[2])**2))+(exp([3]+[4]*x))",60,120); 
-  f1->SetParameter(0,bmax);
-  f1->SetParameter(1,91);
-  f1->SetParLimits(0,bmax*.9,bmax*1.1);
-  f1->SetParLimits(1,80,100);
-  f1->SetParLimits(2,0.01,10);
-  f1->SetParLimits(3,-50,50);
-  f1->SetParLimits(4,-1,0.001);
-  */
-  // TF1 *fs = new TF1 ("fs","[0]*sigFit(x)",60,120);
-  m_h1=(TH1F*)h3;
-  TF1 *f1 = new TF1 ("f1","[0]*sigFit(x)+(exp([1]+[2]*x))",60,120);
-  f1->SetParameter(0,bmax);
-  f1->SetParLimits(0,bmax*.5,bmax*1.05);
-  f1->SetParLimits(1,-50,50);
-  f1->SetParLimits(2,-1,0);
+ 
+    TF1 *f1 = new TF1 ("f1","([0]*exp(-0.5*((x-[1])/[2])**2))+(exp([3]+[4]*x))",60,120);
+    f1->SetParLimits(0,10,200);
+    f1->SetParLimits(1,80,100);
+    f1->SetParLimits(2,0.5,10);
+    f1->SetParLimits(3,0,100);
+    f1->SetParLimits(4,-1,0.001);
     
-  h1->Fit("f1","R");
-  double amp=f1->GetParameter(1);  
-  double thing=f1->GetParameter(2);
     
-  TF1 *ff2 = new TF1 ("ff2","expo(0)",60,120);
-  ff2->SetParameter(0,amp);
-  ff2->SetParameter(1,thing);
-  // ff2->SetParameter(2,thing);
-  // ff=ff2;
+    h1->Fit("f1","R");
+    double amp=f1->GetParameter(3);  
+    double thing=f1->GetParameter(4);
+    
+    TF1 *ff2 = new TF1 ("ff2","expo(0)",60,120);
+    ff2->SetParameter(0,amp);
+    ff2->SetParameter(1,thing);
+    // ff2->SetParameter(2,thing);
+    // ff=ff2;
   
   ff2->SetLineColor(2);
   ff2->SetLineWidth(2);
