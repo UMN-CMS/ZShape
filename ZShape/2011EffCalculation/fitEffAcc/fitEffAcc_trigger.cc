@@ -1,6 +1,7 @@
 #include "../BackgroundLibrary/BackgroundFunctions.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
+#include "../ZSmearer/ZSmearer.h"
 
 #include <string>
 #include <sstream>
@@ -279,7 +280,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     const double tagXCutPt = 20.;
     const double probeXCutPt = 20.;
     // Smearing
-    const bool smear = false;
+    const bool smear = true;
     const int randSeed = 123456; //using constant seed for reproducibility
     TRandom3* trand = new TRandom3(randSeed);
 
@@ -305,6 +306,10 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     while (run1){
         zes->Entries();
         const double PU = zes->reco.nverts;
+        /* Smear Pt */
+        if (smear){
+            smearEvent(trand, &zes->reco);
+        }
         const double MZ = zes->reco.mz;
         if (  // Right number of PU, MZ
                 eventrq.minPU <= PU && PU <= eventrq.maxPU
@@ -415,42 +420,15 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         ze->Entries();
         const double PU = ze->reco.nverts;
         /** Adjust Pt via smearing and HF correction **/
-        double pt0 = -1.;
-        double pt1 = -1.;
         /* Correct HF pt */
         if (3.1 < fabs(ze->reco.eta[tagNumber]) && fabs(ze->reco.eta[tagNumber]) < 4.6){
-            pt0 = ze->reco.pt[tagNumber] - PU * getHFSlope(ze->reco.eta[tagNumber]);
-        } else {
-            pt0 = ze->reco.pt[tagNumber];
+            ze->reco.pt[tagNumber] = ze->reco.pt[tagNumber] - PU * getHFSlope(ze->reco.eta[tagNumber]);
         }
         if (3.1 < fabs(ze->reco.eta[probeNumber]) && fabs(ze->reco.eta[probeNumber]) < 4.6){
-            pt1 = ze->reco.pt[probeNumber] - PU * getHFSlope(ze->reco.eta[probeNumber]);
-        } else {
-            pt1 = ze->reco.pt[probeNumber];
-        }
-        /* Smear Pt */
-        if (smear && !usePhiStar){
-            if (inAcceptance(EB, ze->reco.eta[0])){
-                const double mean = 0.995;
-                const double sigma = 0.007;
-                pt0 *= ( trand->Gaus(mean,sigma) );
-            } else if (inAcceptance(EB, ze->reco.eta[0])){
-                const double mean = 0.976;
-                const double sigma = 0.013;
-                pt0 *= ( trand->Gaus(mean,sigma) );
-            }
-        }
-        /* Recalculate MZ */
-        TLorentzVector e0lv;
-        TLorentzVector e1lv;
-        TLorentzVector Zlv;
-        e0lv.SetPtEtaPhiM(pt0, ze->reco.eta[tagNumber], ze->reco.phi[tagNumber], 5.109989e-4);
-        e1lv.SetPtEtaPhiM(pt1, ze->reco.eta[probeNumber], ze->reco.phi[probeNumber], 5.109989e-4);
-        Zlv = e0lv + e1lv;
-        const double MZ = Zlv.M(); // Get the invarient mass from the Z
-
+            ze->reco.pt[probeNumber] = ze->reco.pt[probeNumber] - PU * getHFSlope(ze->reco.eta[probeNumber]);
+        } 
         /* Check that the event passes our requirements */
-        if ( eventrq.minPU <= PU && PU <= eventrq.maxPU && eventrq.minMZ <= MZ && MZ <= eventrq.maxMZ ){
+        if ( eventrq.minPU <= PU && PU <= eventrq.maxPU && eventrq.minMZ <= ze->reco.mz && ze->reco.mz <= eventrq.maxMZ ){
             bool basePass = false;
             bool postPass = false;
             double eX0;
@@ -463,8 +441,8 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 eX1 = ze->reco.phistar;
                 eXCut1 = -1;
             } else {
-                eX0 = pt0;
-                eX1 = pt1;
+                eX0 = ze->reco.pt[tagNumber];
+                eX1 = ze->reco.pt[probeNumber];
                 eXCut0 = tagXCutPt;
                 eXCut1 = probeXCutPt;
             }
@@ -510,9 +488,9 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
             }
             // Base Cuts, and Post Cuts which are a strict subset
             if ( basePass ){
-                baseHisto->Fill(MZ);
+                baseHisto->Fill(ze->reco.mz);
                 if ( postPass ){ // Tag passed all cuts
-                    postcutHisto->Fill(MZ);
+                    postcutHisto->Fill(ze->reco.mz);
                     //std::cout << MZ << std::endl;
                 }
             }
