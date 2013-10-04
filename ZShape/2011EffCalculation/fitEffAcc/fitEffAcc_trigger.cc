@@ -1,7 +1,6 @@
 #include "../BackgroundLibrary/BackgroundFunctions.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
-#include "../ZSmearer/ZSmearer.h"
 
 #include <string>
 #include <sstream>
@@ -279,10 +278,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     // Some commont variables
     const double tagXCutPt = 20.;
     const double probeXCutPt = 20.;
-    // Smearing
-    const bool smear = true;
-    const int randSeed = 123456; //using constant seed for reproducibility
-    TRandom3* trand = new TRandom3(randSeed);
 
     // Prepare the histogram to put the signal in
     std::vector<double> xbins;
@@ -306,10 +301,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     while (run1){
         zes->Entries();
         const double PU = zes->reco.nverts;
-        /* Smear Pt */
-        if (smear){
-            smearEvent(trand, &zes->reco);
-        }
         const double MZ = zes->reco.mz;
         if (  // Right number of PU, MZ
                 eventrq.minPU <= PU && PU <= eventrq.maxPU
@@ -545,6 +536,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postcutHisto->Draw("E");
     TH1D* postBG = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("postBG");
     TH1D* postSignal = (TH1D*)bgfitfunc.getSignalHisto()->Clone("postSignal");
+    postSignal->Scale(postBGandSigFunc->GetParameter(4));  // Scale by fit parameter
     postBG->SetLineStyle(2);
     postBG->SetLineColor(kBlack);
     postBG->Draw("same");
@@ -591,6 +583,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     baseHisto->Draw("E");
     TH1D* preBG = (TH1D*)bgfitfunc2.getBackgroundHisto()->Clone("preBG");
     TH1D* preSignal = (TH1D*)bgfitfunc2.getSignalHisto()->Clone("preSignal");
+    preSignal->Scale(preBGandSigFunc->GetParameter(4));  // Scale by fit parameter
     preBG->SetLineStyle(2);
     preBG->SetLineColor(kBlack);
     preBG->Draw("same");
