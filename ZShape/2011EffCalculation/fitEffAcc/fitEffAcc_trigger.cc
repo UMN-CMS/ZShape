@@ -476,10 +476,16 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
+    // Draw histograms
     postcutHisto->Draw("E");
-    TH1D* postBG = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("postBG");
+
     TH1D* postSignal = (TH1D*)bgfitfunc.getSignalHisto()->Clone("postSignal");
     postSignal->Scale(postBGandSigFunc->GetParameter(4));  // Scale by fit parameter
+    postSignal->SetLineStyle(2);
+    postSignal->SetLineColor(kRed);
+    postSignal->Draw("same");
+
+    TH1D* postBG = (TH1D*)bgfitfunc.getBackgroundHisto()->Clone("postBG");
     postBG->SetLineStyle(2);
     postBG->SetLineColor(kBlack);
     postBG->Draw("same");
@@ -523,10 +529,14 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 
+    // Draw histograms
     baseHisto->Draw("E");
-    TH1D* preBG = (TH1D*)bgfitfunc2.getBackgroundHisto()->Clone("preBG");
     TH1D* preSignal = (TH1D*)bgfitfunc2.getSignalHisto()->Clone("preSignal");
     preSignal->Scale(preBGandSigFunc->GetParameter(4));  // Scale by fit parameter
+    preSignal->SetLineStyle(2);
+    preSignal->SetLineColor(kRed);
+    preSignal->Draw("same");
+    TH1D* preBG = (TH1D*)bgfitfunc2.getBackgroundHisto()->Clone("preBG");
     preBG->SetLineStyle(2);
     preBG->SetLineColor(kBlack);
     preBG->Draw("same");
