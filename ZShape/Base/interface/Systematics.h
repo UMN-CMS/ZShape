@@ -17,13 +17,15 @@ namespace zshape {
 
   class PositionScale {
   public:
-    PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFeta,double HFphi);
-    void posRescale(ZShapeElectron& electron);
+    PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFdx,double HFdy, double HFrot);
+    void PositionRescale(ZShapeElectron& electron,PositionScale& scale);
+    void PositionScalingHF(ZShapeElectron& electron, double dx, double dy, double drotate);
+    void PositionScalingEB(ZShapeElectron& electron, double dx, double dy, double drotate);
+    void PositionScalingEE(ZShapeElectron& electron, double dx, double dy, double drotate);
   private:
-    double ebpos_[2];
-    double eepos_[2];
-    double hfpos_[2];
-    
+    double bdx_,bdy_,bdrot_;
+    double edx_,edy_,edrot_;
+    double hdx_,hdy_,hdrot_;
   };
 
 }
