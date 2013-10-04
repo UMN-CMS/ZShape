@@ -17,7 +17,8 @@ enum electronLocation{
     NTm,
     HF,
     HFp,
-    HFm
+    HFm,
+    ALL
 };
 
 bool inAcceptance(const electronLocation loc, const double eta);

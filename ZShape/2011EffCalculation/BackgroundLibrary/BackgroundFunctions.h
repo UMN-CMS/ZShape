@@ -4,8 +4,6 @@
 #include <TF1.h>  
 #include <TH1.h>  // TH1D
 
-#include "BackgroundTable.h"  // Background Table
-
 /* 
  * The background function is of the form:
  *
