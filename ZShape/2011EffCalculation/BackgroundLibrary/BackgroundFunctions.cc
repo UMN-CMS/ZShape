@@ -22,10 +22,6 @@ bg::BinnedBackground::BinnedBackground(TH1D * bgHisto){
     backgroundHisto_ = (TH1D*)bgHisto->Clone("bghisto");
     // Set up the internal function
     internalFunc_ = new TF1("basefunc", bg::analyticBackground, minMZ_, maxMZ_, nparams_);
-    // Initialize variabels
-    exclude_min_ = 75.;
-    exclude_max_ = 110.;
-    exclude_ = false;
 }
 
 void bg::BinnedBackground::fillBackgroundHisto_(const double* par){
@@ -49,11 +45,6 @@ TH1D* bg::BinnedBackground::getBackgroundHisto(){
 }
 
 double bg::BinnedBackground::operator() (const double *x, const double *par){
-    // If we have exclude set, and we are in the excluded region, ignore
-    if (exclude_ && exclude_min_ < x[0] && x[0] < exclude_max_){
-        TF1::RejectPoint();
-        return 0.; 
-    }
     // Update the historgram with the new values from the fitter
     fillBackgroundHisto_(par);  
     return backgroundHisto_->GetBinContent(backgroundHisto_->FindBin(x[0]));

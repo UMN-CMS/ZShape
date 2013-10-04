@@ -35,12 +35,6 @@ namespace bg{
             // Histogram
             TH1D* getBackgroundHisto();
 
-            // Set exclude
-            void setExclude(const bool ex){ exclude_ = ex; };
-            void setExcludeRange(const double xmin, const double xmax){
-                exclude_min_ = xmin; exclude_max_ = xmax;
-            }
-
             // Access to the function
             double operator() (const double *x, const double *par);
 
@@ -59,11 +53,6 @@ namespace bg{
             static const int nparams_ = 4;
             static const double minMZ_ = 0.;
             static const double maxMZ_ = 200.;
-
-            // Internal variables used to ignore rangex
-            double exclude_min_;
-            double exclude_max_;
-            bool exclude_;
     };
 
     class BinnedBackgroundAndSignal: public BinnedBackground{
