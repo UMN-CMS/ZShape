@@ -1,6 +1,7 @@
 #include "ZShape/Base/interface/Systematics.h"
 #include "ZShape/Base/interface/EtaAcceptance.h"
-
+#include <TMath.h>
+#include "TVector3.h"
 namespace zshape {
   
 
@@ -35,33 +36,57 @@ namespace zshape {
 
 
   
-  PositionScale::PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFeta,double HFphi){  ebpos_[0]=(EBeta);ebpos_[1]=(EBphi); eepos_[0]=(EEeta);eepos_[1]=(EEphi);hfpos_[0]=(HFeta);hfpos_[1]=(HFphi);
+  PositionScale::PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFdx,double HFdy, double HFrot): hdx_(HFdx),hdy_(HFdy),hdrot_(HFrot){  
   }
 
 
-  void PositionScale::posRescale(ZShapeElectron& electron){
+  void PositionScale::PositionRescale(ZShapeElectron& electron,PositionScale& scale){
     EtaAcceptance accept;
-   double escale=0;
-    double pscale=0;
     if (accept.isInAcceptance(electron,EtaAcceptance::zone_EB)) {
-      escale=ebpos_[0];
-      pscale= ebpos_[1];
+      PositionScalingEB(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
     } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_EE)) {
-      escale=eepos_[0];
-      pscale= eepos_[1];
+      PositionScalingEE(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
     } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_HF)) {
-      escale=hfpos_[0];
-      pscale= hfpos_[1];
-      
+      PositionScalingHF(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
     }
-    electron.p4_= math::PtEtaPhiMLorentzVector(electron.p4_.Pt(),
-					       electron.p4_.eta()+escale,
-					       electron.p4_.phi()+pscale,
-					       electron.p4_.M());
-    
   }//end posRescale
   
   //if delta phi, may need to add  pscale=(eta>0)?(+ebpos_[1]):(-ebpos_[1]);
+  void PositionScale::PositionScalingHF(ZShapeElectron& electron, double dx=0, double
+dy=0, double drotate=0){
+    double eta=electron.p4_.eta();
+    double phi=electron.p4_.phi();
+
+    double Dist_T_max=11200*TMath::Tan(2.0*TMath::ATan(TMath::Exp(-2.853)));
+    double Rotation=TMath::ATan(drotate/Dist_T_max);
+    double Dist_T=11200*TMath::Tan(2.0*TMath::ATan(TMath::Exp(-1.*eta)));
+    TVector3 vector;
+    vector.SetPtEtaPhi(Dist_T, eta, phi);
+    vector.SetY(vector.y()+dy);
+    vector.SetX(vector.x()+dx);
+    vector.RotateZ(Rotation);
+    vector.Eta();
+    vector.Phi();
+
+    electron.p4_= math::PtEtaPhiMLorentzVector(electron.p4_.Pt(),
+					   vector.Eta(),
+					   vector.Phi(),
+					   electron.p4_.M());
   
+  
+  }
+
+
+
+
+  void PositionScale::PositionScalingEB(ZShapeElectron& electron, double dx=0, double
+					dy=0, double drotate=0){
+  }
+  
+  void PositionScale::PositionScalingEE(ZShapeElectron& electron, double dx=0, double
+					dy=0, double drotate=0){
+  }
   
 }//end namespace
+
+

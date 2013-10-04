@@ -105,8 +105,10 @@ ZEfficiencyCalculator::ZEfficiencyCalculator(const edm::ParameterSet& iConfig) :
   /*
 //position scaling
   std::vector<double> defaultposition; defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0);
+
 m_systematics.posScale_=iConfig.getUntrackedParameter<std::vector<double> >("PostionScalings",defaultposition);
- positionVariation_ = iConfig.getUntrackedParameter<std::string>("positionSyst",""); 
+ 
+positionVariation_ = iConfig.getUntrackedParameter<std::string>("positionSyst",""); 
 
 
 */
@@ -561,8 +563,8 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
   /*
 //position scale
 if (m_systematics.positionScale!=0){
-m_systematics.positionScale->rescale(evt_.elec(0));
-m_systematics.positionScale->rescale(evt_.elec(1));
+m_systematics.positionScale->PositionRescale(evt_.elec(0),m_systematics.positionScale);
+m_systematics.positionScale->PositionRescale(evt_.elec(1),m_systematics.positionScale);
 }
   */
 
