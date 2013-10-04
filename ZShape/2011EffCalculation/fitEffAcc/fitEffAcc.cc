@@ -81,56 +81,6 @@ void getBinEdges(std::vector<double> &vec, const double minX, const double maxX,
     }
 }
 
-double getHFSlope( const double eta ){
-    static const int arraySize = 13;
-    /* Corrections: 29, 30, ..., 41 for positive and negative ieta */
-    static const double starts[arraySize] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889};
-    static const double ends[arraySize] = {2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
-
-    /* MC */
-    //static const double main_cor = 0.0785;
-    //static const double ieta_30_cor = 0.1516;
-    //static const double ieta_30_cor = 0.13; // This looks like the value actually used in: /home/user1/gude/CMS/src/CMSSW_4_4_2_patch10_kevin_thesis_with_corrections/src/ZShape/MakeSmearedZEffTree/src/MakeSmearedZEffTree.cc
-    /* Data */
-    static const double main_cor = 0.1902;
-    static const double ieta_30_cor = 0.1402;
-
-    static const double pos_correction[arraySize] = {main_cor, ieta_30_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor};
-    static const double neg_correction[arraySize] = {main_cor, ieta_30_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor, main_cor};
-    const double feta = fabs(eta);
-    //Check for outside range
-    if (feta < starts[0] || feta > ends[arraySize-1]){
-        return 0;
-    }
-
-    //Binary search for location
-    int lower = 0;
-    int upper = arraySize-1;
-    int location = (arraySize-1)/2;
-    while ( ( upper > lower ) ){
-        if ( feta < starts[location] ){
-            upper = location;
-        } else {
-            lower = location;
-        }
-        if ( feta < ends[location] ){
-            upper = location;
-        } else {
-            lower = location;
-        }
-
-        const int step = ( upper - lower )/2;
-        location = upper - step;
-    }
-
-    //Determine Sign of the tower
-    if (eta < 0){
-        return neg_correction[location];
-    } else {
-        return pos_correction[location];
-    }
-}
-
 TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const eventRequirements& eventrq){
     // Set our exclude regions
     //bgfunc.setExclude();
@@ -409,17 +359,10 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         }
 
         ze->Entries();
-        const double PU = ze->reco.nverts;
-        /** Adjust Pt via smearing and HF correction **/
-        /* Correct HF pt */
-        if (3.1 < fabs(ze->reco.eta[tagNumber]) && fabs(ze->reco.eta[tagNumber]) < 4.6){
-            ze->reco.pt[tagNumber] = ze->reco.pt[tagNumber] - PU * getHFSlope(ze->reco.eta[tagNumber]);
-        }
-        if (3.1 < fabs(ze->reco.eta[probeNumber]) && fabs(ze->reco.eta[probeNumber]) < 4.6){
-            ze->reco.pt[probeNumber] = ze->reco.pt[probeNumber] - PU * getHFSlope(ze->reco.eta[probeNumber]);
-        } 
         /* Check that the event passes our requirements */
-        if ( eventrq.minPU <= PU && PU <= eventrq.maxPU && eventrq.minMZ <= ze->reco.mz && ze->reco.mz <= eventrq.maxMZ ){
+        if (    eventrq.minPU <= ze->reco.nverts && ze->reco.nverts <= eventrq.maxPU 
+                && eventrq.minMZ <= ze->reco.mz && ze->reco.mz <= eventrq.maxMZ 
+           ){
             bool basePass = false;
             bool postPass = false;
             double eX0;
