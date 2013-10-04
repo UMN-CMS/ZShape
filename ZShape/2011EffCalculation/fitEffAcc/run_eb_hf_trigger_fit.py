@@ -17,8 +17,8 @@ else:  # Only runs when try succeeds
         NJOBS = int(floor(mp.cpu_count() * 1.5))
 
 # Input Files
-signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_hfsc_mc/20130918_gsf_hfsc_mc_summed.root"
-dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20120914/2012_kevin_thesis_trigger_eff_with_charge/SingleElectron_ele27/res/SingleElectron_ele27_summed.root"
+signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131003_gsf_hfsc_mc/20131003_gsf_hfsc_mc_summed.root"
+dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/run_at_fnal_20131003/SingleElectron_ele27_summed.root"
 # Mass_Z
 minMZ = 50
 maxMZ = 150
@@ -26,6 +26,10 @@ maxMZ = 150
 tag="ET"
 # Use Phistar (Pt else)
 usePhiStar = True
+if usePhiStar:
+    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_phistar_%s_%s.root"
+else:
+    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_pt_%s_%s.root"
 # Program
 exe = "./fitEffAcc_trigger.exe"
 
@@ -46,17 +50,14 @@ inputList = []
 for probe in probeLocs:
     for (minPU, maxPU) in PUs:
         for (minX, maxX) in Xs:
-            outfile="%s/ele27_%s_%s_mz_%s_%s_pu_%s_%s_x_%s_%s_phistar_%s.root" % (
+            outfile = formatstring % (
                     outdir,
                     tag,
                     probe,
-                    minMZ,
-                    maxMZ,
                     minPU,
                     maxPU,
                     minX,
-                    maxX,
-                    int(usePhiStar)
+                    maxX
                     )
             command = (
                     exe,

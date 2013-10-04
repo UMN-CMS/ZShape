@@ -17,9 +17,8 @@ else:  # Only runs when try succeeds
         NJOBS = int(floor(mp.cpu_count() * 1.5))
 
 # Input Files
-fitFile = "background_ele27.txt"
-signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_gsf_mc/20130918_gsf_gsf_mc_summed.root"
-dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20130918_gsf_gsf_mc/20130918_gsf_gsf_mc_summed.root"
+signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131003_gsf_gsf_mc/20131003_gsf_gsf_mc_summed.root"
+dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131004_gsf_gsf_data/20131004_gsf_gsf_data_summed.root"
 # Mass_Z
 minMZ = 60
 maxMZ = 150
@@ -27,6 +26,10 @@ maxMZ = 150
 tag="EB"
 # Use Phistar (Pt else)
 usePhiStar = False
+if usePhiStar:
+    formatstring = "%s/WP80_%s_%s_pu_%s_%s_phistar_%s_%s.root"
+else:
+    formatstring = "%s/WP80_%s_%s_pu_%s_%s_pt_%s_%s.root"
 # Program
 exe = "./fitEffAcc.exe"
 
@@ -36,7 +39,7 @@ print "# Output directory: ", outdir
 
 # Bins
 probeLocs = ("EB", "EEp", "EEm")
-PUs = ((0, 4), (5, 10), (11, 101))
+PUs = ((0, 4), (5, 101))
 Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (50, 55), (55, 60), (60, 500))
 
 # List to store points to run over before passing to the multiprocessing pool
@@ -45,21 +48,17 @@ inputList = []
 for probe in probeLocs:
     for (minPU, maxPU) in PUs:
         for (minX, maxX) in Xs:
-            outfile="%s/ele27_%s_%s_mz_%s_%s_pu_%s_%s_x_%s_%s_phistar_%s.root" % (
+            outfile = formatstring % (
                     outdir,
                     tag,
                     probe,
-                    minMZ,
-                    maxMZ,
                     minPU,
                     maxPU,
                     minX,
-                    maxX,
-                    int(usePhiStar)
+                    maxX
                     )
             command = (
                     exe,
-                    fitFile,
                     signalFile,
                     dataFile,
                     outfile,
