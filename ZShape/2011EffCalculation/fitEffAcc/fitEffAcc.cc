@@ -1,6 +1,7 @@
 #include "../BackgroundLibrary/BackgroundFunctions.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
+#include "../ZSmearer/ZSmearer.h"  // smearEvent()
 
 #include <string>
 #include <sstream>
@@ -240,16 +241,23 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         return 1;
     }
     double* xbins_ar = &xbins[0];
-    TH1D* signalHisto = new TH1D("signalHisto", "signal", nbins, xbins_ar);
+    TH1D* mcPreHisto = new TH1D("mcPreHisto", "signal", nbins, xbins_ar);
+    TH1D* mcPostHisto = new TH1D("mcPostHisto", "signal", nbins, xbins_ar);
 
     // Open signal file and make histograms
     TFile ZSFile(signalFile.c_str(), "READ");
     ZEffTree* zes;
     zes = new ZEffTree(ZSFile, false);
 
+    const bool doSmearing = false;
+    TRandom3* trand = new TRandom3(123456);
+
     bool run1 = true;
     while (run1){
         zes->Entries();
+        if (doSmearing) {
+            smearEvent(trand, &zes->reco);
+        }
         const double PU = zes->reco.nverts;
         const double MZ = zes->reco.mz;
         if (  // Right number of PU, MZ
@@ -285,7 +293,12 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                     probeX = probeXCutPt;
                 }
                 // Now we make sure exactly one e passes the tag region, and one the probe region requirements
-                if ( xBin.minX <= eX1 && eX1 <= xBin.maxX && probeX <= eX1){
+                if ( xBin.minX <= eX1 && eX1 <= xBin.maxX && probeX <= eX1
+                    && zes->reco.isSelected(i, "HLT-GSF") // Tag is HLT-GSF
+                    && zes->reco.isSelected(i, tagWP) // TagWP passes
+                    && zes->reco.isSelected(j, "Supercluster-Eta") 
+                    && zes->reco.isSelected(j, "GsfTrack-EtaDet")
+                   ){
                     probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
                 }
                 if ( probeMatch && tagX <= eX0 ){
@@ -293,7 +306,10 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 }
                 // Base Cuts, and Post Cuts which are a strict subset
                 if ( tagMatch && probeMatch ){
-                    signalHisto->Fill(MZ);
+                    mcPreHisto->Fill(MZ);
+                    if (zes->reco.isSelected(j, probeWP)){
+                        mcPostHisto->Fill(MZ); 
+                    }
                     break;
                 }
             }
@@ -462,7 +478,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     double var3=postBGFunc->GetParameter(3);
 
     // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc(signalHisto);
+    bg::BinnedBackgroundAndSignal bgfitfunc(mcPostHisto);
     TF1* postBGandSigFunc = new TF1("bgfitfunc", bgfitfunc, eventrq.minMZ, eventrq.maxMZ, bgfitfunc.nparams);
     postBGandSigFunc->SetParName(0, "alpha");
     postBGandSigFunc->SetParName(1, "beta");
@@ -470,13 +486,13 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGandSigFunc->SetParName(3, "delta");
     postBGandSigFunc->SetParName(4, "Signal Amplitude");
     postBGandSigFunc->FixParameter(0, var0);
-    //postBGandSigFunc->FixParameter(1, 0);
+    postBGandSigFunc->FixParameter(1, 0);
     postBGandSigFunc->FixParameter(2, var2);
     postBGandSigFunc->FixParameter(3, var3);
-    postBGandSigFunc->SetParameter(1, var1);
-    postBGandSigFunc->SetParLimits(1, 0., var1*2);
+    //postBGandSigFunc->SetParameter(1, var1);
+    //postBGandSigFunc->SetParLimits(1, 0., var1*2);
     postBGandSigFunc->SetParameter(4, 1.);
-    postBGandSigFunc->SetParLimits(4, 0., 25000);
+    postBGandSigFunc->SetParLimits(4, 0., 250000);
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
@@ -517,7 +533,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     var3=preBGFunc->GetParameter(3);
 
     // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc2(signalHisto);
+    bg::BinnedBackgroundAndSignal bgfitfunc2(mcPreHisto);
     TF1* preBGandSigFunc = new TF1("bgfitfunc2", bgfitfunc2, eventrq.minMZ, eventrq.maxMZ, bgfitfunc2.nparams);
     preBGandSigFunc->SetParName(0, "alpha");
     preBGandSigFunc->SetParName(1, "beta");
@@ -525,13 +541,13 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGandSigFunc->SetParName(3, "delta");
     preBGandSigFunc->SetParName(4, "Signal Amplitude");
     preBGandSigFunc->FixParameter(0, var0);
-    //preBGandSigFunc->FixParameter(1, 0);
+    preBGandSigFunc->FixParameter(1, 0);
     preBGandSigFunc->FixParameter(2, var2);
     preBGandSigFunc->FixParameter(3, var3);
-    preBGandSigFunc->SetParameter(1, var1);
-    preBGandSigFunc->SetParLimits(1, 0., var1*2);
+    //preBGandSigFunc->SetParameter(1, var1);
+    //preBGandSigFunc->SetParLimits(1, 0., var1*2);
     preBGandSigFunc->SetParameter(4, 1.);
-    preBGandSigFunc->SetParLimits(4, 0., 25000);
+    preBGandSigFunc->SetParLimits(4, 0., 250000);
 
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 

@@ -16,12 +16,13 @@ fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEf
 	ElectronLocation.o \
 	${ROOT_ALL}
 
-fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o
+fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o ZSmearer.o
 	${CC} -o fitEffAcc.exe \
 	fitEffAcc.o \
 	ZEffTree.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
+	ZSmearer.o \
 	${ROOT_ALL}
 
 %.o:%.cc
@@ -36,5 +37,8 @@ BackgroundFunctions.o: ../BackgroundLibrary/BackgroundFunctions.h ../BackgroundL
 ElectronLocation.o: ../ElectronLocation/ElectronLocation.h ../ElectronLocation/ElectronLocation.cc
 	${CCC} ../ElectronLocation/ElectronLocation.cc
 
+ZSmearer.o: ../ZSmearer/ZSmearer.h ../ZSmearer/ZSmearer.cc
+	${CCC} ../ZSmearer/ZSmearer.cc ${ROOT_INCLUDES}
+
 clean:
-	rm -f ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe fitEffAcc_trigger.o fitEffAcc.o
+	rm -f ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe fitEffAcc_trigger.o fitEffAcc.o ZSmearer.o
