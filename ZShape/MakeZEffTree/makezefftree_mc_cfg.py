@@ -109,9 +109,6 @@ process.kt6PFJets = process.kt4PFJets.clone(
         Rho_EtaMax = cms.double(2.5),
         )
 
-# Smearing for MC
-import ZShape.EffAcc.FullSimSmearedElectronProducer_cfi
-
 ## Electron ID cuts
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
 process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
