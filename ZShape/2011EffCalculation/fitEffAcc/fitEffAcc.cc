@@ -470,11 +470,13 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGandSigFunc->SetParName(3, "delta");
     postBGandSigFunc->SetParName(4, "Signal Amplitude");
     postBGandSigFunc->FixParameter(0, var0);
-    postBGandSigFunc->FixParameter(1, var1);
+    //postBGandSigFunc->FixParameter(1, 0);
     postBGandSigFunc->FixParameter(2, var2);
     postBGandSigFunc->FixParameter(3, var3);
+    postBGandSigFunc->SetParameter(1, var1);
+    postBGandSigFunc->SetParLimits(1, 0., var1*2);
     postBGandSigFunc->SetParameter(4, 1.);
-    postBGandSigFunc->SetParLimits(4, 0.,10000);
+    postBGandSigFunc->SetParLimits(4, 0., 25000);
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
@@ -523,11 +525,13 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGandSigFunc->SetParName(3, "delta");
     preBGandSigFunc->SetParName(4, "Signal Amplitude");
     preBGandSigFunc->FixParameter(0, var0);
-    preBGandSigFunc->FixParameter(1, var1);
+    //preBGandSigFunc->FixParameter(1, 0);
     preBGandSigFunc->FixParameter(2, var2);
     preBGandSigFunc->FixParameter(3, var3);
+    preBGandSigFunc->SetParameter(1, var1);
+    preBGandSigFunc->SetParLimits(1, 0., var1*2);
     preBGandSigFunc->SetParameter(4, 1.);
-    preBGandSigFunc->SetParLimits(4, 0.,10000);
+    preBGandSigFunc->SetParLimits(4, 0., 25000);
 
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 
