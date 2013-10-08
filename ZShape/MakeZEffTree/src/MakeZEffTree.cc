@@ -2,7 +2,7 @@
 //
 // Package:    MakeZEffTree
 // Class:      MakeZEffTree
-// 
+//
 /**\class MakeZEffTree MakeZEffTree.cc ZShape/MakeZEffTree/src/MakeZEffTree.cc
 
 Description: [one line class summary]
@@ -52,6 +52,9 @@ Implementation:
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"  // SuperClusterCollection
 #include "DataFormats/Common/interface/Ref.h"  // edm::Ref<>
 
+// Trigger Objects
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"  // trigger namespace, TriggerEvent
+
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 // Trying to get Lozentz Vectors to work...
@@ -73,7 +76,6 @@ class MakeZEffTree : public edm::EDAnalyzer {
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
     private:
         virtual void beginJob() ;
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -88,14 +90,17 @@ class MakeZEffTree : public edm::EDAnalyzer {
         bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
         double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
         const reco::HFEMClusterShape* getHFEMClusterShape( const edm::Event& iEvent, const double eta, const double phi );
+        bool isTriggerMatched(const edm::Event& iEvent, const double eta, const double phi);
         // ----------member data ---------------------------
         ZEffTree *m_ze;
         edm::InputTag tnpProducer_;
         edm::InputTag photTag_;
-        
+
         std::vector<edm::InputTag> passProbeCandTags_;
         double delRMatchingCut_, delPtRelMatchingCut_;
         std::vector<std::string> cutName_;
+        std::vector<std::string> triggersToMatch_;
+        bool doTrigObjMatch_;
 
 };
 
@@ -124,7 +129,9 @@ MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
     delRMatchingCut_ = iConfig.getUntrackedParameter<double>("dRMatchCut", 0.2);
     delPtRelMatchingCut_ = iConfig.getUntrackedParameter<double>("dPtMatchCut", 15.0);
     cutName_ = iConfig.getUntrackedParameter< std::vector<std::string> >("CutNames");
-
+    doTrigObjMatch_ = iConfig.getUntrackedParameter<bool>("MatchTriggerObjects", false);
+    std::vector<std::string> defaultTriggersToMatch(1, "process.hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter");
+    triggersToMatch_ = iConfig.getUntrackedParameter< std::vector<std::string> >("TriggersToMatch", defaultTriggersToMatch);
 }
 
 
@@ -171,7 +178,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                         }
                     }
                 }
-            } 
+            }
         }
 
         if (ge0==0 || ge1==0 || Z->momentum().m() < 40) {
@@ -234,14 +241,22 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             m_ze->reco.ntp = tpNum;  // Set the number of electrons
 
             const reco::CandidateBaseRef &tag = tagprobes->at(tpNum).daughter(0)->masterClone();
-            const reco::CandidateBaseRef &vprobes = tagprobes->at(tpNum).daughter(1)->masterClone(); // Maybe an arrow...
+            const reco::CandidateBaseRef &vprobes = tagprobes->at(tpNum).daughter(1)->masterClone();
+            // Require both electrons to match to trigger objects
+            if ( doTrigObjMatch_ ){
+                // Check that our
+                if ( !isTriggerMatched(iEvent, tag->p4().eta(), tag->p4().phi()) || !isTriggerMatched(iEvent, tag->p4().eta(), tag->p4().phi()) ) {
+                    std::cout << "Failed to match both objects";
+                    return;
+                }
+            }
 
             math::XYZTLorentzVector tpP4 = tag->p4() + vprobes->p4(); //Create Z p4 vector
 
             m_ze->reco.eta[0] = tag->p4().eta();
             m_ze->reco.eta[1] = vprobes->p4().eta();
             m_ze->reco.phi[0] = tag->p4().phi();
-            m_ze->reco.phi[1] = vprobes->p4().phi(); 
+            m_ze->reco.phi[1] = vprobes->p4().phi();
             m_ze->reco.pt[0] = tag->p4().pt();
             m_ze->reco.pt[1] = vprobes->p4().pt();
             m_ze->reco.charge[0] = tag->charge();
@@ -288,11 +303,11 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             iEvent.getByLabel("offlinePrimaryVertices", recVtxs);
             int nvert = 0;
             for(unsigned int ind=0; ind < recVtxs->size(); ind++) {
-                if (    
-                        !((*recVtxs)[ind].isFake()) 
+                if (
+                        !((*recVtxs)[ind].isFake())
                         && ((*recVtxs)[ind].ndof()>4)
-                        && (fabs((*recVtxs)[ind].z())<=24.0) 
-                        && ((*recVtxs)[ind].position().Rho()<=2.0) 
+                        && (fabs((*recVtxs)[ind].z())<=24.0)
+                        && ((*recVtxs)[ind].position().Rho()<=2.0)
                    ) {
                     nvert++;
                 }
@@ -310,7 +325,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         m_ze->Fill();
     }
 }
-    
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void MakeZEffTree::beginJob(){ }
@@ -429,6 +444,39 @@ const reco::HFEMClusterShape* MakeZEffTree::getHFEMClusterShape(const edm::Event
         }
     }
     return cluster;
+}
+bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const double eta, const double phi){
+    // Load Trigger Objects
+    edm::InputTag hltTrigInfoTag("hltTriggerSummaryAOD","","HLT");
+    edm::Handle<trigger::TriggerEvent> trigEvent;
+
+    iEvent.getByLabel(hltTrigInfoTag, trigEvent);
+    if (!trigEvent.isValid() ){
+        return false;
+    }
+
+    // Loop over triggers, filter the objects from these triggers, and then try to match
+    for(std::vector<std::string>::const_iterator trigs = triggersToMatch_.begin(); trigs != triggersToMatch_.end(); ++trigs) {
+        // Grab objects that pass our filter
+        edm::InputTag filterTag(*trigs, "", "HLT");
+        trigger::size_type filterIndex = trigEvent->filterIndex(filterTag);
+        if(filterIndex < trigEvent->sizeFilters()) { // Check that the filter is in triggerEvent
+            // Get our trigger keys that pass the filter
+            const trigger::Keys& trigKeys = trigEvent->filterKeys(filterIndex);
+            const trigger::TriggerObjectCollection& trigObjColl(trigEvent->getObjects());
+            // Get the objects that from the trigger keys
+            for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt!=trigKeys.end(); ++keyIt){
+                const trigger::TriggerObject& obj = trigObjColl[*keyIt];
+                // Do Delta R matching
+                const double dr = deltaR(eta, phi, obj.eta(), obj.phi());
+                if (dr < delRMatchingCut_){
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 //define this as a plug-in
