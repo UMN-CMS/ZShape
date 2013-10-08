@@ -42,10 +42,11 @@ MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
     delPtRelMatchingCut_ = iConfig.getUntrackedParameter<double>("dPtMatchCut", 15.0);
     cutName_ = iConfig.getUntrackedParameter< std::vector<std::string> >("CutNames");
     doTrigObjMatch_ = iConfig.getUntrackedParameter<bool>("MatchTriggerObjects", false);
-    std::vector<std::string> defaultTriggersToMatch(1, "process.hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter");
+    // hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8TrackIsolFilter  : Tight Leg
+    // hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter : Whole Trigger
+    std::vector<std::string> defaultTriggersToMatch(1, "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter");
     triggersToMatch_ = iConfig.getUntrackedParameter< std::vector<std::string> >("TriggersToMatch", defaultTriggersToMatch);
 }
-
 
 MakeZEffTree::~MakeZEffTree() {
     // do anything here that needs to be done at desctruction time
@@ -362,24 +363,29 @@ bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const double eta, 
 
     iEvent.getByLabel(hltTrigInfoTag, trigEvent);
     if (!trigEvent.isValid() ){
+        std::cout << "No valid hltTriggerSummaryAOD." << std::endl;
         return false;
     }
 
     // Loop over triggers, filter the objects from these triggers, and then try to match
+    std::cout << "ttm: "  << triggersToMatch_.size() << std::endl;
     for(std::vector<std::string>::const_iterator trigs = triggersToMatch_.begin(); trigs != triggersToMatch_.end(); ++trigs) {
         // Grab objects that pass our filter
         edm::InputTag filterTag(*trigs, "", "HLT");
         trigger::size_type filterIndex = trigEvent->filterIndex(filterTag);
+        std::cout << "filterIndex " << filterIndex << std::endl;
         if(filterIndex < trigEvent->sizeFilters()) { // Check that the filter is in triggerEvent
             // Get our trigger keys that pass the filter
             const trigger::Keys& trigKeys = trigEvent->filterKeys(filterIndex);
             const trigger::TriggerObjectCollection& trigObjColl(trigEvent->getObjects());
             // Get the objects that from the trigger keys
+            std::cout << "tk: " << trigKeys.size() << std::endl;
             for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt!=trigKeys.end(); ++keyIt){
                 const trigger::TriggerObject& obj = trigObjColl[*keyIt];
                 // Do Delta R matching
                 const double dr = deltaR(eta, phi, obj.eta(), obj.phi());
                 if (dr < delRMatchingCut_){
+                    std::cout << "dR: " << dr << std::endl;
                     return true;
                 }
             }
