@@ -1,53 +1,19 @@
-// -*- C++ -*-
-//
-// Package:    MakeZEffTree
-// Class:      MakeZEffTree
-//
-/**\class MakeZEffTree MakeZEffTree.cc ZShape/MakeZEffTree/src/MakeZEffTree.cc
+#include "MakeZEffTree.h"
 
-Description: [one line class summary]
+// CMSSW
+#include "FWCore/Framework/interface/MakerMacros.h"  // LogWarning, edm::ParameterSetDescription, edm::ConfigurationDescriptions
+#include "FWCore/ServiceRegistry/interface/Service.h"  // edm::Service
+#include "CommonTools/UtilAlgos/interface/TFileService.h"  // TFileService
 
-Implementation:
-[Notes on implementation]
-*/
-//
-// Original Author:  Alexander Gude
-//         Created:  Fri Sep 23 11:50:21 CDT 2011
+// Pile Up and Vertexes
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"  // PileupSummaryInfo
+#include "DataFormats/VertexReco/interface/Vertex.h"  // reco::Vertex
+#include "DataFormats/VertexReco/interface/VertexFwd.h"  // reco::VertexCollection
 
-
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "ZEffTree.h"
-
-#include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+// MC Objects
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"  // edm::HepMCProduct
 
 // HF Superclusters
-#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"  // HFEMClusterShape
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"  // HFEMClusterShapeAssociationCollection
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"  // SuperClusterCollection
 #include "DataFormats/Common/interface/Ref.h"  // edm::Ref<>
@@ -55,66 +21,12 @@ Implementation:
 // Trigger Objects
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"  // trigger namespace, TriggerEvent
 
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+// Delta R
+#include "DataFormats/Math/interface/deltaR.h"  // deltaR
 
-// Trying to get Lozentz Vectors to work...
-#include "Math/PtEtaPhiM4D.h"
-#include "Math/VectorUtil.h"
-
-// And 3d vectors
-#include "Math/Vector3D.h"
-
-
-//
-// class declaration
-//
-
-class MakeZEffTree : public edm::EDAnalyzer {
-    public:
-        explicit MakeZEffTree(const edm::ParameterSet&);
-        ~MakeZEffTree();
-
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-    private:
-        virtual void beginJob() ;
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
-
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-
-        bool ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, const edm::Handle<reco::CandidateView>& passprobes);
-        bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
-        double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
-        const reco::HFEMClusterShape* getHFEMClusterShape( const edm::Event& iEvent, const double eta, const double phi );
-        bool isTriggerMatched(const edm::Event& iEvent, const double eta, const double phi);
-        // ----------member data ---------------------------
-        ZEffTree *m_ze;
-        edm::InputTag tnpProducer_;
-        edm::InputTag photTag_;
-
-        std::vector<edm::InputTag> passProbeCandTags_;
-        double delRMatchingCut_, delPtRelMatchingCut_;
-        std::vector<std::string> cutName_;
-        std::vector<std::string> triggersToMatch_;
-        bool doTrigObjMatch_;
-
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+/*
+ * Constructors and Destructor
+ */
 MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
     //now do what ever initialization is needed
     edm::Service<TFileService> ts;
@@ -139,13 +51,12 @@ MakeZEffTree::~MakeZEffTree() {
     // do anything here that needs to be done at desctruction time
     // (e.g. close files, deallocate resources etc.)
     //m_ze->Write();
-
 }
 
 
-//
-// member functions
-//
+/*
+ * Member Functions
+ */
 
 // ------------ method called for each event  ------------
 void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -156,20 +67,20 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     if (!iEvent.isRealData()) {
         Handle<edm::HepMCProduct> HepMC;
         iEvent.getByLabel("generator", HepMC);
-        const HepMC::GenEvent* genE=HepMC->GetEvent();
+        const HepMC::GenEvent* genE = HepMC->GetEvent();
 
         // Read through the MC, looking for Z -> ee
         HepMC::GenEvent::vertex_const_iterator vtex;
         HepMC::GenVertex::particles_out_const_iterator Pout;
-        HepMC::GenParticle* ge0=0;
-        HepMC::GenParticle* ge1=0;
-        HepMC::GenParticle* Z=0;
+        HepMC::GenParticle* ge0 = 0;
+        HepMC::GenParticle* ge1 = 0;
+        HepMC::GenParticle* Z = 0;
         for (vtex=genE->vertices_begin(); vtex!=genE->vertices_end(); vtex++){
-            if (((*vtex)->particles_in_size())==1) {
-                if ((*((*vtex)->particles_in_const_begin()))->pdg_id()==23){ // Test for Z
+            if (((*vtex)->particles_in_size()) == 1) {
+                if ((*((*vtex)->particles_in_const_begin()))->pdg_id() == 23){ // Test for Z
                     Z=(*((*vtex)->particles_in_const_begin()));
                     for (Pout=(*vtex)->particles_out_const_begin(); Pout!=(*vtex)->particles_out_const_end(); Pout++){
-                        if (abs((*Pout)->pdg_id())==11){ // To Electrons
+                        if (abs((*Pout)->pdg_id()) == 11){ // To Electrons
                             if(ge0==0){
                                 ge0=*Pout;
                             } else {
@@ -196,7 +107,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         iEvent.getByLabel("addPileupInfo", pPU);
         std::vector<PileupSummaryInfo>::const_iterator pPUI;
 
-        int npv = 1; // Does not include primary vert
+        int npv = 1; // pPU does not include primary vertex by default
         for(pPUI = pPU->begin(); pPUI != pPU->end(); ++pPUI) {
             if (pPUI->getBunchCrossing() == 0) {
                 npv = pPUI->getPU_NumInteractions() + 1;
@@ -218,7 +129,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             m_ze->gen.charge[0] = 1;
         }
         m_ze->gen.mz = Z->momentum().m();
-        m_ze->gen.yz = 0.5*log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
+        m_ze->gen.yz = 0.5 * log((Z->momentum().e()+Z->momentum().pz())/(Z->momentum().e()-Z->momentum().pz()));
         m_ze->gen.ptz = Z->momentum().perp();
         m_ze->gen.nverts = npv;
         m_ze->gen.phistar = MakeZEffTree::getPhiStar( m_ze->gen.eta[0], m_ze->gen.phi[0], m_ze->gen.eta[1], m_ze->gen.phi[1]);
@@ -228,7 +139,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     edm::Handle<reco::CandidateView> tagprobes;
     if (!iEvent.getByLabel(tnpProducer_, tagprobes)) {
         LogWarning("ZFromData") << "Could not extract tag-probe map with input tag " << tnpProducer_;
-        std::cout << "Didn't get the input tag " << std::endl;
+        std::cout << "Didn't get the input tag." << std::endl;
     } else {
         if (tagprobes.isValid()){
             /* Pick T&P pair */
@@ -244,7 +155,7 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             const reco::CandidateBaseRef &vprobes = tagprobes->at(tpNum).daughter(1)->masterClone();
             // Require both electrons to match to trigger objects
             if ( doTrigObjMatch_ ){
-                // Check that our
+                // Check that our electrons match triggered objects
                 if ( !isTriggerMatched(iEvent, tag->p4().eta(), tag->p4().phi()) || !isTriggerMatched(iEvent, tag->p4().eta(), tag->p4().phi()) ) {
                     std::cout << "Failed to match both objects";
                     return;
@@ -270,7 +181,8 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                 m_ze->reco.esel[0] = hfemcs0->eSeL();
                 m_ze->reco.ece9[0] = hfemcs0->eCOREe9();
                 m_ze->reco.e9e25[0] = hfemcs0->e9e25();
-            }  // If it is NULL, the default values have already been set by the ZEffTree class
+            }  // If it is NULL, the default values have already been set by
+               // the ZEffTree class so we don't have to set them by hand
             const reco::HFEMClusterShape* hfemcs1 = getHFEMClusterShape(iEvent, vprobes->p4().eta(), vprobes->p4().phi());
             if (hfemcs1 != NULL){
                 m_ze->reco.esel[1] = hfemcs1->eSeL();
@@ -392,11 +304,10 @@ bool MakeZEffTree::MatchObjects(const reco::Candidate *hltObj, const reco::Candi
 
 double MakeZEffTree::getPhiStar(const double eta0, const double phi0, const double eta1, const double phi1){
     /* Calculate phi star */
-
-    /* Calculate dPhi, stolen from Kevin's code */
     const double pi = 3.14159265;
     double dPhi=phi0-phi1;
 
+    // Properly account for the fact that 2pi == 0.
     if (dPhi < 0){
         if (dPhi > -pi){
             dPhi = fabs(dPhi);
@@ -439,7 +350,6 @@ const reco::HFEMClusterShape* MakeZEffTree::getHFEMClusterShape(const edm::Event
                 const reco::HFEMClusterShape* newcluster = &(*ClusterAssociation->find(theClusRef)->val);  // Find the Shape Reference and dereference and then get the pointer
                 dr = newdr;
                 cluster = newcluster;
-                // Assign HFEMClusterShape
             }
         }
     }
