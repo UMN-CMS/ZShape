@@ -27,6 +27,8 @@ class ZEffTree {
             float e9e25[2];
             float esel[2];
             int ntp;
+            bool ttrig[2];
+            bool ptrig[2];
         } gen, reco;
 
         void Fill() {
@@ -64,8 +66,8 @@ class ZEffTree {
             if (writable) {
                 m_file.cd();
                 m_tree = new TTree("ZEffs", "Minnesota ZEffs");
-                br_gen=m_tree->Branch("gen", &gen, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e250:e9e251:esel0:esel1:ntp/I");
-                br_reco=m_tree->Branch("reco", &reco, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e251:e9e250:esel0:esel1:ntp/I");
+                br_gen=m_tree->Branch("gen", &gen, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e250:e9e251:esel0:esel1:ntp/I:ttrig0/O:ttrig1:ptrig0:ptrig1");
+                br_reco=m_tree->Branch("reco", &reco, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e251:e9e250:esel0:esel1:ntp/I:ttrig0/O:ttrig1:ptrig0:ptrig1");
             } else {
                 m_tree = (TTree*)m_file.Get("ZEffs");
                 m_tree->SetBranchAddress("gen", &gen);

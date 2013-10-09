@@ -165,6 +165,11 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                 if ( !haveTagTrig || !haveProbeTrig ) {
                     std::cout << "Failed to match both objects";
                     return;
+                } else {  // These are set to false by default when the ZEffTree is created
+                    m_ze->reco.ttrig[0] = haveTagTrig;
+                    m_ze->reco.ttrig[1] = isTriggerMatched(iEvent, tagTriggersToMatch_, vprobes->p4().eta(), vprobes->p4().phi());
+                    m_ze->reco.ptrig[0] = isTriggerMatched(iEvent, probeTriggersToMatch_, tag->p4().eta(), tag->p4().phi());
+                    m_ze->reco.ptrig[1] = haveProbeTrig;
                 }
             }
 

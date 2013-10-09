@@ -124,6 +124,10 @@ void ZEffTree::Clear() {
     gen.ece9[0] = -1.;
     gen.ece9[1] = -1.;
     gen.ntp = -1;
+    gen.ttrig[0] = false;
+    gen.ttrig[1] = false;
+    gen.ptrig[0] = false;
+    gen.ptrig[1] = false;
     reco.eta[0] = -10;
     reco.eta[1] = -10;
     reco.phi[0] = -10;
@@ -146,6 +150,10 @@ void ZEffTree::Clear() {
     reco.ece9[0] = -1.;
     reco.ece9[1] = -1.;
     reco.ntp = -1;
+    reco.ttrig[0] = false;
+    reco.ttrig[1] = false;
+    reco.ptrig[0] = false;
+    reco.ptrig[1] = false;
 }
 
 /* Map from names to bitnums  */
