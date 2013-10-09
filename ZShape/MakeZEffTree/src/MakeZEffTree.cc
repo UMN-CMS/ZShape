@@ -28,7 +28,7 @@
  * Constructors and Destructor
  */
 MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
-    //now do what ever initialization is needed
+    //Now do what ever initialization is needed
     edm::Service<TFileService> ts;
     TFile &f = ts->file();
     const bool writable = true;
@@ -41,11 +41,13 @@ MakeZEffTree::MakeZEffTree(const edm::ParameterSet& iConfig) {
     delRMatchingCut_ = iConfig.getUntrackedParameter<double>("dRMatchCut", 0.2);
     delPtRelMatchingCut_ = iConfig.getUntrackedParameter<double>("dPtMatchCut", 15.0);
     cutName_ = iConfig.getUntrackedParameter< std::vector<std::string> >("CutNames");
+
+    // Trigger Matching
     doTrigObjMatch_ = iConfig.getUntrackedParameter<bool>("MatchTriggerObjects", false);
-    // hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8TrackIsolFilter  : Tight Leg
-    // hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter : Whole Trigger
-    std::vector<std::string> defaultTriggersToMatch(1, "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter");
-    triggersToMatch_ = iConfig.getUntrackedParameter< std::vector<std::string> >("TriggersToMatch", defaultTriggersToMatch);
+    std::vector<std::string> defaultTagTriggersToMatch(1, "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8TrackIsolFilter");
+    tagTriggersToMatch_ = iConfig.getUntrackedParameter< std::vector<std::string> >("TagTriggers", defaultTagTriggersToMatch);
+    std::vector<std::string> defaultProbeTriggersToMatch(1, "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter");
+    probeTriggersToMatch_ = iConfig.getUntrackedParameter< std::vector<std::string> >("ProbeTriggers", defaultProbeTriggersToMatch);
 }
 
 MakeZEffTree::~MakeZEffTree() {
@@ -76,12 +78,12 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         HepMC::GenParticle* ge0 = 0;
         HepMC::GenParticle* ge1 = 0;
         HepMC::GenParticle* Z = 0;
-        for (vtex=genE->vertices_begin(); vtex!=genE->vertices_end(); vtex++){
-            if (((*vtex)->particles_in_size()) == 1) {
-                if ((*((*vtex)->particles_in_const_begin()))->pdg_id() == 23){ // Test for Z
+        for (vtex = genE->vertices_begin(); vtex != genE->vertices_end(); vtex++) {  // Loop over all vertexes
+            if (((*vtex)->particles_in_size()) == 1) {  // Find vertexes with only one incoming particle
+                if ((*((*vtex)->particles_in_const_begin()))->pdg_id() == 23) {  // Incoming particle is a Z
                     Z=(*((*vtex)->particles_in_const_begin()));
-                    for (Pout=(*vtex)->particles_out_const_begin(); Pout!=(*vtex)->particles_out_const_end(); Pout++){
-                        if (abs((*Pout)->pdg_id()) == 11){ // To Electrons
+                    for (Pout=(*vtex)->particles_out_const_begin(); Pout!=(*vtex)->particles_out_const_end(); Pout++){  // Loop over decay products of the Z
+                        if (abs((*Pout)->pdg_id()) == 11){  // Insure the decay products are electrons
                             if(ge0==0){
                                 ge0=*Pout;
                             } else {
@@ -156,8 +158,11 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             const reco::CandidateBaseRef &vprobes = tagprobes->at(tpNum).daughter(1)->masterClone();
             // Require both electrons to match to trigger objects
             if ( doTrigObjMatch_ ){
-                // Check that our electrons match triggered objects
-                if ( !isTriggerMatched(iEvent, tag->p4().eta(), tag->p4().phi()) || !isTriggerMatched(iEvent, tag->p4().eta(), tag->p4().phi()) ) {
+                const bool haveTagTrig = isTriggerMatched(iEvent, tagTriggersToMatch_, tag->p4().eta(), tag->p4().phi());
+                const bool haveProbeTrig = isTriggerMatched(iEvent, probeTriggersToMatch_, vprobes->p4().eta(), vprobes->p4().phi());
+                // Requre the Tag to pass the tag trigger, and the probe to
+                // pass the probe trigger
+                if ( !haveTagTrig || !haveProbeTrig ) {
                     std::cout << "Failed to match both objects";
                     return;
                 }
@@ -356,7 +361,13 @@ const reco::HFEMClusterShape* MakeZEffTree::getHFEMClusterShape(const edm::Event
     }
     return cluster;
 }
-bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const double eta, const double phi){
+bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const std::vector<std::string>& triggersToMatch, const double eta, const double phi) {
+    // If our vector is empty or the first item is blank, the user doesn't want
+    // to match this object, so return true
+    if (triggersToMatch.size() == 0 || triggersToMatch[0].size() == 0) {
+        return true;
+    }
+
     // Load Trigger Objects
     edm::InputTag hltTrigInfoTag("hltTriggerSummaryAOD","","HLT");
     edm::Handle<trigger::TriggerEvent> trigEvent;
@@ -368,24 +379,20 @@ bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const double eta, 
     }
 
     // Loop over triggers, filter the objects from these triggers, and then try to match
-    std::cout << "ttm: "  << triggersToMatch_.size() << std::endl;
-    for(std::vector<std::string>::const_iterator trigs = triggersToMatch_.begin(); trigs != triggersToMatch_.end(); ++trigs) {
+    for(std::vector<std::string>::const_iterator trigs = triggersToMatch.begin(); trigs != triggersToMatch.end(); ++trigs) {
         // Grab objects that pass our filter
         edm::InputTag filterTag(*trigs, "", "HLT");
         trigger::size_type filterIndex = trigEvent->filterIndex(filterTag);
-        std::cout << "filterIndex " << filterIndex << std::endl;
         if(filterIndex < trigEvent->sizeFilters()) { // Check that the filter is in triggerEvent
             // Get our trigger keys that pass the filter
             const trigger::Keys& trigKeys = trigEvent->filterKeys(filterIndex);
             const trigger::TriggerObjectCollection& trigObjColl(trigEvent->getObjects());
             // Get the objects that from the trigger keys
-            std::cout << "tk: " << trigKeys.size() << std::endl;
             for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt!=trigKeys.end(); ++keyIt){
                 const trigger::TriggerObject& obj = trigObjColl[*keyIt];
                 // Do Delta R matching
                 const double dr = deltaR(eta, phi, obj.eta(), obj.phi());
                 if (dr < delRMatchingCut_){
-                    std::cout << "dR: " << dr << std::endl;
                     return true;
                 }
             }

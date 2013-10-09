@@ -56,7 +56,7 @@ class MakeZEffTree : public edm::EDAnalyzer {
         bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
         double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
         const reco::HFEMClusterShape* getHFEMClusterShape( const edm::Event& iEvent, const double eta, const double phi );
-        bool isTriggerMatched(const edm::Event& iEvent, const double eta, const double phi);
+        bool isTriggerMatched(const edm::Event& iEvent, const std::vector<std::string>& triggersToMatch, const double eta, const double phi);
         // ----------member data ---------------------------
         ZEffTree *m_ze;
         edm::InputTag tnpProducer_;
@@ -65,7 +65,7 @@ class MakeZEffTree : public edm::EDAnalyzer {
         std::vector<edm::InputTag> passProbeCandTags_;
         double delRMatchingCut_, delPtRelMatchingCut_;
         std::vector<std::string> cutName_;
-        std::vector<std::string> triggersToMatch_;
+        std::vector<std::string> tagTriggersToMatch_, probeTriggersToMatch_;
         bool doTrigObjMatch_;
 
 };
