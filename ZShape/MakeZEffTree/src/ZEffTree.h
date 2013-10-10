@@ -27,8 +27,13 @@ class ZEffTree {
             float e9e25[2];
             float esel[2];
             int ntp;
-            bool ttrig[2];
-            bool ptrig[2];
+            bool trigprobe[2];
+            bool trigtag[2];
+            float trigeta[2];
+            float trigphi[2];
+            float trigpt[2];
+            float trigmz, trigyz, trigptz;
+            float r9[2];
         } gen, reco;
 
         void Fill() {
@@ -66,8 +71,8 @@ class ZEffTree {
             if (writable) {
                 m_file.cd();
                 m_tree = new TTree("ZEffs", "Minnesota ZEffs");
-                br_gen=m_tree->Branch("gen", &gen, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e250:e9e251:esel0:esel1:ntp/I:ttrig0/O:ttrig1:ptrig0:ptrig1");
-                br_reco=m_tree->Branch("reco", &reco, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e251:e9e250:esel0:esel1:ntp/I:ttrig0/O:ttrig1:ptrig0:ptrig1");
+                br_gen=m_tree->Branch("gen", &gen, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e250:e9e251:esel0:esel1:ntp/I:trigtag0/O:trigtag1:trigprobe0:trigprobe1:trigeta0/f:trigeta1:trigphi0:trigphi1:trigpt0:trigpt1:trigmz:trigyz:trigptz:r90:r91");
+                br_reco=m_tree->Branch("reco", &reco, "eta0/f:eta1:phi0:phi1:pt0:pt1:mz:yz:ptz:bits0/I:bits1:nverts:charge0:charge1:phistar/f:ece90:ece91:e9e251:e9e250:esel0:esel1:ntp/I:trigtag0/O:trigtag1:trigprobe0:trigprobe1:trigeta0/f:trigeta1:trigphi0:trigphi1:trigpt0:trigpt1:trigmz:trigyz:trigptz:r90:r91");
             } else {
                 m_tree = (TTree*)m_file.Get("ZEffs");
                 m_tree->SetBranchAddress("gen", &gen);

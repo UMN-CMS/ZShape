@@ -104,13 +104,22 @@ void ZEffTree::Print(){
 void ZEffTree::Clear() {
     gen.eta[0] = -10;
     gen.eta[1] = -10;
+    gen.trigeta[0] = -10;
+    gen.trigeta[1] = -10;
     gen.phi[0] = -10;
     gen.phi[1] = -10;
+    gen.trigphi[0] = -10;
+    gen.trigphi[1] = -10;
     gen.pt[0] = -1;
+    gen.trigpt[1] = -1;
+    gen.trigpt[0] = -1;
     gen.pt[1] = -1;
     gen.mz = -1;
     gen.yz = -100;
     gen.ptz = -100;
+    gen.trigmz = -1;
+    gen.trigyz = -100;
+    gen.trigptz = -100;
     gen.bits[0] = 0;
     gen.bits[1] = 0;
     gen.nverts = -1;
@@ -124,19 +133,30 @@ void ZEffTree::Clear() {
     gen.ece9[0] = -1.;
     gen.ece9[1] = -1.;
     gen.ntp = -1;
-    gen.ttrig[0] = false;
-    gen.ttrig[1] = false;
-    gen.ptrig[0] = false;
-    gen.ptrig[1] = false;
+    gen.trigtag[0] = false;
+    gen.trigtag[1] = false;
+    gen.trigprobe[0] = false;
+    gen.trigprobe[1] = false;
+    gen.r9[0] = -1;
+    gen.r9[1] = -1;
     reco.eta[0] = -10;
     reco.eta[1] = -10;
+    reco.trigeta[0] = -10;
+    reco.trigeta[1] = -10;
     reco.phi[0] = -10;
     reco.phi[1] = -10;
+    reco.trigphi[0] = -10;
+    reco.trigphi[1] = -10;
     reco.pt[0] = -1;
     reco.pt[1] = -1;
+    reco.trigpt[0] = -1;
+    reco.trigpt[1] = -1;
     reco.mz = -1;
     reco.yz = -100;
     reco.ptz = -100;
+    reco.trigmz = -1;
+    reco.trigyz = -100;
+    reco.trigptz = -100;
     reco.bits[0] = 0;
     reco.bits[1] = 0;
     reco.nverts = -1;
@@ -150,10 +170,12 @@ void ZEffTree::Clear() {
     reco.ece9[0] = -1.;
     reco.ece9[1] = -1.;
     reco.ntp = -1;
-    reco.ttrig[0] = false;
-    reco.ttrig[1] = false;
-    reco.ptrig[0] = false;
-    reco.ptrig[1] = false;
+    reco.trigtag[0] = false;
+    reco.trigtag[1] = false;
+    reco.trigprobe[0] = false;
+    reco.trigprobe[1] = false;
+    reco.r9[0] = -1;
+    reco.r9[1] = -1;
 }
 
 /* Map from names to bitnums  */

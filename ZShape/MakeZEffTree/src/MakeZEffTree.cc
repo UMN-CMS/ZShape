@@ -18,8 +18,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"  // SuperClusterCollection
 #include "DataFormats/Common/interface/Ref.h"  // edm::Ref<>
 
-// Trigger Objects
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"  // trigger namespace, TriggerEvent
+// Photons (for R9)
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 // Delta R
 #include "DataFormats/Math/interface/deltaR.h"  // deltaR
@@ -158,34 +159,75 @@ void MakeZEffTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             const reco::CandidateBaseRef &vprobes = tagprobes->at(tpNum).daughter(1)->masterClone();
             // Require both electrons to match to trigger objects
             if ( doTrigObjMatch_ ){
-                const bool haveTagTrig = isTriggerMatched(iEvent, tagTriggersToMatch_, tag->p4().eta(), tag->p4().phi());
-                const bool haveProbeTrig = isTriggerMatched(iEvent, probeTriggersToMatch_, vprobes->p4().eta(), vprobes->p4().phi());
+                const trigger::TriggerObject* tagTO = getTriggerObject(iEvent, tagTriggersToMatch_, tag->p4().eta(), tag->p4().phi());
+                const trigger::TriggerObject* probeTO = getTriggerObject(iEvent, probeTriggersToMatch_, vprobes->p4().eta(), vprobes->p4().phi());
+
                 // Requre the Tag to pass the tag trigger, and the probe to
                 // pass the probe trigger
-                if ( !haveTagTrig || !haveProbeTrig ) {
+                if ( tagTO == NULL || probeTO == NULL ) {
                     std::cout << "Failed to match both objects";
                     return;
                 } else {  // These are set to false by default when the ZEffTree is created
-                    m_ze->reco.ttrig[0] = haveTagTrig;
-                    m_ze->reco.ttrig[1] = isTriggerMatched(iEvent, tagTriggersToMatch_, vprobes->p4().eta(), vprobes->p4().phi());
-                    m_ze->reco.ptrig[0] = isTriggerMatched(iEvent, probeTriggersToMatch_, tag->p4().eta(), tag->p4().phi());
-                    m_ze->reco.ptrig[1] = haveProbeTrig;
+                    m_ze->reco.trigtag[0] = true;  // True by virture of being in the else statement
+                    m_ze->reco.trigprobe[1] = true;
+                    // Check if the objects pass the other trigger
+                    const trigger::TriggerObject* tagTOAsProbe = getTriggerObject(iEvent, probeTriggersToMatch_, tag->p4().eta(), tag->p4().phi());
+                    const trigger::TriggerObject* probeTOAsTag = getTriggerObject(iEvent, tagTriggersToMatch_, vprobes->p4().eta(), vprobes->p4().phi());
+                    if (tagTOAsProbe != NULL) {
+                        m_ze->reco.trigprobe[0] = true;
+                    } 
+                    if (probeTOAsTag != NULL) {
+                        m_ze->reco.trigtag[1] = true;
+                    }
+                    // Set kinematics
+                    m_ze->reco.trigeta[0] = tagTO->eta();
+                    m_ze->reco.trigphi[0] = tagTO->phi();
+                    m_ze->reco.trigpt[0]  = tagTO->pt();
+                    m_ze->reco.trigeta[1] = probeTO->eta();
+                    m_ze->reco.trigphi[1] = probeTO->phi();
+                    m_ze->reco.trigpt[1]  = probeTO->pt();
+                    // Recalculate the ZMass
+                    math::PtEtaPhiMLorentzVector e0lv(tagTO->pt(), tagTO->eta(), tagTO->phi(), 5.109989e-4);
+                    math::PtEtaPhiMLorentzVector e1lv(probeTO->pt(), probeTO->eta(), probeTO->phi(), 5.109989e-4);
+                    math::PtEtaPhiMLorentzVector Zlv;
+                    Zlv = e0lv + e1lv;
+                    m_ze->reco.trigmz = Zlv.mass();
+                    m_ze->reco.trigyz = Zlv.Rapidity();
+                    m_ze->reco.trigptz = Zlv.pt();
+                    //std::cout << "eta: " << m_ze->reco.trigeta[0] << " ";
+                    //std::cout << "phi: " << m_ze->reco.trigphi[0] << " ";
+                    //std::cout << "pt: " << m_ze->reco.trigpt[0] << std::endl;
+                    //std::cout << "eta: " << m_ze->reco.trigeta[1] << " ";
+                    //std::cout << "phi: " << m_ze->reco.trigphi[1] << " ";
+                    //std::cout << "pt: " << m_ze->reco.trigpt[1] << std::endl;
+                    std::cout << "MZ: " << m_ze->reco.trigmz << " ";
+                    std::cout << "YZ: " << m_ze->reco.trigyz << " ";
+                    std::cout << "Zpt: " << m_ze->reco.trigptz <<std::endl;
                 }
-            }
+            } 
 
-            math::XYZTLorentzVector tpP4 = tag->p4() + vprobes->p4(); //Create Z p4 vector
-
+            // Kinematics
             m_ze->reco.eta[0] = tag->p4().eta();
             m_ze->reco.eta[1] = vprobes->p4().eta();
             m_ze->reco.phi[0] = tag->p4().phi();
             m_ze->reco.phi[1] = vprobes->p4().phi();
             m_ze->reco.pt[0] = tag->p4().pt();
             m_ze->reco.pt[1] = vprobes->p4().pt();
+
+            // Charge
             m_ze->reco.charge[0] = tag->charge();
             m_ze->reco.charge[1] = vprobes->charge();
+
+            // Z Kinematics and Mass
+            math::XYZTLorentzVector tpP4 = tag->p4() + vprobes->p4(); //Create Z p4 vector
             m_ze->reco.mz = tpP4.M();
             m_ze->reco.yz = tpP4.Rapidity();
             m_ze->reco.ptz = tpP4.pt();
+
+            // Supercluster Variables
+            m_ze->reco.r9[0] = getR9(iEvent, tag->p4().eta(), tag->p4().phi());
+            m_ze->reco.r9[1] = getR9(iEvent, vprobes->p4().eta(), vprobes->p4().phi());
+
             // Assign HF Variables
             const reco::HFEMClusterShape* hfemcs0 = getHFEMClusterShape(iEvent, tag->p4().eta(), tag->p4().phi());
             if (hfemcs0 != NULL){
@@ -366,12 +408,15 @@ const reco::HFEMClusterShape* MakeZEffTree::getHFEMClusterShape(const edm::Event
     }
     return cluster;
 }
-bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const std::vector<std::string>& triggersToMatch, const double eta, const double phi) {
-    // If our vector is empty or the first item is blank, the user doesn't want
-    // to match this object, so return true
+
+const trigger::TriggerObject* MakeZEffTree::getTriggerObject(const edm::Event& iEvent, const std::vector<std::string>& triggersToMatch, const double eta, const double phi){
+    // If our vector is empty or the first item is blank
     if (triggersToMatch.size() == 0 || triggersToMatch[0].size() == 0) {
-        return true;
+        return NULL;
     }
+    // Initial values
+    double dr = 1000;
+    const trigger::TriggerObject* trigObj = NULL;
 
     // Load Trigger Objects
     edm::InputTag hltTrigInfoTag("hltTriggerSummaryAOD","","HLT");
@@ -382,7 +427,6 @@ bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const std::vector<
         std::cout << "No valid hltTriggerSummaryAOD." << std::endl;
         return false;
     }
-
     // Loop over triggers, filter the objects from these triggers, and then try to match
     for(std::vector<std::string>::const_iterator trigs = triggersToMatch.begin(); trigs != triggersToMatch.end(); ++trigs) {
         // Grab objects that pass our filter
@@ -394,17 +438,38 @@ bool MakeZEffTree::isTriggerMatched(const edm::Event& iEvent, const std::vector<
             const trigger::TriggerObjectCollection& trigObjColl(trigEvent->getObjects());
             // Get the objects that from the trigger keys
             for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt!=trigKeys.end(); ++keyIt){
-                const trigger::TriggerObject& obj = trigObjColl[*keyIt];
-                // Do Delta R matching
-                const double dr = deltaR(eta, phi, obj.eta(), obj.phi());
-                if (dr < delRMatchingCut_){
-                    return true;
+                const trigger::TriggerObject* newTrigObj = &trigObjColl[*keyIt];
+                const double newdr = deltaR(eta, phi, newTrigObj->eta(), newTrigObj->phi());
+                // Do Delta R matching, and assign a new object if we have a
+                // better match
+                if (newdr < delRMatchingCut_ && newdr < dr){
+                    dr = newdr;
+                    trigObj = newTrigObj;
                 }
             }
         }
     }
+    return trigObj;
+}
 
-    return false;
+double MakeZEffTree::getR9(const edm::Event& iEvent, const double eta, const double phi){
+    // Initial Values
+    double r9 = -100;
+    double dr = 1000;
+
+    // Get the photons
+    edm::Handle< reco::PhotonCollection > NTprobes;
+    iEvent.getByLabel("photons", NTprobes);
+    // Find the closest match in Delta R
+    for(reco::PhotonCollection::const_iterator pit = NTprobes->begin(); pit != NTprobes->end(); pit++) {    
+        const double newdr = deltaR(eta, phi, pit->p4().eta(), pit->p4().phi());
+        if (newdr < delRMatchingCut_ && newdr < dr){
+            dr = newdr;
+            r9 = pit->r9();
+        }
+    }
+
+    return r9;
 }
 
 //define this as a plug-in

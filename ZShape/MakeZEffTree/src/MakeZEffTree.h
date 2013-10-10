@@ -31,6 +31,9 @@
 // HF Superclusters
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"  // reco::HFEMClusterShape
 
+// Trigger Objects
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"  // trigger namespace, TriggerEvent
+
 /* 
  * Class Declaration
  */
@@ -55,8 +58,10 @@ class MakeZEffTree : public edm::EDAnalyzer {
         bool ProbePassProbeOverlap(const reco::CandidateBaseRef& probe, const edm::Handle<reco::CandidateView>& passprobes);
         bool MatchObjects(const reco::Candidate *hltObj, const reco::CandidateBaseRef& tagObj);
         double getPhiStar( const double eta0, const double phi0, const double eta1, const double phi1);
-        const reco::HFEMClusterShape* getHFEMClusterShape( const edm::Event& iEvent, const double eta, const double phi );
-        bool isTriggerMatched(const edm::Event& iEvent, const std::vector<std::string>& triggersToMatch, const double eta, const double phi);
+        const reco::HFEMClusterShape* getHFEMClusterShape(const edm::Event& iEvent, const double eta, const double phi);
+        const trigger::TriggerObject* getTriggerObject(const edm::Event& iEvent, const std::vector<std::string>& triggersToMatch, const double eta, const double phi);
+        double getR9(const edm::Event& iEvent, const double eta, const double phi);
+
         // ----------member data ---------------------------
         ZEffTree *m_ze;
         edm::InputTag tnpProducer_;
