@@ -1,6 +1,7 @@
 #include "../BackgroundLibrary/BackgroundFunctions.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
+#include "../ZSmearer/ZSmearer.h"  // smearEvent()
 
 #include <string>
 #include <sstream>
@@ -247,9 +248,15 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     ZEffTree* zes;
     zes = new ZEffTree(ZSFile, false);
 
+    const bool doSmearing = true;
+    TRandom3* trand = new TRandom3(123456);
+
     bool run1 = true;
     while (run1){
         zes->Entries();
+        if (doSmearing) {
+            smearEvent(trand, &zes->reco);
+        }
         const double PU = zes->reco.nverts;
         const double MZ = zes->reco.mz;
         if (  // Right number of PU, MZ
@@ -417,7 +424,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 }
             }
             // In numerator?
-            if (ze->reco.isSelected(probeNumber,probeWP)){
+            if (ze->reco.isSelected(probeNumber, probeWP)){
                 postPass = true;
             }
             // Base Cuts, and Post Cuts which are a strict subset
@@ -468,11 +475,13 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGandSigFunc->SetParName(3, "delta");
     postBGandSigFunc->SetParName(4, "Signal Amplitude");
     postBGandSigFunc->FixParameter(0, var0);
-    postBGandSigFunc->FixParameter(1, var1);
+    //postBGandSigFunc->FixParameter(1, var1);
     postBGandSigFunc->FixParameter(2, var2);
     postBGandSigFunc->FixParameter(3, var3);
+    postBGandSigFunc->SetParameter(1, var1);
+    postBGandSigFunc->SetParLimits(1, 0., 2 * var1);
     postBGandSigFunc->SetParameter(4, 1.);
-    postBGandSigFunc->SetParLimits(4, 0.,10000);
+    postBGandSigFunc->SetParLimits(4, 0., 250000);
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
@@ -521,11 +530,13 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGandSigFunc->SetParName(3, "delta");
     preBGandSigFunc->SetParName(4, "Signal Amplitude");
     preBGandSigFunc->FixParameter(0, var0);
-    preBGandSigFunc->FixParameter(1, var1);
+    //preBGandSigFunc->FixParameter(1, var1);
     preBGandSigFunc->FixParameter(2, var2);
     preBGandSigFunc->FixParameter(3, var3);
+    preBGandSigFunc->SetParameter(1, var1);
+    preBGandSigFunc->SetParLimits(1, 0., 2 * var1);
     preBGandSigFunc->SetParameter(4, 1.);
-    preBGandSigFunc->SetParLimits(4, 0.,10000);
+    preBGandSigFunc->SetParLimits(4, 0., 250000);
 
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 
