@@ -69,6 +69,7 @@ process.theHLTGsf.hltTag = cms.untracked.VInputTag(
 # Alex's tuple maker
 process.tuplemaker = cms.EDAnalyzer('MakeZEffTree',
         quiet = cms.untracked.bool(True),
+        MatchTriggerObjects = cms.untracked.bool(False),
         TagProbeProducer = cms.untracked.InputTag('tpMapWP80AndHFSC'),
         CutNames = cms.untracked.vstring(
             "Supercluster-Eta", "GsfTrack-EtaDet", "Iso-Pt",

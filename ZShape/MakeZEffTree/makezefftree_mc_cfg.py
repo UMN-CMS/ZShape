@@ -64,6 +64,7 @@ process.theHLTGsf.hltTag = cms.untracked.VInputTag(
 ## GSF-GSF
 process.tuplemakerGSFGSF = cms.EDAnalyzer('MakeZEffTree',
         quiet = cms.untracked.bool(True),
+        MatchTriggerObjects = cms.untracked.bool(False),
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfElectrons'), # No trigger matching
         CutNames = cms.untracked.vstring( 
             "Supercluster-Eta", "GsfTrack-EtaDet", "Iso-Pt",

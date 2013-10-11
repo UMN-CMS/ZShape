@@ -15,9 +15,13 @@ process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 
 process.GlobalTag.globaltag = 'GR_R_44_V11::All'
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('file:/uscms_data/d3/gude/DoubleElectron_HFpositionFix_313.root')
+        fileNames = cms.untracked.vstring('file:/hdfs/cms/user/klapoetke/DoubleElectron_HFpositionFix/DoubleElectron_HFpositionFix_276.root')
+        )
+
+process.maxEvents = cms.untracked.PSet(
+        input = cms.untracked.int32(-1)
         )
 
 # Select only events in the same data range as our analysis
@@ -27,12 +31,12 @@ process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(
         GoodLumis1
         )
 
-process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(-1)
-        )
+# Set the output root file to include the unix epoch as an int
+from time import time
+outfile  = "test_data_" + str(int(time())) + ".root"
 
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string('ele17_test.root')
+        fileName = cms.string(outfile)
         )
 
 process.options = cms.untracked.PSet(
@@ -45,32 +49,35 @@ process.TimerService = cms.Service("TimerService",
         useCPUtime = cms.untracked.bool(True)
         )
 
-#Ele27 Trigger Filter
-process.hltPickTriggered = cms.EDFilter('TriggerResultsFilter',
-        hltResults              = cms.InputTag('TriggerResults','','HLT'),   # HLT results   - set to empty to ignore HLT
-        l1tResults              = cms.InputTag(''),                 # L1 GT results - set to empty to ignore L1
-        l1tIgnoreMask           = cms.bool(False),                  # use L1 mask
-        l1techIgnorePrescales   = cms.bool(False),                  # read L1 technical bits from PSB#9, bypassing the prescales
-        daqPartitions           = cms.uint32(0x01),                 # used by the definition of the L1 mask
-        throw                   = cms.bool(False),                  # throw exception on unknown trigger names
-        triggerConditions       = cms.vstring('HLT_Ele17_CaloIdL_CaloIsoVL_v*') 
-        )
-
 process.load("ZShape.ZFromData.ZFromDataElectrons_cfi")
 
-# Used to set which triggers cound for HLT-GSF
+#Ele27 Trigger Filter
+process.hltECALFilter = cms.EDFilter('TriggerResultsFilter',
+        hltResults            = cms.InputTag('TriggerResults','','HLT'),   # HLT results - set to empty to ignore HLT
+        l1tResults            = cms.InputTag(''),                 # L1 GT results - set to empty to ignore L1
+        l1tIgnoreMask         = cms.bool(False),                  # use L1 mask
+        l1techIgnorePrescales = cms.bool(False),                  # read L1 technical bits from PSB#9, bypassing the prescales
+        daqPartitions         = cms.uint32(0x01),                 # used by the definition of the L1 mask
+        throw                 = cms.bool(False),                  # throw exception on unknown trigger names
+        triggerConditions     = cms.vstring('HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v*')
+        )
+
+# Used to set which triggers cound for TID
 process.theHLTGsf.hltTag = cms.untracked.VInputTag(
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_v1","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_v2","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_v3","","HLT"),
-        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_v4","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v3","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","","HLT"),
+        cms.InputTag("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","","HLT")
         ) #remove the ones you don't want
 
-# Alex's tuple maker
-process.tuplemaker = cms.EDAnalyzer('MakeZEffTree',
+# Alex's tuple makers
+## GSF-GSF
+process.tuplemakerGSFGSF = cms.EDAnalyzer('MakeZEffTree',
         quiet = cms.untracked.bool(True),
-        MatchTriggerObjects = cms.untracked.bool(False),
-        TagProbeProducer = cms.untracked.InputTag('tpMapWP80AndHFSC'),
+        MatchTriggerObjects = cms.untracked.bool(True),
+        TagProbeProducer = cms.untracked.InputTag('tpMapGsfElectrons'), # No trigger matching
         CutNames = cms.untracked.vstring(
             "Supercluster-Eta", "GsfTrack-EtaDet", "Iso-Pt",
             "ElectronId-EtaDet", "HLT-EtaDet", "HFElectronId-EtaDet",
@@ -101,9 +108,10 @@ process.tuplemaker = cms.EDAnalyzer('MakeZEffTree',
             ),
         )
 
-# Bryna's simple HFSC Filter to prevent PAT from running if the event is
-# uninteresting
-process.HFSCfilter = cms.EDFilter('HFSuperClusterFilterVL')
+## GSF-HF
+process.tuplemakerGSFHF = process.tuplemakerGSFGSF.clone(
+        TagProbeProducer = cms.untracked.InputTag('tpMapGsfAndHFSC')
+        )
 
 ## Jets for Isolation Cuts
 process.load('RecoJets.JetProducers.kt4PFJets_cfi') # For isolation calculation
@@ -119,11 +127,11 @@ process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 
 # Run
 process.p1 = cms.Path(
-        process.hltPickTriggered
-        * process.HFSCfilter
-        * process.kt6PFJets
+        process.kt6PFJets
+        * process.hltECALFilter
+        #* process.hltHFFilter
         * process.patElectronIDs
-        * process.hfRecoEcalCandidate
         * process.lepton_cands
-        * process.tuplemaker
+        * process.tuplemakerGSFGSF
+        #* process.tuplemakerGSFHF
         )
