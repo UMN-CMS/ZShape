@@ -1,7 +1,7 @@
 #include "../BackgroundLibrary/BackgroundFunctions.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
-#include "../FitterLibrary/FitterLibrary.h"
+#include "../FitterLibrary/FitterLibrary.h"  // getBinEdges, EffFromCounting, EffFromSignal, PrintEffs, EffBin, Efficiencies
 
 #include <string>
 #include <sstream>
@@ -112,7 +112,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                     probeX = probeXCutPt;
                 }
                 // Now we make sure exactly one e passes the tag region, and one the probe region requirements
-                if ( effbin.minX <= eX1 && eX1 <= effbin.maxX && probeX <= eX1){
+                if (effbin.minX <= eX1 && eX1 <= effbin.maxX && probeX <= eX1) {
                     probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
                 }
                 if ( probeMatch && tagX <= eX0 ){
@@ -244,7 +244,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 }
             }
             // In numerator?
-            if (ze->reco.isSelected(probeNumber,probeWP)){
+            if (ze->reco.isSelected(probeNumber, probeWP)){
                 postPass = true;
             }
             // Base Cuts, and Post Cuts which are a strict subset

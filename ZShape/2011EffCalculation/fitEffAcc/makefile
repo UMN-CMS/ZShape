@@ -24,11 +24,14 @@ fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o Z
 	BackgroundFunctions.o \
 	ElectronLocation.o \
 	ZSmearer.o \
+	FitterLibrary.o \
 	${ROOT_ALL}
 
+# All .o files rely on the .cc files
 %.o:%.cc
 	${CCC} ${ROOT_INCLUDES} $< -o $@
 
+# All .o files rely on the .h files
 %.o:%.h
 	${CCC} ${ROOT_INCLUDES} $< -o $@
 
