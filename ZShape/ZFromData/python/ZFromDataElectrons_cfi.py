@@ -46,7 +46,7 @@ hfRecoEcalCandidateTight.intercept2DSlope = 0.475
 #  SC --> GsfElectron --> isolation --> id --> Trigger
 #############################################################
 
-ELECTRON_ET_CUT_MIN = 15.0
+ELECTRON_ET_CUT_MIN = 5.0
 HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
 RECO_NAME = "RECO"
 #RECO_NAME = "reRECO"
@@ -94,7 +94,7 @@ theHFSuperClusters = cms.EDFilter("CandViewSelector",
 theSuperClusters = cms.EDFilter("CandViewSelector",
     #src = cms.InputTag("superClusterCands"),
     src = cms.InputTag("allSuperClusters"),
-    cut = cms.string('et  > 20.0 && abs(eta)<2.9 && !(1.4442< abs(eta) <1.566)'),
+    cut = cms.string('et  > ' + str(ELECTRON_ET_CUT_MIN) + ' && abs(eta)<2.9 && !(1.4442< abs(eta) <1.566)'),
     filter = cms.bool(True) #LOOK UP WHAT THIS DOES
 )
 
