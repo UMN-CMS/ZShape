@@ -3,7 +3,6 @@
 
 #include <TH1.h>  // TH1D
 #include <vector>  // std::vector
-//#include <string.h>  // std::string
 #include "../ElectronLocation/ElectronLocation.h"  // electronLocation
 
 struct EffBin{

@@ -3,6 +3,7 @@
 #include <sstream>  // std::stringstream
 #include <iostream>  // std::cout, std::endl
 #include <iomanip>   // std::setw
+#include <math.h>  // sqrt
 
 void getBinEdges(const double minX, const double maxX, const electronLocation probeLoc, std::vector<double>* vec){
     const double z_min = 80.;

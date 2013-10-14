@@ -8,13 +8,14 @@ CCC=${CC} -c
 
 all: fitEffAcc_trigger.exe fitEffAcc.exe
 
-fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o FitterLibrary.o
+fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o FitterLibrary.o ZSmearer.o
 	${CC} -o fitEffAcc_trigger.exe \
 	fitEffAcc_trigger.o \
 	ZEffTree.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
 	FitterLibrary.o \
+	ZSmearer.o \
 	${ROOT_ALL}
 
 fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o ZSmearer.o
