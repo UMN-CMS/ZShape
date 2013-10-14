@@ -8,12 +8,13 @@ CCC=${CC} -c
 
 all: fitEffAcc_trigger.exe fitEffAcc.exe
 
-fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o
+fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o FitterLibrary.o
 	${CC} -o fitEffAcc_trigger.exe \
 	fitEffAcc_trigger.o \
 	ZEffTree.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
+	FitterLibrary.o \
 	${ROOT_ALL}
 
 fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o ZSmearer.o
@@ -28,6 +29,9 @@ fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o Z
 %.o:%.cc
 	${CCC} ${ROOT_INCLUDES} $< -o $@
 
+%.o:%.h
+	${CCC} ${ROOT_INCLUDES} $< -o $@
+
 ZEffTree.o: ../../MakeZEffTree/src/ZEffTree.h ../../MakeZEffTree/src/ZEffTree.cc
 	${CCC} ../../MakeZEffTree/src/ZEffTree.cc ${ROOT_INCLUDES}
 
@@ -40,5 +44,8 @@ ElectronLocation.o: ../ElectronLocation/ElectronLocation.h ../ElectronLocation/E
 ZSmearer.o: ../ZSmearer/ZSmearer.h ../ZSmearer/ZSmearer.cc
 	${CCC} ../ZSmearer/ZSmearer.cc ${ROOT_INCLUDES}
 
+FitterLibrary.o: ../FitterLibrary/FitterLibrary.h ../FitterLibrary/FitterLibrary.cc
+	${CCC} ../FitterLibrary/FitterLibrary.cc ${ROOT_INCLUDES}
+
 clean:
-	rm -f ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe fitEffAcc_trigger.o fitEffAcc.o ZSmearer.o
+	rm -f ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe fitEffAcc_trigger.o fitEffAcc.o ZSmearer.o FitterLibrary.o
