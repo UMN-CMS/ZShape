@@ -1,5 +1,7 @@
 #include "ElectronLocation.h"
 
+#include <math.h>  // fabs
+
 bool inAcceptance(const electronLocation loc, const double eta){
     const double feta = fabs(eta);
     switch (loc){
@@ -102,6 +104,57 @@ std::string electronLocationToString(const electronLocation loc){
             return "HFp";
         case HFm:
             return "HFm";
+        case ALL:
+            return "ALL";
+        default:
+            return "";
     }
     return "Invalid Location";
+}
+
+electronLocation electronLocationToString(const std::string& instr){
+    if (instr.compare("ET") == 0){
+        return ET;
+    }
+    if (instr.compare("EB") == 0){
+        return EB;
+    }
+    if (instr.compare("EBp") == 0){
+        return EBp;
+    }
+    if (instr.compare("EBm") == 0){
+        return EBm;
+    }
+    if (instr.compare("EE") == 0){
+        return EE;
+    }
+    if (instr.compare("EEp") == 0){
+        return EEp;
+    }
+    if (instr.compare("EEm") == 0){
+        return EEm;
+    }
+    if (instr.compare("NT") == 0){
+        return NT;
+    }
+    if (instr.compare("NTp") == 0){
+        return NTp;
+    }
+    if (instr.compare("NTm") == 0){
+        return NTm;
+    }
+    if (instr.compare("HF") == 0){
+        return HF;
+    }
+    if (instr.compare("HFp") == 0){
+        return HFp;
+    }
+    if (instr.compare("HFm") == 0){
+        return HFm;
+    }
+    if (instr.compare("ALL") == 0){
+        return ALL;
+    }
+    // All at least does not cut out events
+    return ALL;
 }

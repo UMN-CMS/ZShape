@@ -436,22 +436,8 @@ int main(int argc, char* argv[]){
         inStream.str(argv[5]);
         inStream >> probeL;
         inStream.clear();
-        std::map<std::string, electronLocation> conv;
-        conv["EB"] = EB;
-        conv["EBp"] = EBp;
-        conv["EBm"] = EBm;
-        conv["EE"] = EE;
-        conv["EEp"] = EEp;
-        conv["EEm"] = EEm;
-        conv["NT"] = NT;
-        conv["NTp"] = NTp;
-        conv["NTm"] = NTm;
-        conv["HF"] = HF;
-        conv["HFp"] = HFp;
-        conv["HFm"] = HFm;
-        conv["ET"] = ET;
-        electronLocation tagLoc = conv[tagL];
-        electronLocation probeLoc = conv[probeL];
+        electronLocation tagLoc = electronLocationToString(tagL);
+        electronLocation probeLoc = electronLocationToString(probeL);
 
         EffBin effbin;
         inStream.str(argv[6]);
