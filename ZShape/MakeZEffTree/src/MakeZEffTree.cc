@@ -465,7 +465,7 @@ double MakeZEffTree::getR9(const edm::Event& iEvent, const double eta, const dou
         const double newdr = deltaR(eta, phi, pit->p4().eta(), pit->p4().phi());
         if (newdr < delRMatchingCut_ && newdr < dr){
             dr = newdr;
-            r9 = pit->r9();
+            r9 = pit->maxEnergyXtal() / pit->e3x3(); // HLT uses Seed/3x3, the R9 in Photons is 3x3/Whole SC
         }
     }
 
