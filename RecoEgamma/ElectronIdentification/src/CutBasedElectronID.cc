@@ -526,7 +526,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron , c
         e.getByLabel(edm::InputTag("kt6PFJets","rho"),rhoH);
 
         const long double Pi = 3.1415926535897932384626433832795028841968;
-        rhoCorrectidn = *rhoH * Pi * 0.3 * 0.3;
+        rhoCorrection = *rhoH * Pi * 0.3 * 0.3;
     }
 
     // .....................................................................................
@@ -543,65 +543,72 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron , c
             cut = cuts_.getParameter<std::vector<double> >("endcap");
         // check isolations: if only isolation passes result = 2
         // Cout all of Alex's cuts to test
-        /*
-           std::cout << "NEW EVENT STARTING" << std::endl;
-           std::cout << "\thOverE < cut[0]: " << hOverE << " < " << cut[0] << std::endl;
-           std::cout << "\tsigmaee < cut[1]: " << sigmaee << " < " << cut[1] << std::endl;
-           std::cout << "\tfabs(deltaPhiIn) < cut[2]: " << fabs(deltaPhiIn) << " < " << cut[2] << std::endl;
-           std::cout << "\tfabs(deltaEtaIn) < cut[3]: " << fabs(deltaEtaIn) << " < " << cut[3] << std::endl;
-           std::cout << "\te25Maxoe55 > cut[4] && e15oe55 > cut[5]: " << e25Maxoe55 << " > " << cut[4] << " && " << e15oe55 << " > " << cut[5] << std::endl;
-           std::cout << "\ttkIso < cut[6]: " << tkIso << " < " << cut[6] << std::endl;
-           std::cout << "\tecalIso < cut[7]: " << ecalIso << " < " << cut[7] << std::endl;
-           std::cout << "\thcalIso < cut[8]: " << hcalIso << " < " << cut[8] << std::endl;
-           std::cout << "\thcalIso1 < cut[9]: " << hcalIso1 << " < " << cut[9] << std::endl;
-           std::cout << "\thcalIso2 < cut[10]: " << hcalIso2 << " < " << cut[10] << std::endl;
-           std::cout << "\ttkIso/electron->p4().Pt() < cut[11]: " << tkIso/electron->p4().Pt() << " < " << cut[11] << std::endl;
-           std::cout << "\tecalIso/electron->p4().Pt() < cut[12]: " << ecalIso/electron->p4().Pt() << " < " << cut[12] << std::endl;
-           std::cout << "\thcalIso/electron->p4().Pt() < cut[13]: " << hcalIso/electron->p4().Pt() << " < " << cut[13] << std::endl;
-           std::cout << "\ttkIso + ecalIso + hcalIso - rhoCorrection < cut[14]: " << tkIso + ecalIso + hcalIso - rhoCorrection << " < " << cut[14] << std::endl;
-           std::cout << "\t(tkIso + ecalIso + hcalIso - rhoCorrection) / electron->p4().Pt() < cut[15]: " << (tkIso + ecalIso + hcalIso - rhoCorrection) / electron->p4().Pt() << " < " << cut[15] << std::endl;
-           std::cout << "\ttkIso+ecalIsoPed+hcalIso - rhoCorrection < cut[16]: " << tkIso+ecalIsoPed+hcalIso - rhoCorrection  << " < " << cut[16] << std::endl;
-           std::cout << "\t(tkIso+ecalIsoPed+hcalIso - rhoCorrection) / electron->p4().Pt() < cut[17]: " << (tkIso+ecalIsoPed+hcalIso - rhoCorrection) / electron->p4().Pt()  << " < " << cut[17] << std::endl;
-           std::cout << "\tsigmaee >= cut[18]: " << sigmaee << " >= " << cut[18] << std::endl;
-           std::cout << "\teOverP > cut[19] &&  eOverP < cut[20]: " << eOverP << " > " << cut[19] << " &&" << eOverP << " < " << cut[20] << std::endl;
-           std::cout << "\tip > cut[21]: " << ip << " > " << cut[21] << std::endl;
-           std::cout << "\tmishits =< cut[22]: " << mishits << " =< " << cut[22] << std::endl;
-           std::cout << "\t0 < cut[23]: " << 0 << " < " << cut[23] << std::endl;
-           std::cout << "\tConversion: 99. < cut[24]: " << 99. << " < " << cut[24] << std::endl;
-           std::cout << "\tConversion: 99. < cut[25]: " << 99. << " < " << cut[25] << std::endl;
-           */
+        //std::cout << "NEW EVENT STARTING" << std::endl;
+        //std::cout << "\thOverE < cut[0]: " << hOverE << " < " << cut[0] << std::endl;
+        //std::cout << "\tsigmaee < cut[1]: " << sigmaee << " < " << cut[1] << std::endl;
+        //std::cout << "\tfabs(deltaPhiIn) < cut[2]: " << fabs(deltaPhiIn) << " < " << cut[2] << std::endl;
+        //std::cout << "\tfabs(deltaEtaIn) < cut[3]: " << fabs(deltaEtaIn) << " < " << cut[3] << std::endl;
+        //std::cout << "\te25Maxoe55 > cut[4] && e15oe55 > cut[5]: " << e25Maxoe55 << " > " << cut[4] << " && " << e15oe55 << " > " << cut[5] << std::endl;
+        //std::cout << "\ttkIso < cut[6]: " << tkIso << " < " << cut[6] << std::endl;
+        //std::cout << "\tecalIso < cut[7]: " << ecalIso << " < " << cut[7] << std::endl;
+        //std::cout << "\thcalIso < cut[8]: " << hcalIso << " < " << cut[8] << std::endl;
+        //std::cout << "\thcalIso1 < cut[9]: " << hcalIso1 << " < " << cut[9] << std::endl;
+        //std::cout << "\thcalIso2 < cut[10]: " << hcalIso2 << " < " << cut[10] << std::endl;
+        //std::cout << "\ttkIso/electron->p4().Pt() < cut[11]: " << tkIso/electron->p4().Pt() << " < " << cut[11] << std::endl;
+        //std::cout << "\tecalIso/electron->p4().Pt() < cut[12]: " << ecalIso/electron->p4().Pt() << " < " << cut[12] << std::endl;
+        //std::cout << "\thcalIso/electron->p4().Pt() < cut[13]: " << hcalIso/electron->p4().Pt() << " < " << cut[13] << std::endl;
+        //std::cout << "\ttkIso + ecalIso + hcalIso - rhoCorrection < cut[14]: " << tkIso + ecalIso + hcalIso - rhoCorrection << " < " << cut[14] << std::endl;
+        //std::cout << "\t(tkIso + ecalIso + hcalIso - rhoCorrection) / electron->p4().Pt() < cut[15]: " << (tkIso + ecalIso + hcalIso - rhoCorrection) / electron->p4().Pt() << " < " << cut[15] << std::endl;
+        //std::cout << "\ttkIso+ecalIsoPed+hcalIso - rhoCorrection < cut[16]: " << tkIso+ecalIsoPed+hcalIso - rhoCorrection  << " < " << cut[16] << std::endl;
+        //std::cout << "\t(tkIso+ecalIsoPed+hcalIso - rhoCorrection) / electron->p4().Pt() < cut[17]: " << (tkIso+ecalIsoPed+hcalIso - rhoCorrection) / electron->p4().Pt()  << " < " << cut[17] << std::endl;
+        //std::cout << "\tsigmaee >= cut[18]: " << sigmaee << " >= " << cut[18] << std::endl;
+        //std::cout << "\teOverP > cut[19] && eOverP < cut[20]: " << eOverP << " > " << cut[19] << " && " << eOverP << " < " << cut[20] << std::endl;
+        //std::cout << "\tip > cut[21]: " << ip << " > " << cut[21] << std::endl;
+        //std::cout << "\tmishits =< cut[22]: " << mishits << " =< " << cut[22] << std::endl;
+        //std::cout << "\t0 < cut[23]: " << 0 << " < " << cut[23] << std::endl;
+        //std::cout << "\tConversion: 99. < cut[24]: " << 99. << " < " << cut[24] << std::endl;
+        //std::cout << "\tConversion: 99. < cut[25]: " << 99. << " < " << cut[25] << std::endl;
         // END Alex's cuts
 
         if (quality_ == "highenergy") {
-            if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||
+            if (    (tkIso > cut[6] || hcalIso2 > cut[11]) ||
                     (electron->isEB() && ((ecalIso + hcalIso1) > cut[7]+cut[8]*scEt)) ||
                     (electron->isEE() && (scEt >= 50.) && ((ecalIso + hcalIso1) > cut[7]+cut[8]*(scEt-50))) ||
-                    (electron->isEE() && (scEt < 50.) && ((ecalIso + hcalIso1) > cut[9]+cut[10]*(scEt-50))))
+                    (electron->isEE() && (scEt < 50.) && ((ecalIso + hcalIso1) > cut[9]+cut[10]*(scEt-50)))
+               ) {
                 result = 0;
-            else
+            } else {
                 result = 2;
+            }
         } else { // ALEX: need to add in modified calculations as detailed here: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID2011
-            if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) ||
+            if (    (tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) ||
                     (tkIso/electron->p4().Pt() > cut[11]) || (ecalIso/electron->p4().Pt() > cut[12]) || (hcalIso/electron->p4().Pt() > cut[13]) ||
                     ((tkIso+ecalIso+hcalIso - rhoCorrection)>cut[14]) || (((tkIso+ecalIso+hcalIso - rhoCorrection)/ electron->p4().Pt()) > cut[15]) ||
-                    ((tkIso+ecalIsoPed+hcalIso - rhoCorrection)>cut[16]) || (((tkIso+ecalIsoPed+hcalIso - rhoCorrection)/ electron->p4().Pt()) > cut[17])  )
+                    ((tkIso+ecalIsoPed+hcalIso - rhoCorrection)>cut[16]) || (((tkIso+ecalIsoPed+hcalIso - rhoCorrection)/ electron->p4().Pt()) > cut[17])  
+               ) {
                 result = 0.;
-            else
+            } else {
                 result = 2.;
+            }
         }
 
-        if ((hOverE < cut[0]) && (sigmaee < cut[1]) && (fabs(deltaPhiIn) < cut[2]) &&
+        if (    (hOverE < cut[0]) && (sigmaee < cut[1]) && (fabs(deltaPhiIn) < cut[2]) &&
                 (fabs(deltaEtaIn) < cut[3]) && (e25Maxoe55 > cut[4] && e15oe55 > cut[5]) &&
-                (sigmaee >= cut[18]) && (eOverP > cut[19] &&  eOverP < cut[20]) )
-        { result = result + 1 ; }
+                (sigmaee >= cut[18]) && (eOverP > cut[19] &&  eOverP < cut[20]) 
+           ) { 
+            result = result + 1; 
+        }
 
-        if (ip > cut[21])
+        if (ip > cut[21]) {
             return result;
-        if (mishits > cut[22]) // expected missing hits
+        }
+        if (mishits > cut[22]) { // expected missing hits
             return result;
+        }
         // positive cut[23] means to demand a valid hit in 1st layer PXB
-        if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
+        if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel())) { 
             return result;
+        }
 
         // cut[24]: Dist cut[25]: dcot
         float dist = fabs(electron->convDist());
