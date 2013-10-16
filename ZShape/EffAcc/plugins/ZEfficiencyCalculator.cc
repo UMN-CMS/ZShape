@@ -102,9 +102,20 @@ ZEfficiencyCalculator::ZEfficiencyCalculator(const edm::ParameterSet& iConfig) :
 
   createAlternateZDefs(targetZDefSys_,targetEffSys_);
 
+  /*
+//position scaling
+  std::vector<double> defaultposition; defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0);
+
+m_systematics.posScale_=iConfig.getUntrackedParameter<std::vector<double> >("PostionScalings",defaultposition);
+ 
+positionVariation_ = iConfig.getUntrackedParameter<std::string>("positionSyst",""); 
+
+
+*/
   // setting up other systematic variations
   systematicVariation_ = iConfig.getUntrackedParameter<std::string>("systematic","");
   m_systematics.m_scale = iConfig.getUntrackedParameter<double>("systematicScale",0.01);
+  
   if (systematicVariation_=="ECALScale+") {
     m_systematics.energyScale=new zshape::EnergyScale(1,0,false,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing positive ECAL energy scale variation";
@@ -130,6 +141,19 @@ ZEfficiencyCalculator::ZEfficiencyCalculator(const edm::ParameterSet& iConfig) :
     edm::LogInfo("ZShape") << "Performing negative HF energy scale variation";
     std::cout << "Performing negative HF energy scale variation\n";
   } else m_systematics.energyScale=0;
+
+  /*
+//position scaling
+
+if (positionVariation_=="PositionSystematics"){
+m_systematics.positionScale=new zshape::PositionScale(m_systematics.posScale_[0],m_systematics.posScale_[1],m_systematics.posScale_[2],m_systematics.posScale_[3],m_systematics.posScale_[4],m_systematics.posScale_[5]);
+}else 
+
+
+
+
+  */
+
 
 }
 
@@ -210,6 +234,7 @@ void ZEfficiencyCalculator::analyze(const edm::Event& iEvent, const edm::EventSe
     stdCuts_.acceptanceCuts(evt_.elec(ne));
     stdCuts_.ptCuts(evt_.elec(ne));    
     stdCuts_.gen_ptCuts(evt_.elecTreeLevel(ne),evt_.elec(ne)); // ordering might not be perfect, but should be ok for most purposes!
+
     stdCuts_.dummyCuts(evt_.elec(ne));
   }
 
@@ -489,6 +514,12 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
     evt_.elec(ik).cutResult("FULL-ISO",(eid&0x2));
     evt_.elec(ik).cutResult("FULL-CONV",(eid&0x4));
     evt_.elec(ik).cutResult("FULL-WP",(eid&0x7)==7);
+
+
+    evt_.elec(ik).setWeight("FULL-ID",(eid&0x1)?(1.0):(0.0));    
+    evt_.elec(ik).setWeight("FULL-ISO",(eid&0x2)?(1.0):(0.0));
+    evt_.elec(ik).setWeight("FULL-CONV",(eid&0x4)?(1.0):(0.0));
+    evt_.elec(ik).setWeight("FULL-WP",((eid&0x7)==7)?(1.0):(0.0));
   }
   
   //calculate pi
@@ -529,6 +560,13 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
     m_systematics.energyScale->rescale(evt_.elec(1));
   }
 
+  /*
+//position scale
+if (m_systematics.positionScale!=0){
+m_systematics.positionScale->PositionRescale(evt_.elec(0),m_systematics.positionScale);
+m_systematics.positionScale->PositionRescale(evt_.elec(1),m_systematics.positionScale);
+}
+  */
 
   evt_.elec(0).detEta_=evt_.elec(0).detectorEta(evt_.vtx_);
   evt_.elec(1).detEta_=evt_.elec(1).detectorEta(evt_.vtx_);

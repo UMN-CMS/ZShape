@@ -1,0 +1,35 @@
+##Path                                                      2E32  7E31  3E31  1E31  1E30  L1_Seed
+#DoubleElectron
+HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v1                    1     1     1     1     1     L1_TripleEG5
+# ECAL-HF Trigger
+HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1                    1     1     1     1     1     L1_SingleEG12
+# ECAL-ECAL Trigger
+HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1       1     1     1     1     1     L1_SingleEG12
+HLT_Ele17_CaloIdL_CaloIsoVL_v1                              150   50    20    7     1     L1_SingleEG12
+HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v1  1     1     1     1     1     L1_SingleEG12
+HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v1                         1     1     1     1     1     L1_SingleEG20
+HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v1                         3     3     3     3     1     L1_SingleEG5
+HLT_Ele8_CaloIdL_CaloIsoVL_v1                               50    50    50    50    5     L1_SingleEG5
+HLT_Ele8_CaloIdL_TrkIdVL_v1                                 30    30    30    30    3     L1_SingleEG5
+HLT_Ele8_v1                                                 100   100   100   100   10    L1_SingleEG5
+HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v1        4     1     1     1     1     L1_SingleEG12
+HLT_TripleEle10_CaloIdL_TrkIdVL_v1                          1     1     1     1     1     L1_TripleEG5
+#Photon
+HLT_DoublePhoton33_v1                                       1     1     1     1     1     L1_SingleEG20
+HLT_DoublePhoton5_IsoVL_CEP_v1                              1     1     1     1     1     L1_DoubleEG2_FwdVeto
+HLT_Photon125_NoSpikeFilter_v1                              75    25    10    3     1     L1_SingleEG20
+HLT_Photon20_R9Id_Photon18_R9Id_v1                          0     0     0     0     0     L1_SingleEG12
+HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v1        1     1     1     1     1     L1_SingleEG12
+HLT_Photon26_CaloIdL_IsoVL_Photon18_v1                      1     1     1     1     1     L1_SingleEG12
+HLT_Photon26_IsoVL_Photon18_IsoVL_v1                        1     1     1     1     1     L1_SingleEG12
+HLT_Photon26_IsoVL_Photon18_v1                              1     1     1     1     1     L1_SingleEG12
+HLT_Photon26_Photon18_v1                                    30    10    4     1     1     L1_SingleEG12
+HLT_Photon30_CaloIdVL_IsoL_v1                               100   30    12    4     1     L1_SingleEG15
+HLT_Photon30_CaloIdVL_v1                                    150   50    20    7     1     L1_SingleEG15
+HLT_Photon32_CaloIdL_Photon26_CaloIdL_v1                    1     1     1     1     1     L1_SingleEG20
+HLT_Photon75_CaloIdVL_IsoL_v1                               1     1     1     1     1     L1_SingleEG20
+HLT_Photon75_CaloIdVL_v1                                    6     2     1     1     1     L1_SingleEG20
+#SingleElectron
+HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1               1     1     1     1     1     L1_SingleEG15
+HLT_Ele45_CaloIdVT_TrkIdT_v1                                1     1     1     1     1     L1_SingleEG20
+HLT_Ele90_NoSpikeFilter_v1                                  1     1     1     1     1     L1_SingleEG20

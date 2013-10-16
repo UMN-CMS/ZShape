@@ -11,7 +11,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(40000)
+    input = cms.untracked.int32(10000)
     )
 
 process.source = cms.Source("PoolSource",
@@ -23,9 +23,8 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo_10M_partBUILDINGTTEST.root')
 )
 
-process.f2s = cms.EDProducer("ZFullSim2Event"
-                             )
+
 import ZShape.EffAcc.FullSimSmearedElectronProducer_cfi
-import ZShape.EffAcc.ZEfficiencyKevin_cfi
+import ZShape.EffAcc.ZEfficiencyUnity_cfi
 
 

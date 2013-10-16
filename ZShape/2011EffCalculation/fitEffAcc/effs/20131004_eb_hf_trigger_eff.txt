@@ -1,0 +1,13 @@
+#efficiency name: HFTID
+#dimension: 1
+#XMin  XMax  EtaMin  EtaMax  PUMin  PUMax  NumParms  eff       systp     systm     den      phistar
+0      0.05  3.1     4.6     0      5      5         0.848964  0.850283  0.847645  1099.07  1
+0.05   0.1   3.1     4.6     0      5      5         0.821651  0.849701  0.793602  881.74   1
+0.1    0.2   3.1     4.6     0      5      5         0.703927  0.727959  0.679896  596.105  1
+0.2    1     3.1     4.6     0      5      5         0.92032   0.936206  0.904434  391.939  1
+0      0.05  3.1     4.6     5      102    5         0.819377  0.823575  0.815178  1598.55  1
+0.05   0.1   3.1     4.6     5      102    5         0.682443  0.702036  0.662849  976.84   1
+0.1    0.2   3.1     4.6     5      102    5         0.918154  0.930283  0.906025  636.962  1
+0.2    1     3.1     4.6     5      102    5         0.642076  0.666698  0.617453  689.648  1
+# Output directory:  /export/scratch/tmp/hf_trigger_eff_fits_n_aGj6
+# This sample required Ele27Trigger + WP80 + HFSC, and then required the HFTID

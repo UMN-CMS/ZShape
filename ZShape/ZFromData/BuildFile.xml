@@ -13,6 +13,3 @@
 <use   name="DataFormats/L1GlobalCaloTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="HLTrigger/JetMET"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -6,31 +6,38 @@ ROOT_ALL=`root-config --cflags --libs`
 CC=g++ -O2 -g
 CCC=${CC} -c
 
-all: fitEffAcc.exe fitEffAcc_trigger.exe
+all: fitEffAcc_trigger.exe fitEffAcc.exe
 
-fitEffAcc_trigger.exe: ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o
+fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o FitterLibrary.o ZSmearer.o
 	${CC} -o fitEffAcc_trigger.exe \
-	fitEffAcc_trigger.cc \
+	fitEffAcc_trigger.o \
 	ZEffTree.o \
-	BackgroundTable.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
+	FitterLibrary.o \
+	ZSmearer.o \
 	${ROOT_ALL}
 
-fitEffAcc.exe: ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o
+fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o ZSmearer.o
 	${CC} -o fitEffAcc.exe \
-	fitEffAcc.cc \
+	fitEffAcc.o \
 	ZEffTree.o \
-	BackgroundTable.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
+	ZSmearer.o \
+	FitterLibrary.o \
 	${ROOT_ALL}
+
+# All .o files rely on the .cc files
+%.o:%.cc
+	${CCC} ${ROOT_INCLUDES} $< -o $@
+
+# All .o files rely on the .h files
+%.o:%.h
+	${CCC} ${ROOT_INCLUDES} $< -o $@
 
 ZEffTree.o: ../../MakeZEffTree/src/ZEffTree.h ../../MakeZEffTree/src/ZEffTree.cc
 	${CCC} ../../MakeZEffTree/src/ZEffTree.cc ${ROOT_INCLUDES}
-
-BackgroundTable.o: ../BackgroundLibrary/BackgroundTable.h ../BackgroundLibrary/BackgroundTable.cc
-	${CCC} ../BackgroundLibrary/BackgroundTable.cc ${ROOT_INCLUDES}
 
 BackgroundFunctions.o: ../BackgroundLibrary/BackgroundFunctions.h ../BackgroundLibrary/BackgroundFunctions.cc
 	${CCC} ../BackgroundLibrary/BackgroundFunctions.cc ${ROOT_INCLUDES}
@@ -38,5 +45,11 @@ BackgroundFunctions.o: ../BackgroundLibrary/BackgroundFunctions.h ../BackgroundL
 ElectronLocation.o: ../ElectronLocation/ElectronLocation.h ../ElectronLocation/ElectronLocation.cc
 	${CCC} ../ElectronLocation/ElectronLocation.cc
 
+ZSmearer.o: ../ZSmearer/ZSmearer.h ../ZSmearer/ZSmearer.cc
+	${CCC} ../ZSmearer/ZSmearer.cc ${ROOT_INCLUDES}
+
+FitterLibrary.o: ../FitterLibrary/FitterLibrary.h ../FitterLibrary/FitterLibrary.cc
+	${CCC} ../FitterLibrary/FitterLibrary.cc ${ROOT_INCLUDES}
+
 clean:
-	rm -f ZEffTree.o BackgroundTable.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe
+	rm -f ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe fitEffAcc_trigger.o fitEffAcc.o ZSmearer.o FitterLibrary.o

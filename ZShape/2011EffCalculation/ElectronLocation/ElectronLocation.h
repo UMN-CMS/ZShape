@@ -1,7 +1,6 @@
-#ifndef ELECTRONLOCATION_H
-#define ELECTRONLOCATION_H
+#ifndef ZSHAPE_2011EFFCALCULATION_ELECTRONLOCATION_ELECTRONLOCATION_H_
+#define ZSHAPE_2011EFFCALCULATION_ELECTRONLOCATION_ELECTRONLOCATION_H_
 
-#include <math.h>
 #include <string>
 
 enum electronLocation{
@@ -17,11 +16,14 @@ enum electronLocation{
     NTm,
     HF,
     HFp,
-    HFm
+    HFm,
+    ALL,
 };
 
 bool inAcceptance(const electronLocation loc, const double eta);
 
 std::string electronLocationToString(const electronLocation loc);
 
-#endif
+electronLocation electronLocationToString(const std::string& instr);
+
+#endif // ZSHAPE_2011EFFCALCULATION_ELECTRONLOCATION_ELECTRONLOCATION_H_

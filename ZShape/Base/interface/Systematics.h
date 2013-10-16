@@ -15,6 +15,19 @@ namespace zshape {
     double m_scale;
   };
 
+  class PositionScale {
+  public:
+    PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFdx,double HFdy, double HFrot);
+    void PositionRescale(ZShapeElectron& electron,PositionScale& scale);
+    void PositionScalingHF(ZShapeElectron& electron, double dx, double dy, double drotate);
+    void PositionScalingEB(ZShapeElectron& electron, double dx, double dy, double drotate);
+    void PositionScalingEE(ZShapeElectron& electron, double dx, double dy, double drotate);
+  private:
+    double bdx_,bdy_,bdrot_;
+    double edx_,edy_,edrot_;
+    double hdx_,hdy_,hdrot_;
+  };
+
 }
 
 #endif // ZShape_Base_Systematics_h_included

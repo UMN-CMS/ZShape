@@ -64,6 +64,7 @@ process.theHLTGsf.hltTag = cms.untracked.VInputTag(
 ## GSF-GSF
 process.tuplemakerGSFGSF = cms.EDAnalyzer('MakeZEffTree',
         quiet = cms.untracked.bool(True),
+        MatchTriggerObjects = cms.untracked.bool(False),
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfElectrons'), # No trigger matching
         CutNames = cms.untracked.vstring( 
             "Supercluster-Eta", "GsfTrack-EtaDet", "Iso-Pt",
@@ -109,9 +110,6 @@ process.kt6PFJets = process.kt4PFJets.clone(
         Rho_EtaMax = cms.double(2.5),
         )
 
-# Smearing for MC
-import ZShape.EffAcc.FullSimSmearedElectronProducer_cfi
-
 ## Electron ID cuts
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
 process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
@@ -120,7 +118,7 @@ process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 process.p1 = cms.Path(
         process.kt6PFJets
         * process.patElectronIDs
-        * process.hfEMClusteringSequence
+        * process.hfEMClusteringSequence  # Needed in MC
         * process.lepton_cands
         #* process.tuplemakerGSFGSF
         * process.tuplemakerGSFHF

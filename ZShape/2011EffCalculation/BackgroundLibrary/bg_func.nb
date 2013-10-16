@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      7374,        177]
-NotebookOptionsPosition[      7023,        160]
-NotebookOutlinePosition[      7362,        175]
-CellTagsIndexPosition[      7319,        172]
+NotebookDataLength[      9769,        226]
+NotebookOptionsPosition[      9418,        209]
+NotebookOutlinePosition[      9757,        224]
+CellTagsIndexPosition[      9714,        221]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -51,17 +51,64 @@ Cell[BoxData[
   "\[IndentingNewLine]", 
   RowBox[{"Manipulate", "[", "\[IndentingNewLine]", 
    RowBox[{
-    RowBox[{"Plot", "[", "\[IndentingNewLine]", 
-     RowBox[{
-      RowBox[{"BackgroundFunction", "[", 
-       RowBox[{
-       "x", ",", "\[Alpha]", ",", "\[Beta]", ",", "\[Gamma]", ",", 
-        "\[Delta]"}], "]"}], ",", "\[IndentingNewLine]", " ", 
-      RowBox[{"{", 
-       RowBox[{"x", ",", "20", ",", " ", "200"}], "}"}], ",", 
-      "\[IndentingNewLine]", 
-      RowBox[{"Filling", "\[Rule]", "Axis"}]}], "\[IndentingNewLine]", "]"}], 
-    ",", " ", "\[IndentingNewLine]", 
+    RowBox[{"Row", "[", 
+     RowBox[{"{", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"LogPlot", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"BackgroundFunction", "[", 
+          RowBox[{
+          "x", ",", "\[Alpha]", ",", "10", ",", "\[Gamma]", ",", "\[Delta]"}],
+           "]"}], ",", "\[IndentingNewLine]", " ", 
+         RowBox[{"{", 
+          RowBox[{"x", ",", "0", ",", " ", "200"}], "}"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"Filling", "\[Rule]", "Bottom"}], ",", "\[IndentingNewLine]", 
+         RowBox[{"PlotPoints", "\[Rule]", "1000"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"MaxRecursion", "\[Rule]", "15"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"Axes", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"True", ",", "False"}], "}"}]}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"AxesLabel", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"GeV", ","}], "}"}]}], ",", "\[IndentingNewLine]", 
+         RowBox[{"ClippingStyle", "\[Rule]", "Red"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"PerformanceGoal", "\[Rule]", "\"\<Quality\>\""}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"ImageSize", "\[Rule]", "700"}]}], "\[IndentingNewLine]", 
+        "]"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"Plot", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"BackgroundFunction", "[", 
+          RowBox[{
+          "x", ",", "\[Alpha]", ",", "10", ",", "\[Gamma]", ",", "\[Delta]"}],
+           "]"}], ",", "\[IndentingNewLine]", " ", 
+         RowBox[{"{", 
+          RowBox[{"x", ",", "0", ",", " ", "200"}], "}"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"Filling", "\[Rule]", "Bottom"}], ",", "\[IndentingNewLine]", 
+         RowBox[{"PlotPoints", "\[Rule]", "1000"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"MaxRecursion", "\[Rule]", "15"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"Axes", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"True", ",", "False"}], "}"}]}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"AxesLabel", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"GeV", ","}], "}"}]}], ",", "\[IndentingNewLine]", 
+         RowBox[{"ClippingStyle", "\[Rule]", "Red"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"PerformanceGoal", "\[Rule]", "\"\<Quality\>\""}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"ImageSize", "\[Rule]", "700"}]}], "\[IndentingNewLine]", 
+        "]"}]}], "\[IndentingNewLine]", "}"}], "]"}], " ", ",", 
+    "\[IndentingNewLine]", 
     RowBox[{"{", 
      RowBox[{
       RowBox[{"{", 
@@ -71,14 +118,7 @@ Cell[BoxData[
     RowBox[{"{", 
      RowBox[{
       RowBox[{"{", 
-       RowBox[{"\[Beta]", ",", "100"}], "}"}], ",", "0", ",", "1000", ",", 
-      "10", ",", 
-      RowBox[{"Appearance", "\[Rule]", " ", "\"\<Labeled\>\""}]}], "}"}], ",",
-     "\[IndentingNewLine]", 
-    RowBox[{"{", 
-     RowBox[{
-      RowBox[{"{", 
-       RowBox[{"\[Gamma]", ",", "0.01"}], "}"}], ",", "0.0001", ",", ".3", 
+       RowBox[{"\[Gamma]", ",", "0.01"}], "}"}], ",", "0.0001", ",", "0.3", 
       ",", 
       RowBox[{"Appearance", "\[Rule]", " ", "\"\<Labeled\>\""}]}], "}"}], ",",
      "\[IndentingNewLine]", 
@@ -96,48 +136,63 @@ Cell[BoxData[
    3.5886135363005457`*^9}, 3.588613784608601*^9, {3.588614310008898*^9, 
    3.588614348460096*^9}, {3.588614453466704*^9, 3.588614453609748*^9}, {
    3.588614895504636*^9, 3.588614908305677*^9}, {3.588614990498704*^9, 
-   3.5886150005784492`*^9}}],
+   3.5886150005784492`*^9}, 3.588673837897202*^9, {3.588673892842087*^9, 
+   3.588674095146758*^9}, {3.588674170812887*^9, 3.5886742254066153`*^9}, {
+   3.58867425556784*^9, 3.588674278735133*^9}, {3.588674358930347*^9, 
+   3.588674388002265*^9}, {3.5886744475371428`*^9, 3.588674454386581*^9}, {
+   3.588674553430379*^9, 3.5886745831915703`*^9}, 3.588674615730749*^9, {
+   3.588674665303458*^9, 3.588674665619993*^9}, {3.588674715016253*^9, 
+   3.588674764313423*^9}, {3.5886748058817387`*^9, 3.588674892134083*^9}, {
+   3.5886787031428967`*^9, 3.588678745080299*^9}}],
 
 Cell[BoxData[
  TagBox[
   StyleBox[
-   DynamicModuleBox[{$CellContext`\[Alpha]$$ = 60, $CellContext`\[Beta]$$ = 
-    100, $CellContext`\[Gamma]$$ = 0.01, $CellContext`\[Delta]$$ = 
-    15.200000000000001`, Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
-    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
-    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{{
+   DynamicModuleBox[{$CellContext`\[Alpha]$$ = 94., $CellContext`\[Gamma]$$ = 
+    0.1475, $CellContext`\[Delta]$$ = 17.400000000000002`, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
        Hold[$CellContext`\[Alpha]$$], 60}, 40, 120}, {{
-       Hold[$CellContext`\[Beta]$$], 100}, 0, 1000, 10}, {{
        Hold[$CellContext`\[Gamma]$$], 0.01}, 0.0001, 0.3}, {{
        Hold[$CellContext`\[Delta]$$], 10}, 1, 80}}, Typeset`size$$ = {
-    360., {112., 115.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
-    Typeset`skipInitDone$$ = True, $CellContext`\[Alpha]$16694$$ = 
-    0, $CellContext`\[Beta]$16695$$ = 0, $CellContext`\[Gamma]$16696$$ = 
-    0, $CellContext`\[Delta]$16697$$ = 0}, 
+    1400., {209., 213.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
+    Typeset`skipInitDone$$ = True, $CellContext`\[Alpha]$34603$$ = 
+    0, $CellContext`\[Gamma]$34604$$ = 0, $CellContext`\[Delta]$34605$$ = 0}, 
+    
     DynamicBox[Manipulate`ManipulateBoxes[
      1, StandardForm, 
-      "Variables" :> {$CellContext`\[Alpha]$$ = 60, $CellContext`\[Beta]$$ = 
-        100, $CellContext`\[Gamma]$$ = 0.01, $CellContext`\[Delta]$$ = 10}, 
-      "ControllerVariables" :> {
-        Hold[$CellContext`\[Alpha]$$, $CellContext`\[Alpha]$16694$$, 0], 
-        Hold[$CellContext`\[Beta]$$, $CellContext`\[Beta]$16695$$, 0], 
-        Hold[$CellContext`\[Gamma]$$, $CellContext`\[Gamma]$16696$$, 0], 
-        Hold[$CellContext`\[Delta]$$, $CellContext`\[Delta]$16697$$, 0]}, 
+      "Variables" :> {$CellContext`\[Alpha]$$ = 60, $CellContext`\[Gamma]$$ = 
+        0.01, $CellContext`\[Delta]$$ = 10}, "ControllerVariables" :> {
+        Hold[$CellContext`\[Alpha]$$, $CellContext`\[Alpha]$34603$$, 0], 
+        Hold[$CellContext`\[Gamma]$$, $CellContext`\[Gamma]$34604$$, 0], 
+        Hold[$CellContext`\[Delta]$$, $CellContext`\[Delta]$34605$$, 0]}, 
       "OtherVariables" :> {
        Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
         Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
         Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
-         Typeset`skipInitDone$$}, "Body" :> Plot[
-        $CellContext`BackgroundFunction[$CellContext`x, \
-$CellContext`\[Alpha]$$, $CellContext`\[Beta]$$, $CellContext`\[Gamma]$$, \
-$CellContext`\[Delta]$$], {$CellContext`x, 20, 200}, Filling -> Axis], 
-      "Specifications" :> {{{$CellContext`\[Alpha]$$, 60}, 40, 120, 
-         Appearance -> "Labeled"}, {{$CellContext`\[Beta]$$, 100}, 0, 1000, 
-         10, Appearance -> "Labeled"}, {{$CellContext`\[Gamma]$$, 0.01}, 
+         Typeset`skipInitDone$$}, "Body" :> Row[{
+         LogPlot[
+          $CellContext`BackgroundFunction[$CellContext`x, $CellContext`\
+\[Alpha]$$, 
+           10, $CellContext`\[Gamma]$$, $CellContext`\[Delta]$$], \
+{$CellContext`x, 0, 200}, Filling -> Bottom, PlotPoints -> 1000, MaxRecursion -> 
+          15, Axes -> {True, False}, AxesLabel -> {$CellContext`GeV, Null}, 
+          ClippingStyle -> Red, PerformanceGoal -> "Quality", ImageSize -> 
+          700], 
+         Plot[
+          $CellContext`BackgroundFunction[$CellContext`x, $CellContext`\
+\[Alpha]$$, 
+           10, $CellContext`\[Gamma]$$, $CellContext`\[Delta]$$], \
+{$CellContext`x, 0, 200}, Filling -> Bottom, PlotPoints -> 1000, MaxRecursion -> 
+          15, Axes -> {True, False}, AxesLabel -> {$CellContext`GeV, Null}, 
+          ClippingStyle -> Red, PerformanceGoal -> "Quality", ImageSize -> 
+          700]}], "Specifications" :> {{{$CellContext`\[Alpha]$$, 60}, 40, 
+         120, Appearance -> "Labeled"}, {{$CellContext`\[Gamma]$$, 0.01}, 
          0.0001, 0.3, Appearance -> 
          "Labeled"}, {{$CellContext`\[Delta]$$, 10}, 1, 80, Appearance -> 
          "Labeled"}}, "Options" :> {}, "DefaultOptions" :> {}],
-     ImageSizeCache->{405., {193., 198.}},
+     ImageSizeCache->{1445., {278., 283.}},
      SingleEvaluation->True],
     Deinitialization:>None,
     DynamicModuleValues:>{},
@@ -147,18 +202,12 @@ $CellContext`\[Delta]$$], {$CellContext`x, 20, 200}, Filling -> Axis],
    Deployed->True,
    StripOnInput->False],
   Manipulate`InterpretManipulate[1]]], "Output",
- CellChangeTimes->{
-  3.588612859369074*^9, 3.588612990362183*^9, 3.588613033051317*^9, 
-   3.5886130945675507`*^9, {3.588613134889607*^9, 3.5886131444046907`*^9}, {
-   3.588613252444799*^9, 3.58861325897757*^9}, 3.588613493952132*^9, 
-   3.588613537673534*^9, 3.58861367998907*^9, 3.588613784978827*^9, {
-   3.58861431062738*^9, 3.5886143577880383`*^9}, 3.58861445439532*^9, 
-   3.5886146236667023`*^9, {3.588614859520597*^9, 3.588614863712324*^9}, {
-   3.58861489776781*^9, 3.588614908847144*^9}, {3.588614990833601*^9, 
-   3.588615023887445*^9}}]
+ CellChangeTimes->{{3.588674732389529*^9, 3.588674764733289*^9}, {
+  3.588674825899415*^9, 3.5886748924045877`*^9}, {3.588678708215654*^9, 
+  3.5886787565899363`*^9}}]
 }, Open  ]]
 },
-WindowSize->{1600, 1175},
+WindowSize->{1590, 1171},
 WindowMargins->{{0, Automatic}, {Automatic, -25}},
 FrontEndVersion->"8.0 for Linux x86 (64-bit) (February 23, 2011)",
 StyleDefinitions->"Default.nb"
@@ -176,8 +225,8 @@ CellTagsIndex->{}
 Notebook[{
 Cell[557, 20, 882, 22, 50, "Input"],
 Cell[CellGroupData[{
-Cell[1464, 46, 2285, 52, 240, "Input"],
-Cell[3752, 100, 3255, 57, 408, "Output"]
+Cell[1464, 46, 4737, 99, 620, "Input"],
+Cell[6204, 147, 3198, 59, 578, "Output"]
 }, Open  ]]
 }
 ]

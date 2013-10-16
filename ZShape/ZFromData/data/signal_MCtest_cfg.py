@@ -250,6 +250,13 @@ cms.PSet(
             ))
 )
 
+## Jets for Isolation Cuts
+process.load('RecoJets.JetProducers.kt4PFJets_cfi') # For isolation calculation
+process.kt6PFJets = process.kt4PFJets.clone(
+        rParam = 0.6,
+        doRhoFastjet = True,
+        Rho_EtaMax = cms.double(2.5),
+        )
 ## Electron ID cuts
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
 process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
@@ -257,4 +264,4 @@ process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 ##process.p1 = cms.Path(process.patElectronIDs+process.hfRecoEcalCandidateMC+process.lepton_cands+process.ZFromData)
 process.load("RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff")
 
-process.p1 = cms.Path(process.patElectronIDs+process.hfEMClusters+process.hfRecoEcalCandidateMC+process.lepton_cands+process.ZFromData)	 
+process.p1 = cms.Path(process.kt6PFJets+process.patElectronIDs+process.hfEMClusters+process.hfRecoEcalCandidateMC+process.lepton_cands+process.ZFromData)	 
