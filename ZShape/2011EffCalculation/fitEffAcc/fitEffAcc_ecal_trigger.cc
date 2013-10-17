@@ -52,11 +52,8 @@ TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const E
     return tf1;
 }
 
-int fitDistributions(const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const EffBin effbin, const bool usePhiStar=false){
+int fitDistributions(const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const EffBin effbin){
     // Some commont variables
-    const double tagXCutPt = 20.;
-    const double probeXCutPt = 20.;
-
     // Prepare the histogram to put the signal in
     std::vector<double> xbins;
     getBinEdges(effbin.minMZ, effbin.maxMZ, probeLoc, &xbins);
@@ -68,15 +65,15 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         return 1;
     }
     double* xbins_ar = &xbins[0];
-    TH1D* mcPreHisto = new TH1D("mcPreHisto", "signal", nbins, xbins_ar);
-    TH1D* mcPostHisto = new TH1D("mcPostHisto", "signal", nbins, xbins_ar);
+    TH1D* signalPreHisto = new TH1D("signalPreHisto", "signal", nbins, xbins_ar);
+    TH1D* signalPostHisto = new TH1D("signalPostHisto", "signal", nbins, xbins_ar);
 
     // Open signal file and make histograms
     TFile ZSFile(signalFile.c_str(), "READ");
     ZEffTree* zes;
     zes = new ZEffTree(ZSFile, false);
 
-    const bool doSmearing = false;
+    const bool doSmearing = true;
     TRandom3* trand = new TRandom3(123456);
 
     bool run1 = true;
@@ -90,12 +87,8 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         if (  // Right number of PU, MZ
                 effbin.minPU <= PU && PU <= effbin.maxPU
                 && effbin.minMZ <= MZ && MZ <= effbin.maxMZ
-                && 20. <= zes->reco.pt[0] && 20. <= zes->reco.pt[1]
            ){
             /* We set try either electron as the "probe", since this is MC either can be the "tag" */
-            double tagX;
-            double probeX;
-
             for (int i=0; i < 2; ++i){
                 bool probeMatch = false;
                 bool tagMatch = false;
@@ -106,38 +99,22 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 } else {
                     j=0;
                 }
-                double eX0;
-                double eX1;
-                if (usePhiStar){
-                    eX0 = zes->reco.phistar;
-                    tagX = -1;
-                    eX1 = zes->reco.phistar;
-                    probeX = -1;
-                } else {
-                    eX0 = zes->reco.pt[i];
-                    tagX = tagXCutPt;
-                    eX1 = zes->reco.pt[j];
-                    probeX = probeXCutPt;
-                }
+                const double eX0 = zes->reco.pt[i];
+                const double eX1 = zes->reco.pt[j];
                 // Now we make sure exactly one e passes the tag region, and one the probe region requirements
-                if ( effbin.minX <= eX1 && eX1 <= effbin.maxX && probeX <= eX1
-                        && zes->reco.isSelected(i, "HLT-GSF") // Tag is HLT-GSF
-                        && zes->reco.isSelected(i, tagWP) // TagWP passes
-                        && zes->reco.isSelected(j, "Supercluster-Eta") 
-                        && zes->reco.isSelected(j, "GsfTrack-EtaDet")
-                        && zes->reco.isSelected(j, "WP90")
-                        && zes->reco.r9[j] < 0.98
-                   ){
+                if (effbin.minX <= eX1 && eX1 <= effbin.maxX) {
                     probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
-                }
-                if ( probeMatch && tagX <= eX0 ){
-                    tagMatch = inAcceptance(tagLoc, zes->reco.eta[i]);
+                    tagMatch = ( 
+                            inAcceptance(tagLoc, zes->reco.eta[i])
+                            && zes->reco.isSelected(i, "WP80")
+                            );
                 }
                 // Base Cuts, and Post Cuts which are a strict subset
-                if ( tagMatch && probeMatch ){
-                    mcPreHisto->Fill(MZ);
-                    if (zes->reco.isSelected(j, probeWP)){
-                        mcPostHisto->Fill(MZ); 
+                if (tagMatch && probeMatch){
+                    signalPreHisto->Fill(MZ);
+                    // Emulate the ECAL-ECAL Trigger
+                    if (zes->reco.r9[j] < 0.98 && zes->reco.isSelected(j, "WP90")) { // Uses hijacked WP90
+                        signalPostHisto->Fill(MZ); 
                     }
                 }
             }
@@ -187,19 +164,14 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         /* Select a reproducably random tag and probe */
         int tagNumber;
         int probeNumber;
-        if ( !inAcceptance(HF, ze->reco.eta[1])){ // EB HF case, no flop needed
-            if (flop) {
-                tagNumber = 0;
-                probeNumber = 1;
-                flop = false;
-            } else {
-                tagNumber = 1;
-                probeNumber = 0;
-                flop = true;
-            }
-        } else {
+        if (flop) {
             tagNumber = 0;
             probeNumber = 1;
+            flop = false;
+        } else {
+            tagNumber = 1;
+            probeNumber = 0;
+            flop = true;
         }
 
         ze->Entries();
@@ -212,57 +184,26 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
             const double eX0 = ze->reco.pt[tagNumber];
             const double eX1 = ze->reco.pt[probeNumber];
             /* Check cuts */
-            if (    effbin.minX <= eX1 && eX1 <= effbin.maxX // Probe in pt bin
-                    //&& ze->reco.isSelected(tagNumber, "HLT-GSF") // Tag is HLT-GSF
-                    && ze->reco.isSelected(tagNumber, tagWP) // TagWP passes
-               ){
+            if (    20. <= eX0 && 20. <= eX1  // Both Es pass min pt
+                    && effbin.minX <= eX1 && eX1 <= effbin.maxX // Probe in pt bin
+               ) {
                 /* Check the acceptance of the electrons */
-                const bool tagPass = inAcceptance(tagLoc, ze->reco.eta[tagNumber]);
-                const bool probePass = inAcceptance(probeLoc, ze->reco.eta[probeNumber]);
-                
-                if (tagPass && probePass){
-                    switch (probeLoc){
-                        case EB:
-                        case EBp:
-                        case EBm:
-                        case EE:
-                        case EEp:
-                        case EEm:
-                        case ET:
-                            if (
-                                    ze->reco.isSelected(probeNumber, "Supercluster-Eta") 
-                                    && ze->reco.isSelected(probeNumber, "GsfTrack-EtaDet")
-                                    && ze->reco.isSelected(probeNumber, "WP90")
-                                    && ze->reco.r9[probeNumber] < 0.98  // The trigger uses seed/3x3, and cuts on less than 0.98
-                               ){
-                                basePass = true;
-                            }
-                            break;
-                        case NT:
-                        case NTp:
-                        case NTm:
-                            // We only check acceptance, and it has already passed
-                            basePass = true;
-                            break;
-                        case HF:
-                        case HFp:
-                        case HFm:
-                            // We only check acceptance, and it has already passed
-                            basePass = true;
-                            break;
+                const bool tagPass = (
+                        inAcceptance(tagLoc, ze->reco.eta[tagNumber]) 
+                        && ze->reco.trigtag[tagNumber] 
+                        && ze->reco.trigprobe[tagNumber]
+                        && ze->reco.isSelected(tagNumber, "WP80")
+                        );
+                const bool probePass = (
+                        inAcceptance(probeLoc, ze->reco.eta[probeNumber])
+                        && ze->reco.trigprobe[probeNumber]
+                        );
+                // Base Cuts, and Post Cuts which are a strict subset
+                if ( probePass ){
+                    baseHisto->Fill(ze->reco.mz);
+                    if (ze->reco.isSelected(probeNumber, "WP90") && ze->reco.r9[probeNumber] < 0.98) { // Tag passed all cuts
+                        postcutHisto->Fill(ze->reco.mz);
                     }
-                }
-            }
-            // In numerator?
-            if (ze->reco.isSelected(probeNumber, probeWP)){
-                postPass = true;
-            }
-            // Base Cuts, and Post Cuts which are a strict subset
-            if ( basePass ){
-                baseHisto->Fill(ze->reco.mz);
-                if ( postPass ){ // Tag passed all cuts
-                    postcutHisto->Fill(ze->reco.mz);
-                    //std::cout << MZ << std::endl;
                 }
             }
         }
@@ -292,12 +233,12 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGFunc->SetParLimits(3, 3., 80.);
 
     postcutHisto->Fit(postBGFunc, "MWLQ", "", effbin.minMZ, 75);
- 
+
     double var0=postBGFunc->GetParameter(0);
     double var3=postBGFunc->GetParameter(3);
 
     // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc(mcPostHisto);
+    bg::BinnedBackgroundAndSignal bgfitfunc(signalPostHisto);
     TF1* postBGandSigFunc = new TF1("bgfitfunc", bgfitfunc, effbin.minMZ, effbin.maxMZ, bgfitfunc.nparams);
     postBGandSigFunc->SetParName(0, "alpha");
     postBGandSigFunc->SetParName(1, "beta");
@@ -305,15 +246,16 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGandSigFunc->SetParName(3, "delta");
     postBGandSigFunc->SetParName(4, "Signal Amplitude");
     postBGandSigFunc->FixParameter(0, var0);
-    postBGandSigFunc->FixParameter(1, 0);
     postBGandSigFunc->FixParameter(2, var2);
     postBGandSigFunc->FixParameter(3, var3);
-    //postBGandSigFunc->SetParameter(1, var1);
-    //postBGandSigFunc->SetParLimits(1, 0., var1*2);
+    postBGandSigFunc->SetParameter(1, var1);
+    postBGandSigFunc->SetParLimits(1, 0., 2 * var1);
     postBGandSigFunc->SetParameter(4, 1.);
     postBGandSigFunc->SetParLimits(4, 0., 250000);
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
+
+    const double signal_limit = postBGandSigFunc->GetParameter(4);
 
     // Draw histograms
     postcutHisto->Draw("E");
@@ -347,12 +289,12 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGFunc->SetParLimits(3, 3., 80.);
 
     baseHisto->Fit(preBGFunc, "MWLQ", "", effbin.minMZ, 75);
- 
+
     var0=preBGFunc->GetParameter(0);
     var3=preBGFunc->GetParameter(3);
 
     // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc2(mcPreHisto);
+    bg::BinnedBackgroundAndSignal bgfitfunc2(signalPreHisto);
     TF1* preBGandSigFunc = new TF1("bgfitfunc2", bgfitfunc2, effbin.minMZ, effbin.maxMZ, bgfitfunc2.nparams);
     preBGandSigFunc->SetParName(0, "alpha");
     preBGandSigFunc->SetParName(1, "beta");
@@ -360,13 +302,12 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGandSigFunc->SetParName(3, "delta");
     preBGandSigFunc->SetParName(4, "Signal Amplitude");
     preBGandSigFunc->FixParameter(0, var0);
-    preBGandSigFunc->FixParameter(1, 0);
     preBGandSigFunc->FixParameter(2, var2);
     preBGandSigFunc->FixParameter(3, var3);
-    //preBGandSigFunc->SetParameter(1, var1);
-    //preBGandSigFunc->SetParLimits(1, 0., var1*2);
+    preBGandSigFunc->SetParameter(1, var1);
+    preBGandSigFunc->SetParLimits(1, 0., 2 * var1);
     preBGandSigFunc->SetParameter(4, 1.);
-    preBGandSigFunc->SetParLimits(4, 0., 250000);
+    preBGandSigFunc->SetParLimits(4, signal_limit, 2 * signal_limit);
 
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 
@@ -399,6 +340,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
             );
 
     canvas->cd(0);
+
     const std::string name(outFile.begin(), outFile.end()-5);
     const std::string pngname = name + std::string(".png");
     canvas->Print(pngname.c_str(), "png");
@@ -409,18 +351,18 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     const double baseB = preBG->Integral(preBG->FindBin(effbin.minMZ), preBG->FindBin(effbin.maxMZ));
 
     const double denom = (baseD - baseB);
-    PrintEffs(probeLoc, effbin, sigEff.eff, countEff.eff, denom, usePhiStar);
+    PrintEffs(probeLoc, effbin, sigEff.eff, countEff.eff, denom, false);
 
     return 0;
 }
 
 int main(int argc, char* argv[]){
-    const int argcCorrect = 13;
+    const int argcCorrect = 12;
     if (argc < argcCorrect) {
-        std::cout<<"Not enough arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Not enough arguments. Use:\nfitEffAcc_ecal_trigger.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else if (argc > argcCorrect){
-        std::cout<<"Too many arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Too many arguments. Use:\nfitEffAcc_ecal_trigger.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else {
         // Read in arguments
@@ -472,11 +414,6 @@ int main(int argc, char* argv[]){
         inStream >> effbin.maxX;
         inStream.clear();
 
-        bool usePhiStar;
-        inStream.str(argv[12]);
-        inStream >> usePhiStar;
-        inStream.clear();
-
         // Map location to other features
         // Hard coded for now
         std::string tagWP;
@@ -523,7 +460,7 @@ int main(int argc, char* argv[]){
             case HF:
             case HFp:
             case HFm:
-                probeWP = "HFElectronId-EtaDet";
+                probeWP = "HFTID";
                 break;
         }
 
@@ -540,8 +477,7 @@ int main(int argc, char* argv[]){
                 probeWP,
                 tagLoc,
                 probeLoc,
-                effbin,
-                usePhiStar
+                effbin
                 );
     }
 }
