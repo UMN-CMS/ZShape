@@ -121,10 +121,12 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 }
                 // Now we make sure exactly one e passes the tag region, and one the probe region requirements
                 if ( effbin.minX <= eX1 && eX1 <= effbin.maxX && probeX <= eX1
-                     && zes->reco.isSelected(i, "HLT-GSF") // Tag is HLT-GSF
-                     && zes->reco.isSelected(i, tagWP) // TagWP passes
-                     && zes->reco.isSelected(j, "Supercluster-Eta") 
-                     && zes->reco.isSelected(j, "GsfTrack-EtaDet")
+                        && zes->reco.isSelected(i, "HLT-GSF") // Tag is HLT-GSF
+                        && zes->reco.isSelected(i, tagWP) // TagWP passes
+                        && zes->reco.isSelected(j, "Supercluster-Eta") 
+                        && zes->reco.isSelected(j, "GsfTrack-EtaDet")
+                        && zes->reco.isSelected(j, "WP90")
+                        && zes->reco.r9[j] < 0.98
                    ){
                     probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
                 }
@@ -137,7 +139,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                     if (zes->reco.isSelected(j, probeWP)){
                         mcPostHisto->Fill(MZ); 
                     }
-                    break;
                 }
             }
         }
@@ -208,31 +209,17 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
            ){
             bool basePass = false;
             bool postPass = false;
-            double eX0;
-            double eXCut0;
-            double eX1;
-            double eXCut1;
-            if (usePhiStar){
-                eX0 = ze->reco.phistar;
-                eXCut0 = -1;
-                eX1 = ze->reco.phistar;
-                eXCut1 = -1;
-            } else {
-                eX0 = ze->reco.pt[tagNumber];
-                eX1 = ze->reco.pt[probeNumber];
-                eXCut0 = tagXCutPt;
-                eXCut1 = probeXCutPt;
-            }
+            const double eX0 = ze->reco.pt[tagNumber];
+            const double eX1 = ze->reco.pt[probeNumber];
             /* Check cuts */
-            if (    eXCut0 <= eX0 && eXCut1 <= eX1  // Both Es pass min pt/phistar
-                    && effbin.minX <= eX1 && eX1 <= effbin.maxX // Probe in pt bin
-                    && ze->reco.isSelected(tagNumber, "HLT-GSF") // Tag is HLT-GSF
+            if (    effbin.minX <= eX1 && eX1 <= effbin.maxX // Probe in pt bin
+                    //&& ze->reco.isSelected(tagNumber, "HLT-GSF") // Tag is HLT-GSF
                     && ze->reco.isSelected(tagNumber, tagWP) // TagWP passes
                ){
                 /* Check the acceptance of the electrons */
                 const bool tagPass = inAcceptance(tagLoc, ze->reco.eta[tagNumber]);
                 const bool probePass = inAcceptance(probeLoc, ze->reco.eta[probeNumber]);
-
+                
                 if (tagPass && probePass){
                     switch (probeLoc){
                         case EB:
@@ -242,7 +229,12 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                         case EEp:
                         case EEm:
                         case ET:
-                            if (ze->reco.isSelected(probeNumber,"Supercluster-Eta") && ze->reco.isSelected(probeNumber,"GsfTrack-EtaDet")){
+                            if (
+                                    ze->reco.isSelected(probeNumber, "Supercluster-Eta") 
+                                    && ze->reco.isSelected(probeNumber, "GsfTrack-EtaDet")
+                                    && ze->reco.isSelected(probeNumber, "WP90")
+                                    && ze->reco.r9[probeNumber] < 0.98  // The trigger uses seed/3x3, and cuts on less than 0.98
+                               ){
                                 basePass = true;
                             }
                             break;
@@ -407,7 +399,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
             );
 
     canvas->cd(0);
-
     const std::string name(outFile.begin(), outFile.end()-5);
     const std::string pngname = name + std::string(".png");
     canvas->Print(pngname.c_str(), "png");
