@@ -33,7 +33,7 @@ process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(
 
 # Set the output root file to include the unix epoch as an int
 from time import time
-outfile  = "test_data_trig_match_" + str(int(time())) + ".root"
+outfile  = "test_data_" + str(int(time())) + ".root"
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string(outfile)
@@ -59,7 +59,11 @@ process.hltECALFilter = cms.EDFilter('TriggerResultsFilter',
         l1techIgnorePrescales = cms.bool(False),                  # read L1 technical bits from PSB#9, bypassing the prescales
         daqPartitions         = cms.uint32(0x01),                 # used by the definition of the L1 mask
         throw                 = cms.bool(False),                  # throw exception on unknown trigger names
-        triggerConditions     = cms.vstring('HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v*')
+        triggerConditions     = cms.vstring('HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*')
+        )
+
+process.hltHFFilter = process.hltECALFilter.clone(
+        triggerConditions       = cms.vstring('HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v*')
         )
 
 # Used to set which triggers cound for TID
@@ -76,7 +80,7 @@ process.theHLTGsf.hltTag = cms.untracked.VInputTag(
 ## GSF-GSF
 process.tuplemakerGSFGSF = cms.EDAnalyzer('MakeZEffTree',
         quiet = cms.untracked.bool(True),
-        MatchTriggerObjects = cms.untracked.bool(True),
+        MatchTriggerObjects = cms.untracked.bool(False),
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfElectrons'), # No trigger matching
         CutNames = cms.untracked.vstring(
             "Supercluster-Eta", "GsfTrack-EtaDet", "Iso-Pt",

@@ -15,7 +15,7 @@ process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 
 process.GlobalTag.globaltag = 'GR_R_44_V11::All'
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring('/store/mc/Summer11/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/3A5E80B6-14A8-E011-9E8C-0015178C49F8.root')
         )
@@ -26,8 +26,8 @@ process.maxEvents = cms.untracked.PSet(
 
 # Set the output root file to include the unix epoch as an int
 from time import time
-outfile  = "Test_" + str(int(time())) + ".root"
-#print outfile
+outfile  = "test_mc_" + str(int(time())) + ".root"
+
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string(outfile)
         )
@@ -66,7 +66,7 @@ process.tuplemakerGSFGSF = cms.EDAnalyzer('MakeZEffTree',
         quiet = cms.untracked.bool(True),
         MatchTriggerObjects = cms.untracked.bool(False),
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfElectrons'), # No trigger matching
-        CutNames = cms.untracked.vstring( 
+        CutNames = cms.untracked.vstring(
             "Supercluster-Eta", "GsfTrack-EtaDet", "Iso-Pt",
             "ElectronId-EtaDet", "HLT-EtaDet", "HFElectronId-EtaDet",
             "HFSuperCluster-Et", "HFTightElectronId-EtaDet", "EID95", "ISO95",
@@ -101,7 +101,6 @@ process.tuplemakerGSFHF = process.tuplemakerGSFGSF.clone(
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfAndHFSC'),
         )
 
-
 ## Jets for Isolation Cuts
 process.load('RecoJets.JetProducers.kt4PFJets_cfi') # For isolation calculation
 process.kt6PFJets = process.kt4PFJets.clone(
@@ -114,12 +113,12 @@ process.kt6PFJets = process.kt4PFJets.clone(
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
 process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 
-# Run 
+# Run
 process.p1 = cms.Path(
         process.kt6PFJets
         * process.patElectronIDs
         * process.hfEMClusteringSequence  # Needed in MC
         * process.lepton_cands
-        #* process.tuplemakerGSFGSF
-        * process.tuplemakerGSFHF
+        * process.tuplemakerGSFGSF
+        #* process.tuplemakerGSFHF
         )
