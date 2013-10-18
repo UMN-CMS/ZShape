@@ -19,12 +19,6 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:/local/cms/phedex/store/mc/Summer11/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/047818FC-A8A7-E011-BCFF-00151796C088.root")
 )
 process.load("Configuration.StandardSequences.Geometry_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-## global tags:
-#process.GlobalTag.globaltag = cms.string('GR_P_V16::All')
-#process.load("Configuration.StandardSequences.MagneticField_cff")
-#process.load('Configuration.StandardSequences.Services_cff')
-#process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo_10M_partBUILDINGTTEST.root')

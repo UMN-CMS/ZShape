@@ -102,16 +102,14 @@ ZEfficiencyCalculator::ZEfficiencyCalculator(const edm::ParameterSet& iConfig) :
 
   createAlternateZDefs(targetZDefSys_,targetEffSys_);
 
-  /*
+  
 //position scaling
-  std::vector<double> defaultposition; defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0);
-
-m_systematics.posScale_=iConfig.getUntrackedParameter<std::vector<double> >("PostionScalings",defaultposition);
- 
-positionVariation_ = iConfig.getUntrackedParameter<std::string>("positionSyst",""); 
-
-
-*/
+  std::vector<double> defaultposition; defaultposition.push_back(0); defaultposition.push_back(0); defaultposition.push_back(0); 
+  
+  m_systematics.posScale_=iConfig.getUntrackedParameter<std::vector<double> >("PositionScalings",defaultposition);
+  
+  positionVariation_ = iConfig.getUntrackedParameter<std::string>("positionSystematic",""); 
+    
   // setting up other systematic variations
   systematicVariation_ = iConfig.getUntrackedParameter<std::string>("systematic","");
   m_systematics.m_scale = iConfig.getUntrackedParameter<double>("systematicScale",0.01);
@@ -132,7 +130,7 @@ positionVariation_ = iConfig.getUntrackedParameter<std::string>("positionSyst","
     m_systematics.energyScale=new zshape::EnergyScale(-1,0,true,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing negative ECAL transparency scale variation";
     std::cout << "Performing negative ECAL energy scale variation\n";
-  } else if (systematicVariation_=="HFScale-") {
+  } else if (systematicVariation_=="HFScale+") {
     m_systematics.energyScale=new zshape::EnergyScale(0,1,false,m_systematics.m_scale);
     edm::LogInfo("ZShape") << "Performing positive HF energy scale variation";
     std::cout << "Performing positive HF energy scale variation\n";
@@ -142,17 +140,17 @@ positionVariation_ = iConfig.getUntrackedParameter<std::string>("positionSyst","
     std::cout << "Performing negative HF energy scale variation\n";
   } else m_systematics.energyScale=0;
 
-  /*
+  
 //position scaling
 
-if (positionVariation_=="PositionSystematics"){
-m_systematics.positionScale=new zshape::PositionScale(m_systematics.posScale_[0],m_systematics.posScale_[1],m_systematics.posScale_[2],m_systematics.posScale_[3],m_systematics.posScale_[4],m_systematics.posScale_[5]);
-}else 
+  if (positionVariation_=="HFpos+"){
+    m_systematics.positionScale=new zshape::PositionScale(m_systematics.posScale_[0],m_systematics.posScale_[1],m_systematics.posScale_[2]);
+  }else m_systematics.positionScale=0;
+  
+  
 
 
-
-
-  */
+  
 
 
 }
@@ -560,14 +558,14 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
     m_systematics.energyScale->rescale(evt_.elec(1));
   }
 
-  /*
+  
 //position scale
-if (m_systematics.positionScale!=0){
-m_systematics.positionScale->PositionRescale(evt_.elec(0),m_systematics.positionScale);
-m_systematics.positionScale->PositionRescale(evt_.elec(1),m_systematics.positionScale);
-}
-  */
-
+  if (m_systematics.positionScale!=0){
+    m_systematics.positionScale->PositionRescale(evt_.elec(0));//,*m_systematics.positionScale);
+    m_systematics.positionScale->PositionRescale(evt_.elec(1));//,*m_systematics.positionScale);
+  }
+  
+  
   evt_.elec(0).detEta_=evt_.elec(0).detectorEta(evt_.vtx_);
   evt_.elec(1).detEta_=evt_.elec(1).detectorEta(evt_.vtx_);
 

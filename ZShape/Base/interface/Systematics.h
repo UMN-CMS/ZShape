@@ -9,6 +9,7 @@ namespace zshape {
   public:
     EnergyScale(int ECAL, int HF, bool isEtaDep, double mscale); 
     void rescale(ZShapeElectron& electron);
+    void energyRescaler(ZShapeElectron& electron,double scale);
   private:
     int shiftECAL_,shiftHF_;
     bool isEtaDep_;
@@ -17,8 +18,8 @@ namespace zshape {
 
   class PositionScale {
   public:
-    PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFdx,double HFdy, double HFrot);
-    void PositionRescale(ZShapeElectron& electron,PositionScale& scale);
+    PositionScale(double HFdx,double HFdy, double HFrot);
+    void PositionRescale(ZShapeElectron& electron);//,PositionScale& scale);
     void PositionScalingHF(ZShapeElectron& electron, double dx, double dy, double drotate);
     void PositionScalingEB(ZShapeElectron& electron, double dx, double dy, double drotate);
     void PositionScalingEE(ZShapeElectron& electron, double dx, double dy, double drotate);

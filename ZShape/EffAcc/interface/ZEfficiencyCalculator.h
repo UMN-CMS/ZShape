@@ -120,6 +120,7 @@ private:
     zshape::PositionScale* positionScale;
     std::vector<double>posScale;
     double m_scale;
+    std::vector<double> posScale_;
   } m_systematics;
 
   // Z Plots:
