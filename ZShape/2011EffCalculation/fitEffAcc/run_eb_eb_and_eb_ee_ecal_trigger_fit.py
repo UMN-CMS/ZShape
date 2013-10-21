@@ -25,7 +25,7 @@ signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131016_gsf_gsf_mc_hij
 minMZ = 60
 maxMZ = 150
 # Tag Location
-tag="EB"
+tag="ET"
 formatstring = "%s/WP80_%s_%s_pu_%s_%s_pt_%s_%s.root"
 # Program
 exe = "./fitEffAcc_ecal_trigger.exe"
@@ -71,7 +71,7 @@ for probe in probeLocs:
             inputList.append(command)
 
 # Run jobs in parallel
-#NJOBS=1  # Force non-parallel
+NJOBS=1  # Force non-parallel
 if HasMP and NJOBS > 1:
     pool = mp.Pool(processes=NJOBS)
     pool.map(call, inputList)  # Note, no return values so we don't care about them
