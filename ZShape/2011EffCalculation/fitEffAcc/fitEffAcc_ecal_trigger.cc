@@ -245,13 +245,16 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGandSigFunc->SetParName(2, "gamma");
     postBGandSigFunc->SetParName(3, "delta");
     postBGandSigFunc->SetParName(4, "Signal Amplitude");
-    postBGandSigFunc->FixParameter(0, var0);
-    postBGandSigFunc->FixParameter(2, var2);
-    postBGandSigFunc->FixParameter(3, var3);
+    postBGandSigFunc->SetParameter(0, var0);
     postBGandSigFunc->SetParameter(1, var1);
-    postBGandSigFunc->SetParLimits(1, 0., 2 * var1);
-    postBGandSigFunc->SetParameter(4, 1.);
-    postBGandSigFunc->SetParLimits(4, 0., 250000);
+    postBGandSigFunc->SetParameter(2, var2);
+    postBGandSigFunc->SetParameter(3, var3);
+    postBGandSigFunc->SetParLimits(0, 40., 80.);
+    postBGandSigFunc->SetParLimits(1, 0., var1*100);
+    postBGandSigFunc->SetParLimits(2, .0, .2);
+    postBGandSigFunc->SetParLimits(3, 10., 50.);
+    postBGandSigFunc->SetParameter(4, 100.);
+    postBGandSigFunc->SetParLimits(4, 0., 25000);
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
@@ -301,13 +304,20 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGandSigFunc->SetParName(2, "gamma");
     preBGandSigFunc->SetParName(3, "delta");
     preBGandSigFunc->SetParName(4, "Signal Amplitude");
-    preBGandSigFunc->FixParameter(0, var0);
-    preBGandSigFunc->FixParameter(2, var2);
-    preBGandSigFunc->FixParameter(3, var3);
+    preBGandSigFunc->SetParameter(0, var0);
     preBGandSigFunc->SetParameter(1, var1);
-    preBGandSigFunc->SetParLimits(1, 0., 2 * var1);
-    preBGandSigFunc->SetParameter(4, 1.);
-    preBGandSigFunc->SetParLimits(4, signal_limit, 2 * signal_limit);
+    preBGandSigFunc->SetParameter(2, var2);
+    preBGandSigFunc->SetParameter(3, var3);
+    preBGandSigFunc->SetParLimits(0, 40., 80.);
+    preBGandSigFunc->SetParLimits(1, 0., var1*100);
+    preBGandSigFunc->SetParLimits(2, .0, .2);
+    preBGandSigFunc->SetParLimits(3, 10., 50.);
+    //preBGandSigFunc->SetParLimits(0, 0., var0*2);
+    //preBGandSigFunc->SetParLimits(1, 0., var1*2);
+    //preBGandSigFunc->SetParLimits(2, 0., var2*2);
+    //preBGandSigFunc->SetParLimits(3, 0., var3*2);
+    preBGandSigFunc->SetParameter(4, signal_limit * 1.3 );
+    preBGandSigFunc->SetParLimits(4, signal_limit, signal_limit * 4);
 
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 
@@ -450,7 +460,7 @@ int main(int argc, char* argv[]){
             case EEp:
             case EEm:
             case ET:
-                probeWP = "WP80";
+                probeWP = "ECAL-Trigger";
                 break;
             case NT: // No NT case?
             case NTp:
