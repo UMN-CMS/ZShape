@@ -38,7 +38,7 @@ print "# Output directory: ", outdir
 # Bins
 probeLocs = ("HFp", "HFm")
 PUs = ((0, 4), (5, 101))
-Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (50, 55), (55, 60), (60, 500))
+Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (50, 500))
 
 # List to store points to run over before passing to the multiprocessing pool
 inputList = []
