@@ -35,16 +35,12 @@ TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const E
     tf1->SetParName(3, "delta");
     //tf1->SetParName(4, "Signal Amplitude");
     // Set limits
-    tf1->SetParLimits(0, 0., 10000.);
     tf1->SetParLimits(0, 40., 120.);
-    tf1->SetParLimits(1, 0., 100000.);
     tf1->SetParLimits(1, 0.1, 1000000.);
     tf1->SetParLimits(2, 0.0001, 0.3);
     tf1->SetParLimits(3, 3., 80.);
     // Set starting value
-    tf1->SetParameter(0, 100.);
     tf1->SetParameter(0, 60.);
-    tf1->SetParameter(1, 1000.);
     tf1->SetParameter(1, 1000.);
     tf1->SetParameter(2, 0.01);
     tf1->SetParameter(3, 10.);
@@ -194,8 +190,8 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 
         ze->Entries();
         /* Check that the event passes our requirements */
-        if (    effbin.minPU <= ze->reco.nverts && ze->reco.nverts <= effbin.maxPU 
-                && effbin.minMZ <= ze->reco.mz && ze->reco.mz <= effbin.maxMZ 
+        if (    effbin.minPU <= ze->reco.nverts && ze->reco.nverts <= effbin.maxPU
+                && effbin.minMZ <= ze->reco.mz && ze->reco.mz <= effbin.maxMZ
            ){
             bool basePass = false;
             bool postPass = false;
@@ -289,7 +285,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGFunc->SetParLimits(3, 3., 80.);
 
     postcutHisto->Fit(postBGFunc, "MWLQ", "", effbin.minMZ, 75);
- 
+
     double var0=postBGFunc->GetParameter(0);
     double var3=postBGFunc->GetParameter(3);
 
@@ -301,14 +297,16 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBGandSigFunc->SetParName(2, "gamma");
     postBGandSigFunc->SetParName(3, "delta");
     postBGandSigFunc->SetParName(4, "Signal Amplitude");
-    postBGandSigFunc->FixParameter(0, var0);
-    //postBGandSigFunc->FixParameter(1, var1);
-    postBGandSigFunc->FixParameter(2, var2);
-    postBGandSigFunc->FixParameter(3, var3);
+    postBGandSigFunc->SetParameter(0, var0);
     postBGandSigFunc->SetParameter(1, var1);
-    postBGandSigFunc->SetParLimits(1, 0., 2 * var1);
-    postBGandSigFunc->SetParameter(4, 1.);
-    postBGandSigFunc->SetParLimits(4, 0., 250000);
+    postBGandSigFunc->SetParameter(2, var2);
+    postBGandSigFunc->SetParameter(3, var3);
+    postBGandSigFunc->SetParLimits(0, 40., 80.);
+    postBGandSigFunc->SetParLimits(1, 0., var1*100);
+    postBGandSigFunc->SetParLimits(2, .0, .2);
+    postBGandSigFunc->SetParLimits(3, 10., 50.);
+    postBGandSigFunc->SetParameter(4, 100.);
+    postBGandSigFunc->SetParLimits(4, 0., 25000);
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
@@ -344,7 +342,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGFunc->SetParLimits(3, 3., 80.);
 
     baseHisto->Fit(preBGFunc, "MWLQ", "", effbin.minMZ, 75);
- 
+
     var0=preBGFunc->GetParameter(0);
     var3=preBGFunc->GetParameter(3);
 
@@ -356,14 +354,20 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     preBGandSigFunc->SetParName(2, "gamma");
     preBGandSigFunc->SetParName(3, "delta");
     preBGandSigFunc->SetParName(4, "Signal Amplitude");
-    preBGandSigFunc->FixParameter(0, var0);
-    //preBGandSigFunc->FixParameter(1, var1);
-    preBGandSigFunc->FixParameter(2, var2);
-    preBGandSigFunc->FixParameter(3, var3);
+    preBGandSigFunc->SetParameter(0, var0);
     preBGandSigFunc->SetParameter(1, var1);
-    preBGandSigFunc->SetParLimits(1, 0., 2 * var1);
-    preBGandSigFunc->SetParameter(4, 1.);
-    preBGandSigFunc->SetParLimits(4, 0., 250000);
+    preBGandSigFunc->SetParameter(2, var2);
+    preBGandSigFunc->SetParameter(3, var3);
+    preBGandSigFunc->SetParLimits(0, 40., 80.);
+    preBGandSigFunc->SetParLimits(1, 0., var1*100);
+    preBGandSigFunc->SetParLimits(2, .0, .2);
+    preBGandSigFunc->SetParLimits(3, 10., 50.);
+    //preBGandSigFunc->SetParLimits(0, 0., var0*2);
+    //preBGandSigFunc->SetParLimits(1, 0., var1*2);
+    //preBGandSigFunc->SetParLimits(2, 0., var2*2);
+    //preBGandSigFunc->SetParLimits(3, 0., var3*2);
+    preBGandSigFunc->SetParameter(4, 100. );
+    preBGandSigFunc->SetParLimits(4, 0, 25000);
 
     baseHisto->Fit(preBGandSigFunc, "MWLQ");
 
@@ -388,7 +392,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
             preBGandSigFunc->GetParError(1),
             postBGandSigFunc->GetParError(1)
             );
-    Efficiencies sigEff = EffFromSignal( 
+    Efficiencies sigEff = EffFromSignal(
             preSignal,
             postSignal,
             preBGandSigFunc->GetParError(1),
@@ -415,10 +419,10 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 int main(int argc, char* argv[]){
     const int argcCorrect = 13;
     if (argc < argcCorrect) {
-        std::cout<<"Not enough arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Not enough arguments. Use:\nfitEffAcc_hf_trigger.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else if (argc > argcCorrect){
-        std::cout<<"Too many arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Too many arguments. Use:\nfitEffAcc_hf_trigger.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else {
         // Read in arguments

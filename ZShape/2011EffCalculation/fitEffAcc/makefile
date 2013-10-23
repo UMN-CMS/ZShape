@@ -6,11 +6,11 @@ ROOT_ALL=`root-config --cflags --libs`
 CC=g++ -O2 -g
 CCC=${CC} -c
 
-all: fitEffAcc_trigger.exe fitEffAcc.exe fitEffAcc_ecal_trigger.exe fitEffAcc_hfid.exe
+all: fitEffAcc_hf_trigger.exe fitEffAcc.exe fitEffAcc_ecal_trigger.exe fitEffAcc_hfid.exe
 
-fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o FitterLibrary.o ZSmearer.o
-	${CC} -o fitEffAcc_trigger.exe \
-	fitEffAcc_trigger.o \
+fitEffAcc_hf_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_hf_trigger.o FitterLibrary.o ZSmearer.o
+	${CC} -o fitEffAcc_hf_trigger.exe \
+	fitEffAcc_hf_trigger.o \
 	ZEffTree.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
@@ -72,4 +72,4 @@ FitterLibrary.o: ../FitterLibrary/FitterLibrary.h ../FitterLibrary/FitterLibrary
 	${CCC} ../FitterLibrary/FitterLibrary.cc ${ROOT_INCLUDES}
 
 clean:
-	rm -f ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_trigger.exe fitEffAcc_ecal_trigger.o fitEffAcc_trigger.o fitEffAcc.o ZSmearer.o FitterLibrary.o
+	rm -f ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.exe fitEffAcc_hf_trigger.exe fitEffAcc_ecal_trigger.o fitEffAcc_hf_trigger.o fitEffAcc.o ZSmearer.o FitterLibrary.o

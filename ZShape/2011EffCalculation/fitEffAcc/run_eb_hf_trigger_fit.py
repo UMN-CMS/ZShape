@@ -31,7 +31,7 @@ if usePhiStar:
 else:
     formatstring = "%s/Ele27_%s_%s_pu_%s_%s_pt_%s_%s.root"
 # Program
-exe = "./fitEffAcc_trigger.exe"
+exe = "./fitEffAcc_hf_trigger.exe"
 
 # Output dir
 outdir = mkdtemp(prefix="hf_trigger_eff_fits_")
