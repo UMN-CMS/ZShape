@@ -18,26 +18,27 @@ else:  # Only runs when try succeeds
 
 # Input Files
 ## MC VS MC
-dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131016_gsf_gsf_data_trigger_matched_hijacked_wp90/20131016_gsf_gsf_data_trigger_matched_hijacked_wp90_summed.root"
-signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131016_gsf_gsf_mc_hijacked_wp90/20131016_gsf_gsf_mc_hijacked_wp90_summed.root"
+dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131017_gsf_hfsc_data_hijacked_wp90/20131017_gsf_hfsc_data_hijacked_wp90_summed.root"
+signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131016_gsf_hfsc_mc_hijacked_wp90/20131016_gsf_hfsc_mc_hijacked_wp90_summed.root"
 
 # Mass_Z
 minMZ = 60
 maxMZ = 150
 # Tag Location
 tag="ET"
+# Use Phistar (Pt else)
 formatstring = "%s/WP80_%s_%s_pu_%s_%s_pt_%s_%s.root"
 # Program
-exe = "./fitEffAcc_ecal_trigger.exe"
+exe = "./fitEffAcc_hfid.exe"
 
 # Output dir
 outdir = mkdtemp(prefix="gsf_gsf_mc_run_as_data_")
 print "# Output directory: ", outdir
 
 # Bins
-probeLocs = ("EB", "EEp", "EEm")
+probeLocs = ("HFp", "HFm")
 PUs = ((0, 4), (5, 101))
-Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (50, 55), (55, 60), (60, 500))
+Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (50, 500))
 
 # List to store points to run over before passing to the multiprocessing pool
 inputList = []

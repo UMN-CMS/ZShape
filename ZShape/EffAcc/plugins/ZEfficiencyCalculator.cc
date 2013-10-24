@@ -552,6 +552,11 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
       return;
     }
 
+  // must do before energy scale/position scale systematics!
+  evt_.elec(0).detEta_=evt_.elec(0).detectorEta(evt_.vtx_);
+  evt_.elec(1).detEta_=evt_.elec(1).detectorEta(evt_.vtx_);
+
+
   // energy scale systematics
   if (m_systematics.energyScale!=0) {
     m_systematics.energyScale->rescale(evt_.elec(0));
@@ -560,14 +565,14 @@ void ZEfficiencyCalculator::fillEvent(const reco::GenParticleCollection* ZeePart
 
   
 //position scale
+
   if (m_systematics.positionScale!=0){
     m_systematics.positionScale->PositionRescale(evt_.elec(0));//,*m_systematics.positionScale);
     m_systematics.positionScale->PositionRescale(evt_.elec(1));//,*m_systematics.positionScale);
   }
   
   
-  evt_.elec(0).detEta_=evt_.elec(0).detectorEta(evt_.vtx_);
-  evt_.elec(1).detEta_=evt_.elec(1).detectorEta(evt_.vtx_);
+
 
   //
   // reorder electrons in pT
@@ -832,16 +837,20 @@ void ZEfficiencyCalculator::createAlternateZDefs(const std::string& targetZDefSy
   ZShapeZDef*      targetZDef;
   targetEff=0; targetZDef=0;
 
-  if (zdefs_.find(targetZDefSys)!=zdefs_.end())
-    targetZDef=zdefs_[targetZDefSys];
-  else
-    edm::LogError("ZShape") << "Unable to find Z-definition '" <<targetZDefSys << "' for systematic variations!";
-  
-  if (efficiencies_.find(targetEffSys)!=efficiencies_.end())
-    targetEff=efficiencies_[targetEffSys];
-  else
-    edm::LogError("ZShape") << "Unable to find efficiency '" <<targetEffSys << "' for systematic variations!";
-  
+  if (targetZDefSys.length()>1) {
+    if (zdefs_.find(targetZDefSys)!=zdefs_.end())
+      targetZDef=zdefs_[targetZDefSys];
+    else
+      edm::LogError("ZShape") << "Unable to find Z-definition '" <<targetZDefSys << "' for systematic variations!";
+  }
+
+  if (targetEffSys.length()>1) {
+    if (efficiencies_.find(targetEffSys)!=efficiencies_.end())
+      targetEff=efficiencies_[targetEffSys];
+    else
+      edm::LogError("ZShape") << "Unable to find efficiency '" <<targetEffSys << "' for systematic variations!";
+  }
+
   // checking that target ZDef and Eff are among the existing
   if (!targetZDef || !targetEff) return;
 

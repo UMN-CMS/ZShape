@@ -12,45 +12,36 @@ namespace zshape {
   // eta-dependent: 0.2% linear with eta along EB, 1.5% further along TK-covered-EE
 
   void EnergyScale::rescale(ZShapeElectron& electron) {
-    // EtaAcceptance accept;
+    EtaAcceptance accept;
     double scale=1.00000;
     double absEta=std::fabs(electron.detEta_);
-    
-    //    if (accept.isInAcceptance(electron,EtaAcceptance::zone_EB)) {
-    if(absEta<1.4442){
-      if(shiftECAL_==0){
-	return;
-      }else if (shiftECAL_>0){
-	scale=1.0+m_scale; 
-	energyRescaler(electron,scale);
-      }else if (shiftECAL_<0){
-	scale=1.0-m_scale;
-	energyRescaler(electron,scale);
-      }
-      //} else if (accept.isInAcceptance(electron,EtaAcceptance::zone_EE)) {
-    }else if((absEta>1.566) && (absEta<2.850)){
-      if(shiftECAL_==0){
-	return;
-      }else if (shiftECAL_>0){
-	scale=1.0+3*m_scale;
-	energyRescaler(electron,scale);
-      }else if (shiftECAL_<0){
-	scale=1.0-3*m_scale;
-	energyRescaler(electron,scale);
-      }
-      //} else if (accept.isInAcceptance(electron,EtaAcceptance::zone_HF)) {
-    }else if((absEta>3.10) && (absEta<4.60)){
-      if(shiftHF_==0){
-	return;
-      }else if (shiftHF_>0){
-	scale=1.0+m_scale; 
-	energyRescaler(electron,scale);
-      }
-      else if (shiftHF_<0){
-	scale=1.0-m_scale; 
-	energyRescaler(electron,scale);
-      }
+
+    bool gotshift=false;
+
+    if (accept.isInAcceptance(electron,EtaAcceptance::zone_EB)) {
+      gotshift=true;
+      if (shiftECAL_>0)         isEtaDep_   ?   (scale=1+0.002*absEta/1.50)   : (scale=1.0+m_scale);//restore by setting m_scale to 1
+      else if (shiftECAL_<0)    isEtaDep_   ?   (scale=1-0.002*absEta/1.50)   : (scale=1.0-m_scale);
+      else gotshift=false;
+    } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_EE)) {
+      gotshift=true;
+      if (shiftECAL_>0)         isEtaDep_   ?   (scale=1.002+0.015*(absEta-1.50))   : (scale=1.0+3*m_scale);
+      else if (shiftECAL_<0)    isEtaDep_   ?   (scale=0.998-0.015*(absEta-1.50))   : (scale=1.0-3*m_scale);
+      else gotshift=false;
+    } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_HF)) {
+      gotshift=true;
+      if (shiftHF_>0) scale=1.0+10*m_scale; 
+      else if (shiftHF_<0) scale=1.0-10*m_scale; 
+      else gotshift=false;
     }
+
+    if (gotshift) 
+      electron.p4_= math::PtEtaPhiMLorentzVector(electron.p4_.Pt()*scale,
+						 electron.p4_.eta(),
+						 electron.p4_.phi(),
+						 electron.p4_.M()*scale);
+
+
   }
   
 

@@ -6,7 +6,7 @@ ROOT_ALL=`root-config --cflags --libs`
 CC=g++ -O2 -g
 CCC=${CC} -c
 
-all: fitEffAcc_trigger.exe fitEffAcc.exe fitEffAcc_ecal_trigger.exe
+all: fitEffAcc_trigger.exe fitEffAcc.exe fitEffAcc_ecal_trigger.exe fitEffAcc_hfid.exe
 
 fitEffAcc_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_trigger.o FitterLibrary.o ZSmearer.o
 	${CC} -o fitEffAcc_trigger.exe \
@@ -28,14 +28,24 @@ fitEffAcc_ecal_trigger.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o 
 	ZSmearer.o \
 	${ROOT_ALL}
 
+fitEffAcc_hfid.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc_hfid.o ZSmearer.o
+	${CC} -o fitEffAcc_hfid.exe \
+	fitEffAcc_hfid.o \
+	ZEffTree.o \
+	BackgroundFunctions.o \
+	ElectronLocation.o \
+	FitterLibrary.o \
+	ZSmearer.o \
+	${ROOT_ALL}
+
 fitEffAcc.exe: ZEffTree.o ElectronLocation.o BackgroundFunctions.o fitEffAcc.o ZSmearer.o
 	${CC} -o fitEffAcc.exe \
 	fitEffAcc.o \
 	ZEffTree.o \
 	BackgroundFunctions.o \
 	ElectronLocation.o \
-	ZSmearer.o \
 	FitterLibrary.o \
+	ZSmearer.o \
 	${ROOT_ALL}
 
 # All .o files rely on the .cc files
