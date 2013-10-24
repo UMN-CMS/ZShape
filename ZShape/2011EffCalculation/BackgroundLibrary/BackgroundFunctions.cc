@@ -46,7 +46,7 @@ TH1D* bg::BinnedBackground::getBackgroundHisto(){
 
 double bg::BinnedBackground::operator() (const double *x, const double *par){
     // Update the historgram with the new values from the fitter
-    fillBackgroundHisto_(par);  
+    fillBackgroundHisto_(par);
     return backgroundHisto_->GetBinContent(backgroundHisto_->FindBin(x[0]));
 }
 
@@ -71,8 +71,56 @@ TH1D* bg::BinnedBackgroundAndSignal::getSignalHisto(){
 
 double bg::BinnedBackgroundAndSignal::operator() (const double *x, const double *par){
     // Update the historgram with the new values from the fitter
-    fillBackgroundHisto_(par);  
+    fillBackgroundHisto_(par);
     const double bg = backgroundHisto_->GetBinContent(backgroundHisto_->FindBin(x[0]));
     const double sg = par[4] * signalHisto_->GetBinContent(signalHisto_->FindBin(x[0]));
-    return  bg + sg;
+    return bg + sg;
+}
+
+/*
+ * BinnedBackgroundAndSmearedSignal Class
+ */
+
+bg::BinnedBackgroundAndSmearedSignal::BinnedBackgroundAndSmearedSignal(TH1D* signalHisto, std::vector<double>* masses){
+    // Set up the internal histograms
+    signalHisto_ = signalHisto;
+    signalMutableHisto_ = (TH1D*)signalHisto->Clone("mutablehisto");
+    backgroundHisto_ = (TH1D*)signalHisto->Clone("bghisto");
+    // Set up the internal function
+    internalFunc_ = new TF1("basefunc", bg::analyticBackground, minMZ_, maxMZ_, nparams_);
+    // Normalize the signal
+    const double area = signalHisto_->Integral();
+    signalHisto_->Scale(1. / area);
+    // Set up masses
+    masses_ = masses;
+}
+
+void bg::BinnedBackgroundAndSmearedSignal::smearSignalHisto_(const double mean, const double sigma) {
+    // Zero out the histogram
+    for (int i = 1; i <= signalMutableHisto_->GetNbinsX(); ++i){
+        signalMutableHisto_->SetBinContent(i, 0.);
+    }
+    // Start the randomizer with fixed seed for reproducibility
+    trand_ = new TRandom3(123456);
+    // Run over the vector and smear it
+    for (std::vector<double>::const_iterator i = masses_->begin(); i != masses_->end(); ++i) {
+        const double new_mz = (*i) * trand_->Gaus(mean, sigma);
+        signalMutableHisto_->Fill(new_mz);
+    }
+    // Normalize the signal
+    const double area = signalMutableHisto_->Integral();
+    signalMutableHisto_->Scale(1. / area);
+}
+
+TH1D* bg::BinnedBackgroundAndSmearedSignal::getSignalHisto(){
+    return signalMutableHisto_;
+}
+
+double bg::BinnedBackgroundAndSmearedSignal::operator() (const double *x, const double *par){
+    // Update the historgram with the new values from the fitter
+    fillBackgroundHisto_(par);
+    smearSignalHisto_(par[5], par[6]);
+    const double bg = backgroundHisto_->GetBinContent(backgroundHisto_->FindBin(x[0]));
+    const double sg = par[4] * signalMutableHisto_->GetBinContent(signalMutableHisto_->FindBin(x[0]));
+    return bg + sg;
 }
