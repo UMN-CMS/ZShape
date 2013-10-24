@@ -27,9 +27,9 @@ tag="ET"
 # Use Phistar (Pt else)
 usePhiStar = True
 if usePhiStar:
-    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_phistar_%s_%s.root"
+    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_phistar_%s_%s_%s_%s.root"
 else:
-    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_pt_%s_%s.root"
+    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_pt_%s_%s_%s_%s.root"
 # Program
 exe = "./fitEffAcc_hf_trigger.exe"
 
@@ -38,7 +38,13 @@ outdir = mkdtemp(prefix="hf_trigger_eff_fits_")
 print "# Output directory: ", outdir
 
 # Bins
-probeLocs = ("HF",)
+probeLocs = ("HFp", "HFm")
+# Maps locations to (mean, sigma)
+smearpar = {  
+        "ET": (0.98, 0.020),
+        "HFp": (1.05, 0.070),
+        "HFm": (1.05, 0.070)
+        }
 PUs = ((0, 4), (5, 101))
 #Xs = ((20, 25), (25, 30), (30, 35), (35, 40), (40, 45), (45, 50), (55, 500))
 #Xs = ((20, 25), (25, 27.5), (27.5, 30), (30, 32.5), (32.5, 35), (35, 37.5), (37.5, 40), (40, 45), (45, 50), (55, 500))
@@ -57,7 +63,9 @@ for probe in probeLocs:
                     minPU,
                     maxPU,
                     minX,
-                    maxX
+                    maxX,
+                    str(smearpar[probe][0]),
+                    str(smearpar[probe][1])
                     )
             command = (
                     exe,
@@ -72,7 +80,11 @@ for probe in probeLocs:
                     str(maxMZ),
                     str(minX),
                     str(maxX),
-                    str(int(usePhiStar))
+                    str(int(usePhiStar)),
+                    str(smearpar[tag][0]),
+                    str(smearpar[tag][1]),
+                    str(smearpar[probe][0]),
+                    str(smearpar[probe][1])
                     )
             inputList.append(command)
 

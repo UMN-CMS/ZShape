@@ -48,7 +48,13 @@ TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const E
     return tf1;
 }
 
-int fitDistributions(const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const EffBin effbin, const bool usePhiStar=false){
+int fitDistributions(
+        const std::string signalFile, const std::string ZEffFile, const std::string outFile, 
+        const std::string tagWP, const std::string probeWP, 
+        const electronLocation tagLoc, const electronLocation probeLoc, 
+        const EffBin effbin, const bool usePhiStar, 
+        const double tag_mean, const double tag_sigma, const double probe_mean, const double probe_sigma
+        ) {
     // Some commont variables
     const double tagXCutPt = 20.;
     const double probeXCutPt = 20.;
@@ -78,6 +84,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     while (run1){
         zes->Entries();
         if (doSmearing) {
+            //smearEvent(trand, tag_mean, tag_sigma, probe_mean, probe_sigma, &zes->reco);
             smearEvent(trand, &zes->reco);
         }
         const double PU = zes->reco.nverts;
@@ -417,7 +424,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 }
 
 int main(int argc, char* argv[]){
-    const int argcCorrect = 13;
+    const int argcCorrect = 17;
     if (argc < argcCorrect) {
         std::cout<<"Not enough arguments. Use:\nfitEffAcc_hf_trigger.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
@@ -477,6 +484,20 @@ int main(int argc, char* argv[]){
         bool usePhiStar;
         inStream.str(argv[12]);
         inStream >> usePhiStar;
+        inStream.clear();
+
+        double tag_mean, tag_sigma, probe_mean, probe_sigma;
+        inStream.str(argv[13]);
+        inStream >> tag_mean;
+        inStream.clear();
+        inStream.str(argv[14]);
+        inStream >> tag_sigma;
+        inStream.clear();
+        inStream.str(argv[15]);
+        inStream >> probe_mean;
+        inStream.clear();
+        inStream.str(argv[16]);
+        inStream >> probe_sigma;
         inStream.clear();
 
         // Map location to other features
@@ -543,7 +564,11 @@ int main(int argc, char* argv[]){
                 tagLoc,
                 probeLoc,
                 effbin,
-                usePhiStar
+                usePhiStar,
+                tag_mean,
+                tag_sigma,
+                probe_mean,
+                probe_sigma
                 );
     }
 }
