@@ -67,6 +67,7 @@ HybridSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
     src = cms.InputTag("correctedHybridSuperClusters","", RECO_NAME),
     particleType = cms.string('gamma')
 )
+
 EBSuperClusters = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("HybridSuperClusters"),
     cut = cms.string('abs( eta ) < 1.4442 & pt > 10')
@@ -83,6 +84,10 @@ EESuperClusters = cms.EDFilter("CandViewSelector",
 
 allSuperClusters = cms.EDProducer("CandViewMerger",
     src = cms.VInputTag(cms.InputTag("EBSuperClusters"), cms.InputTag("EESuperClusters"),cms.InputTag("theHFSuperClusters"))
+)
+
+allECALClusters = cms.EDProducer("CandViewMerger",
+    src = cms.VInputTag(cms.InputTag("EBSuperClusters"), cms.InputTag("EESuperClusters"))
 )
 
 theHFSuperClusters = cms.EDFilter("CandViewSelector",
@@ -120,7 +125,7 @@ NTElecTight = cms.EDFilter("PhotonSelector",
 
 
 
-sc_sequence = cms.Sequence( ( hfSuperClusterCandidate * theHFSuperClusters + hfRecoEcalCandidateTight) * HybridSuperClusters * EBSuperClusters + EndcapSuperClusters * EESuperClusters * allSuperClusters * theSuperClusters +NTElecLoose + NTElecTight )
+sc_sequence = cms.Sequence( ( hfSuperClusterCandidate * theHFSuperClusters + hfRecoEcalCandidateTight) * HybridSuperClusters * EBSuperClusters + EndcapSuperClusters * EESuperClusters * allSuperClusters * allECALClusters * theSuperClusters +NTElecLoose + NTElecTight )
 
 
 
@@ -499,6 +504,12 @@ tpMapWP80AndHFSC = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(False),
 )
 
+tpMapWP80AndECALSC = cms.EDProducer("CandViewShallowCloneCombiner",
+    decay = cms.string("WorkingPoint80 allECALClusters"), # charge conjugate states are implied
+    cut   = cms.string("30 < mass < 150"),
+    checkCharge = cms.bool(False),
+)
+
 tpMapIsolation = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("theHLT theIsolation"), # charge conjugate states are implied
     #decay = cms.string("theId theIsolation"), # charge conjugate states are implied
@@ -572,7 +583,7 @@ tpMapTIDDoubleTrigHFTID =  cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 
-tpMap_sequence = cms.Sequence( tpMapSuperClusters + tpMapGsfElectrons + tpMapGsfElectrons + tpMapGsfAndSC + tpMapGsfAndHFSC + tpMapWP80AndHFSC + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF + tpMapWP95AndHF + tpMapWP80AndHF + tpMapWP80AndSupers + tpMapWP90AndSupers +tpMapTIDSingleTrigHFSC +tpMapTIDDoubleTrigHFTID )
+tpMap_sequence = cms.Sequence( tpMapSuperClusters + tpMapGsfElectrons + tpMapGsfElectrons + tpMapGsfAndSC + tpMapGsfAndHFSC + tpMapWP80AndHFSC + tpMapWP80AndECALSC + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF + tpMapWP95AndHF + tpMapWP80AndHF + tpMapWP80AndSupers + tpMapWP90AndSupers +tpMapTIDSingleTrigHFSC +tpMapTIDDoubleTrigHFTID )
 #tpMap_sequence = cms.Sequence( tpMapGsfElectrons + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF)
 
 ##    __  __  ____   __  __       _       _               

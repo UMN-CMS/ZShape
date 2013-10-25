@@ -35,16 +35,12 @@ TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const E
     tf1->SetParName(3, "delta");
     //tf1->SetParName(4, "Signal Amplitude");
     // Set limits
-    tf1->SetParLimits(0, 0., 10000.);
     tf1->SetParLimits(0, 40., 120.);
-    tf1->SetParLimits(1, 0., 100000.);
     tf1->SetParLimits(1, 0.1, 1000000.);
     tf1->SetParLimits(2, 0.0001, 0.3);
     tf1->SetParLimits(3, 3., 80.);
     // Set starting value
-    tf1->SetParameter(0, 100.);
     tf1->SetParameter(0, 60.);
-    tf1->SetParameter(1, 1000.);
     tf1->SetParameter(1, 1000.);
     tf1->SetParameter(2, 0.01);
     tf1->SetParameter(3, 10.);
@@ -52,7 +48,13 @@ TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const E
     return tf1;
 }
 
-int fitDistributions(const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const EffBin effbin, const bool usePhiStar=false){
+int fitDistributions(
+        const std::string signalFile, const std::string ZEffFile, const std::string outFile, 
+        const std::string tagWP, const std::string probeWP, 
+        const electronLocation tagLoc, const electronLocation probeLoc, 
+        const EffBin effbin, const bool usePhiStar, 
+        const double tag_mean, const double tag_sigma, const double probe_mean, const double probe_sigma
+        ) {
     // Some commont variables
     const double tagXCutPt = 20.;
     const double probeXCutPt = 20.;
@@ -75,8 +77,9 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     ZEffTree* zes;
     zes = new ZEffTree(ZSFile, false);
 
-    const bool doSmearing = true;
+    const bool doSmearing = false;
     TRandom3* trand = new TRandom3(123456);
+    std::vector<double>* masses = new std::vector<double>();
 
     bool run1 = true;
     while (run1){
@@ -128,6 +131,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 // Base Cuts, and Post Cuts which are a strict subset
                 if ( tagMatch && probeMatch ){
                     signalHisto->Fill(MZ);
+                    masses->push_back(MZ);
                     break;
                 }
             }
@@ -194,8 +198,8 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 
         ze->Entries();
         /* Check that the event passes our requirements */
-        if (    effbin.minPU <= ze->reco.nverts && ze->reco.nverts <= effbin.maxPU 
-                && effbin.minMZ <= ze->reco.mz && ze->reco.mz <= effbin.maxMZ 
+        if (    effbin.minPU <= ze->reco.nverts && ze->reco.nverts <= effbin.maxPU
+                && effbin.minMZ <= ze->reco.mz && ze->reco.mz <= effbin.maxMZ
            ){
             bool basePass = false;
             bool postPass = false;
@@ -269,46 +273,121 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     delete ze;
 
     // Fit the post cut first (and use the fit signal size to constrain the
-    // first fit
-    canvas->cd(2);
     TH1D* signaltemp = new TH1D("signaltemp", "signal", nbins, xbins_ar);
     bg::BinnedBackground bgfunc(signaltemp);
 
+    // Perform a fit of the pre-cut histogram
+    canvas->cd(1);
+    // Fit the background function
+    TF1* preBGFunc = getBGFitFunc(std::string("preBGFunc"), bgfunc, effbin);
+    baseHisto->Sumw2();
+    // Fit the Exponential
+    preBGFunc->SetParLimits(0, 100., 100.);
+    preBGFunc->SetParLimits(3, 10., 10.);
+    baseHisto->Fit(preBGFunc, "MWLQ", "", 110, effbin.maxMZ);
+
+    double var1=preBGFunc->GetParameter(1);
+    double var2=preBGFunc->GetParameter(2);
+    preBGFunc->SetParLimits(0, 40., 120.);
+    preBGFunc->FixParameter(1, var1);
+    preBGFunc->FixParameter(2, var2);
+    preBGFunc->SetParLimits(3, 3., 80.);
+
+    baseHisto->Fit(preBGFunc, "MWLQ", "", effbin.minMZ, 75);
+
+    double var0=preBGFunc->GetParameter(0);
+    double var3=preBGFunc->GetParameter(3);
+
+    // Set up background fitter object
+    bg::BinnedBackgroundAndSmearedSignal bgfitfunc2(signalHisto, masses);
+    TF1* preBGandSigFunc = new TF1("bgfitfunc2", bgfitfunc2, effbin.minMZ, effbin.maxMZ, bgfitfunc2.nparams);
+    preBGandSigFunc->SetParName(0, "alpha");
+    preBGandSigFunc->SetParName(1, "beta");
+    preBGandSigFunc->SetParName(2, "gamma");
+    preBGandSigFunc->SetParName(3, "delta");
+    preBGandSigFunc->SetParName(4, "Signal Amplitude");
+    preBGandSigFunc->SetParName(5, "Smearing Mean");
+    preBGandSigFunc->SetParName(6, "Smearing Sigma");
+    preBGandSigFunc->SetParameter(0, var0);
+    preBGandSigFunc->SetParameter(1, var1);
+    preBGandSigFunc->SetParameter(2, var2);
+    preBGandSigFunc->SetParameter(3, var3);
+    preBGandSigFunc->SetParLimits(0, 40., 80.);
+    preBGandSigFunc->SetParLimits(1, 0., var1*100);
+    preBGandSigFunc->SetParLimits(2, .0, .2);
+    preBGandSigFunc->SetParLimits(3, 10., 50.);
+    //preBGandSigFunc->SetParLimits(0, 0., var0*2);
+    //preBGandSigFunc->SetParLimits(1, 0., var1*2);
+    //preBGandSigFunc->SetParLimits(2, 0., var2*2);
+    //preBGandSigFunc->SetParLimits(3, 0., var3*2);
+    preBGandSigFunc->SetParameter(4, 100. );
+    preBGandSigFunc->SetParLimits(4, 0, 25000);
+    preBGandSigFunc->SetParameter(5, 1 );
+    preBGandSigFunc->SetParLimits(5, 0.9, 1.1);
+    preBGandSigFunc->SetParameter(6, 0.1 );
+    preBGandSigFunc->SetParLimits(6, 0.001, 0.5);
+
+    baseHisto->Fit(preBGandSigFunc, "MWLQ");
+
+    // Draw histograms
+    baseHisto->Draw("E");
+    TH1D* preSignal = (TH1D*)bgfitfunc2.getSignalHisto()->Clone("preSignal");
+    preSignal->Scale(preBGandSigFunc->GetParameter(4));  // Scale by fit parameter
+    preSignal->SetLineStyle(2);
+    preSignal->SetLineColor(kRed);
+    preSignal->Draw("same");
+    TH1D* preBG = (TH1D*)bgfitfunc2.getBackgroundHisto()->Clone("preBG");
+    preBG->SetLineStyle(2);
+    preBG->SetLineColor(kBlack);
+    preBG->Draw("same");
+
+    // Post Cut Fit
+    canvas->cd(2);
+
     TF1* postBGFunc = getBGFitFunc(std::string("postBGFunc"), bgfunc, effbin);
     postcutHisto->Sumw2();
+
     // Fit the Exponential
     postBGFunc->SetParLimits(0, 100., 100.);
     postBGFunc->SetParLimits(3, 10., 10.);
     postcutHisto->Fit(postBGFunc, "MWLQ", "", 110, effbin.maxMZ);
 
-    double var1=postBGFunc->GetParameter(1);
-    double var2=postBGFunc->GetParameter(2);
+    var1=postBGFunc->GetParameter(1);
+    var2=postBGFunc->GetParameter(2);
     postBGFunc->SetParLimits(0, 40., 120.);
     postBGFunc->FixParameter(1, var1);
     postBGFunc->FixParameter(2, var2);
     postBGFunc->SetParLimits(3, 3., 80.);
 
     postcutHisto->Fit(postBGFunc, "MWLQ", "", effbin.minMZ, 75);
- 
-    double var0=postBGFunc->GetParameter(0);
-    double var3=postBGFunc->GetParameter(3);
+
+    var0=postBGFunc->GetParameter(0);
+    var3=postBGFunc->GetParameter(3);
 
     // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc(signalHisto);
+    bg::BinnedBackgroundAndSmearedSignal bgfitfunc(signalHisto, masses);
     TF1* postBGandSigFunc = new TF1("bgfitfunc", bgfitfunc, effbin.minMZ, effbin.maxMZ, bgfitfunc.nparams);
     postBGandSigFunc->SetParName(0, "alpha");
     postBGandSigFunc->SetParName(1, "beta");
     postBGandSigFunc->SetParName(2, "gamma");
     postBGandSigFunc->SetParName(3, "delta");
     postBGandSigFunc->SetParName(4, "Signal Amplitude");
-    postBGandSigFunc->FixParameter(0, var0);
-    //postBGandSigFunc->FixParameter(1, var1);
-    postBGandSigFunc->FixParameter(2, var2);
-    postBGandSigFunc->FixParameter(3, var3);
+    postBGandSigFunc->SetParName(5, "Smearing Mean");
+    postBGandSigFunc->SetParName(6, "Smearing Sigma");
+    postBGandSigFunc->SetParameter(0, var0);
     postBGandSigFunc->SetParameter(1, var1);
-    postBGandSigFunc->SetParLimits(1, 0., 2 * var1);
-    postBGandSigFunc->SetParameter(4, 1.);
-    postBGandSigFunc->SetParLimits(4, 0., 250000);
+    postBGandSigFunc->SetParameter(2, var2);
+    postBGandSigFunc->SetParameter(3, var3);
+    postBGandSigFunc->SetParLimits(0, 40., 80.);
+    postBGandSigFunc->SetParLimits(1, 0., var1*100);
+    postBGandSigFunc->SetParLimits(2, .0, .2);
+    postBGandSigFunc->SetParLimits(3, 10., 50.);
+    postBGandSigFunc->SetParameter(4, 100.);
+    postBGandSigFunc->SetParLimits(4, 0., 25000);
+    postBGandSigFunc->SetParameter(5, preBGandSigFunc->GetParameter(5));  // Fix the smearing from the first fit
+    postBGandSigFunc->SetParLimits(5, 0.9, 1.1);
+    postBGandSigFunc->SetParameter(6, preBGandSigFunc->GetParameter(6));
+    postBGandSigFunc->SetParLimits(6, 0.001, 0.5);
 
     postcutHisto->Fit(postBGandSigFunc, "MWLQ");
 
@@ -326,59 +405,6 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     postBG->SetLineColor(kBlack);
     postBG->Draw("same");
 
-    // Perform a fit of the pre-cut histogram
-    canvas->cd(1);
-    // Fit the background function
-    TF1* preBGFunc = getBGFitFunc(std::string("preBGFunc"), bgfunc, effbin);
-    baseHisto->Sumw2();
-    // Fit the Exponential
-    preBGFunc->SetParLimits(0, 100., 100.);
-    preBGFunc->SetParLimits(3, 10., 10.);
-    baseHisto->Fit(preBGFunc, "MWLQ", "", 110, effbin.maxMZ);
-
-    var1=preBGFunc->GetParameter(1);
-    var2=preBGFunc->GetParameter(2);
-    preBGFunc->SetParLimits(0, 40., 120.);
-    preBGFunc->FixParameter(1, var1);
-    preBGFunc->FixParameter(2, var2);
-    preBGFunc->SetParLimits(3, 3., 80.);
-
-    baseHisto->Fit(preBGFunc, "MWLQ", "", effbin.minMZ, 75);
- 
-    var0=preBGFunc->GetParameter(0);
-    var3=preBGFunc->GetParameter(3);
-
-    // Set up background fitter object
-    bg::BinnedBackgroundAndSignal bgfitfunc2(signalHisto);
-    TF1* preBGandSigFunc = new TF1("bgfitfunc2", bgfitfunc2, effbin.minMZ, effbin.maxMZ, bgfitfunc2.nparams);
-    preBGandSigFunc->SetParName(0, "alpha");
-    preBGandSigFunc->SetParName(1, "beta");
-    preBGandSigFunc->SetParName(2, "gamma");
-    preBGandSigFunc->SetParName(3, "delta");
-    preBGandSigFunc->SetParName(4, "Signal Amplitude");
-    preBGandSigFunc->FixParameter(0, var0);
-    //preBGandSigFunc->FixParameter(1, var1);
-    preBGandSigFunc->FixParameter(2, var2);
-    preBGandSigFunc->FixParameter(3, var3);
-    preBGandSigFunc->SetParameter(1, var1);
-    preBGandSigFunc->SetParLimits(1, 0., 2 * var1);
-    preBGandSigFunc->SetParameter(4, 1.);
-    preBGandSigFunc->SetParLimits(4, 0., 250000);
-
-    baseHisto->Fit(preBGandSigFunc, "MWLQ");
-
-    // Draw histograms
-    baseHisto->Draw("E");
-    TH1D* preSignal = (TH1D*)bgfitfunc2.getSignalHisto()->Clone("preSignal");
-    preSignal->Scale(preBGandSigFunc->GetParameter(4));  // Scale by fit parameter
-    preSignal->SetLineStyle(2);
-    preSignal->SetLineColor(kRed);
-    preSignal->Draw("same");
-    TH1D* preBG = (TH1D*)bgfitfunc2.getBackgroundHisto()->Clone("preBG");
-    preBG->SetLineStyle(2);
-    preBG->SetLineColor(kBlack);
-    preBG->Draw("same");
-
     // Calculate Eff
     Efficiencies countEff = EffFromCounting(
             baseHisto,
@@ -388,7 +414,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
             preBGandSigFunc->GetParError(1),
             postBGandSigFunc->GetParError(1)
             );
-    Efficiencies sigEff = EffFromSignal( 
+    Efficiencies sigEff = EffFromSignal(
             preSignal,
             postSignal,
             preBGandSigFunc->GetParError(1),
@@ -413,12 +439,12 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 }
 
 int main(int argc, char* argv[]){
-    const int argcCorrect = 13;
+    const int argcCorrect = 17;
     if (argc < argcCorrect) {
-        std::cout<<"Not enough arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Not enough arguments. Use:\nfitEffAcc_hf_trigger.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else if (argc > argcCorrect){
-        std::cout<<"Too many arguments. Use:\nfitEffAcc.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Too many arguments. Use:\nfitEffAcc_hf_trigger.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else {
         // Read in arguments
@@ -473,6 +499,20 @@ int main(int argc, char* argv[]){
         bool usePhiStar;
         inStream.str(argv[12]);
         inStream >> usePhiStar;
+        inStream.clear();
+
+        double tag_mean, tag_sigma, probe_mean, probe_sigma;
+        inStream.str(argv[13]);
+        inStream >> tag_mean;
+        inStream.clear();
+        inStream.str(argv[14]);
+        inStream >> tag_sigma;
+        inStream.clear();
+        inStream.str(argv[15]);
+        inStream >> probe_mean;
+        inStream.clear();
+        inStream.str(argv[16]);
+        inStream >> probe_sigma;
         inStream.clear();
 
         // Map location to other features
@@ -539,7 +579,11 @@ int main(int argc, char* argv[]){
                 tagLoc,
                 probeLoc,
                 effbin,
-                usePhiStar
+                usePhiStar,
+                tag_mean,
+                tag_sigma,
+                probe_mean,
+                probe_sigma
                 );
     }
 }

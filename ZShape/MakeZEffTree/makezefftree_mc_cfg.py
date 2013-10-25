@@ -96,6 +96,11 @@ process.tuplemakerGSFGSF = cms.EDAnalyzer('MakeZEffTree',
             ),
         )
 
+## WP80-ECALSC
+process.tuplemakerWP80ESC = process.tuplemakerGSFGSF.clone(
+        TagProbeProducer = cms.untracked.InputTag('tpMapWP80AndECALSC'),
+        )
+
 ## GSF-HF
 process.tuplemakerGSFHF = process.tuplemakerGSFGSF.clone(
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfAndHFSC'),
@@ -119,6 +124,7 @@ process.p1 = cms.Path(
         * process.patElectronIDs
         * process.hfEMClusteringSequence  # Needed in MC
         * process.lepton_cands
-        * process.tuplemakerGSFGSF
+        #* process.tuplemakerGSFGSF
+        * process.tuplemakerWP80ESC
         #* process.tuplemakerGSFHF
         )

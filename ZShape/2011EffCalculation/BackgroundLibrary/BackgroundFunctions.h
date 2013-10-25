@@ -1,10 +1,12 @@
 #ifndef ZSHAPE_2011EFFCALCULATION_BACKGROUNDLIBRARY_BACKGROUNDFUNCTIONS_H_
 #define ZSHAPE_2011EFFCALCULATION_BACKGROUNDLIBRARY_BACKGROUNDFUNCTIONS_H_
 
-#include <TF1.h>  
+#include <TF1.h>
 #include <TH1.h>  // TH1D
+#include <TRandom3.h>  // TRandom3
+#include <vector>  // std::vector
 
-/* 
+/*
  * The background function is of the form:
  *
  * beta * erfc((alpha - x) / delta) * exp(-gamma * x)
@@ -73,6 +75,29 @@ namespace bg{
             TH1D* signalHisto_;
             // Internal variables used to initialize for baseFunc_
             static const int nparams_ = 2;
+    };
+
+    class BinnedBackgroundAndSmearedSignal: public BinnedBackgroundAndSignal{
+        public:
+            BinnedBackgroundAndSmearedSignal(TH1D* signalHisto, std::vector<double>* masses);
+            BinnedBackgroundAndSmearedSignal() {};  // Needed for inheritance
+
+            // Histogram
+            TH1D* getSignalHisto();
+
+            // Access to the function
+            double operator() (const double *x, const double *par);
+
+            // Number of parameters this class needs
+            static const int nparams = 7;
+
+        protected:
+            TH1D* signalMutableHisto_;
+            // Internal variables used to initialize for baseFunc_
+            static const int nparams_ = 2;
+            void smearSignalHisto_(const double mean, const double sigma);
+            std::vector<double>* masses_;
+            TRandom3* trand_;
     };
 
 }

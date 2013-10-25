@@ -3,6 +3,28 @@
 #include "../ElectronLocation/ElectronLocation.h"  // electronLocation
 #include <TLorentzVector.h>  // TLorentzVector
 
+
+void smearEvent(TRandom* trand, const double mean0, const double sigma0, const double mean1, const double sigma1, ZEffTree::ZInfo* zi){
+    // -1 is used to reject
+    if (mean0 > 0 && sigma0 > 0) {
+        zi->pt[0] *= trand->Gaus(mean0, sigma0);
+    }
+    if (mean1 > 0 && sigma1 > 0) {
+        zi->pt[1] *= trand->Gaus(mean1, sigma1);
+    }
+
+    // Make Lorentz Vectors from the electrons
+    TLorentzVector e0lv;
+    TLorentzVector e1lv;
+    e0lv.SetPtEtaPhiM(zi->pt[0], zi->eta[0], zi->phi[0], 5.109989e-4);
+    e1lv.SetPtEtaPhiM(zi->pt[1], zi->eta[1], zi->phi[1], 5.109989e-4);
+
+    // Recalculate the Z mass
+    TLorentzVector Zlv;
+    Zlv = e0lv + e1lv;
+    zi->mz = Zlv.M();
+}
+
 void smearEvent(TRandom* trand, ZEffTree::ZInfo* zi){
     // Set up the location dependent constants
     const double HFP_MEAN  = 0.983;
@@ -36,21 +58,9 @@ void smearEvent(TRandom* trand, ZEffTree::ZInfo* zi){
         }
     }
 
-    // Smear the pt with a Gaussian
-    for (int i = 0; i <= 1; i++){
-        if (mean[i] > 0 && sigma[i] > 0){
-            zi->pt[i] *= trand->Gaus(mean[i], sigma[i]);
-        }
-    }
+    smearEvent(trand, mean[0], sigma[0], mean[1], sigma[1], zi);
+}
 
-    // Make Lorentz Vectors from the electrons
-    TLorentzVector e0lv;
-    TLorentzVector e1lv;
-    e0lv.SetPtEtaPhiM(zi->pt[0], zi->eta[0], zi->phi[0], 5.109989e-4);
-    e1lv.SetPtEtaPhiM(zi->pt[1], zi->eta[1], zi->phi[1], 5.109989e-4);
-
-    // Recalculate the Z mass
-    TLorentzVector Zlv;
-    Zlv = e0lv + e1lv;
-    zi->mz = Zlv.M();
+void smearEvent(TRandom* trand, const double mean, const double sigma, ZEffTree::ZInfo* zi){
+    smearEvent(trand, mean, sigma, mean, sigma, zi);
 }
