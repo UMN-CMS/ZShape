@@ -13,7 +13,7 @@ namespace zshape {
 
   void EnergyScale::rescale(ZShapeElectron& electron) {
     EtaAcceptance accept;
-    double scale=1.0;
+    double scale=1.00000;
     double absEta=std::fabs(electron.detEta_);
 
     bool gotshift=false;
@@ -32,7 +32,7 @@ namespace zshape {
       gotshift=true;
       if (shiftHF_>0) scale=1.0+10*m_scale; 
       else if (shiftHF_<0) scale=1.0-10*m_scale; 
-      gotshift=false;
+      else gotshift=false;
     }
 
     if (gotshift) 
@@ -41,28 +41,44 @@ namespace zshape {
 						 electron.p4_.phi(),
 						 electron.p4_.M()*scale);
 
+
   }
-
-
   
-  PositionScale::PositionScale(double EBeta, double EBphi,double EEeta,double EEphi,double HFdx,double HFdy, double HFrot): hdx_(HFdx),hdy_(HFdy),hdrot_(HFrot){  
+
+   void EnergyScale::energyRescaler(ZShapeElectron& electron,double scale){
+
+     electron.p4_= math::PtEtaPhiMLorentzVector(electron.p4_.Pt()*scale,
+						electron.p4_.eta(),
+						electron.p4_.phi(),
+						electron.p4_.M()*scale);
+     
+   }
+  
+  
+  PositionScale::PositionScale(double HFdx,double HFdy, double HFrot): hdx_(HFdx),hdy_(HFdy),hdrot_(HFrot){  
   }
 
 
-  void PositionScale::PositionRescale(ZShapeElectron& electron,PositionScale& scale){
-    EtaAcceptance accept;
-    if (accept.isInAcceptance(electron,EtaAcceptance::zone_EB)) {
-      PositionScalingEB(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
-    } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_EE)) {
-      PositionScalingEE(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
-    } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_HF)) {
-      PositionScalingHF(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
+  void PositionScale::PositionRescale(ZShapeElectron& electron){//,PositionScale& scale){
+    //EtaAcceptance accept;
+    double absEta=std::fabs(electron.detEta_);
+    if(absEta<1.4442){
+      return;
+      // if (accept.isInAcceptance(electron,EtaAcceptance::zone_EB)) {
+      // PositionScalingEB(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
+    }else if((absEta>1.566) && (absEta<2.850)){
+      return;
+      //} else if (accept.isInAcceptance(electron,EtaAcceptance::zone_EE)) {
+      //PositionScalingEE(electron,scale.hdx_,scale.hdy_,scale.hdrot_);
+    }else if((absEta>3.10) && (absEta<4.60)){
+      
+      // } else if (accept.isInAcceptance(electron,EtaAcceptance::zone_HF)) {
+      PositionScalingHF(electron,hdx_,hdy_,hdrot_);//scale.hdx_,scale.hdy_,scale.hdrot_);
     }
   }//end posRescale
   
-  //if delta phi, may need to add  pscale=(eta>0)?(+ebpos_[1]):(-ebpos_[1]);
-  void PositionScale::PositionScalingHF(ZShapeElectron& electron, double dx=0, double
-dy=0, double drotate=0){
+  
+  void PositionScale::PositionScalingHF(ZShapeElectron& electron, double dx=0, double dy=0, double drotate=0){
     double eta=electron.p4_.eta();
     double phi=electron.p4_.phi();
 
@@ -88,13 +104,13 @@ dy=0, double drotate=0){
 
 
 
-  void PositionScale::PositionScalingEB(ZShapeElectron& electron, double dx=0, double
-					dy=0, double drotate=0){
-  }
+//   void PositionScale::PositionScalingEB(ZShapeElectron& electron, double dx=0, double
+// 					dy=0, double drotate=0){
+//   }
   
-  void PositionScale::PositionScalingEE(ZShapeElectron& electron, double dx=0, double
-					dy=0, double drotate=0){
-  }
+//   void PositionScale::PositionScalingEE(ZShapeElectron& electron, double dx=0, double
+// 					dy=0, double drotate=0){
+//  }
   
 }//end namespace
 

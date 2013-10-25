@@ -332,7 +332,7 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
     }
     if(mdelPhi>pi){mdelPhi=2*pi-mdelPhi;}
     double mphiStar=tan((pi-mdelPhi)/2)*sin(mthetaStar);
-    if(zMass>=60 && zMass <=120){
+    //   if(zMass>=60 && zMass <=120){
       mZ_-> Fill(zMass,wgt);
       mZ_zoom -> Fill(zMass,wgt);
       atZ_->Fill(at,wgt); 
@@ -365,7 +365,7 @@ void EffHistos::Fill(const  ZShapeElectron& e1, const  ZShapeElectron& e2,
       ephi_ -> Fill(e1phi,wgt);
       ephi_ -> Fill(e2phi,wgt);
 
-    }// end if mass cut
+      //  }// end if mass cut
     YZ_v_mz_  -> Fill(zY,zMass,wgt);
     ptZ_v_mz_ -> Fill(zPt,zMass,wgt);
     evt_nvert_->Fill(e1.PU_,wgt);
