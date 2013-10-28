@@ -113,6 +113,11 @@ process.tuplemakerWP80ESC = process.tuplemakerGSFGSF.clone(
         TagProbeProducer = cms.untracked.InputTag('tpMapWP80AndECALSC'),
         )
 
+## 2x ECALSC
+process.tuplemaker2ESC = process.tuplemakerGSFGSF.clone(
+        TagProbeProducer = cms.untracked.InputTag('tpMapECALSCAndECALSC'),
+        )
+
 ## GSF-HF
 process.tuplemakerGSFHF = process.tuplemakerGSFGSF.clone(
         TagProbeProducer = cms.untracked.InputTag('tpMapGsfAndHFSC'),
@@ -134,10 +139,10 @@ process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 process.p1 = cms.Path(
         process.kt6PFJets
         * process.hltECALFilter
-        #* process.hltHFFilter
         * process.patElectronIDs
         * process.lepton_cands
         #* process.tuplemakerGSFGSF
-        * process.tuplemakerWP80ESC
+        #* process.tuplemakerWP80ESC
+        * process.tuplemaker2ESC
         #* process.tuplemakerGSFHF
         )
