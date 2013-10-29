@@ -106,7 +106,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                     probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
                     tagMatch = ( 
                             inAcceptance(tagLoc, zes->reco.eta[i])
-                            && zes->reco.isSelected(i, "WP80")
+                            //&& zes->reco.isSelected(i, "WP80")
                             );
                 }
                 // Base Cuts, and Post Cuts which are a strict subset
@@ -192,7 +192,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                         inAcceptance(tagLoc, ze->reco.eta[tagNumber]) 
                         && ze->reco.trigtag[tagNumber] 
                         && ze->reco.trigprobe[tagNumber]
-                        && ze->reco.isSelected(tagNumber, "WP80")
+                        //&& ze->reco.isSelected(tagNumber, "WP80")
                         );
                 const bool probePass = (
                         inAcceptance(probeLoc, ze->reco.eta[probeNumber])
