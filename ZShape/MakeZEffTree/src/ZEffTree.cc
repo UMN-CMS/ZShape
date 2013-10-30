@@ -6,6 +6,9 @@
 ZEffTree::ZEffTree(TFile& f, const bool writable) : m_file(f) {
     makeBranches(writable);
     prepBitmap();
+    // Make sure the m_tree is initialized
+    Clear();
+    GetNextEvent();
 }
 
 int ZEffTree::cutToBit(const std::string& cut) {
