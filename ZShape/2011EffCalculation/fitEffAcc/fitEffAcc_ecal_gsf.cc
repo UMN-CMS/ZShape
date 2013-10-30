@@ -84,9 +84,10 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
         }
         const double PU = zes->reco.nverts;
         const double MZ = zes->reco.mz;
-        if (  // Right number of PU, MZ
+        if (  // Right number of PU, MZ, and triggerable
                 effbin.minPU <= PU && PU <= effbin.maxPU
                 && effbin.minMZ <= MZ && MZ <= effbin.maxMZ
+                && 20. < zes->reco.pt[0] && 20. < zes->reco.pt[1]
            ){
             /* We set try either electron as the "probe", since this is MC either can be the "tag" */
             for (int i=0; i < 2; ++i){
@@ -113,7 +114,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
                 if (tagMatch && probeMatch){
                     signalPreHisto->Fill(MZ);
                     // Emulate the ECAL-ECAL Trigger
-                    if (zes->reco.r9[j] < 0.98 && zes->reco.isSelected(j, "GsfTrack-EtaDet")) { // Uses hijacked WP90
+                    if (zes->reco.isSelected(j, "GsfTrack-EtaDet")) { // Uses hijacked WP90
                         signalPostHisto->Fill(MZ); 
                     }
                 }
