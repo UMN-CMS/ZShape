@@ -27,9 +27,9 @@ tag="ET"
 # Use Phistar (Pt else)
 usePhiStar = True
 if usePhiStar:
-    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_phistar_%s_%s_%s_%s.root"
+    formatstring = "%s/HF_Trig_%s_%s_pu_%s_%s_phistar_%s_%s_%s_%s.root"
 else:
-    formatstring = "%s/Ele27_%s_%s_pu_%s_%s_pt_%s_%s_%s_%s.root"
+    formatstring = "%s/HF_Trig_%s_%s_pu_%s_%s_pt_%s_%s_%s_%s.root"
 # Program
 exe = "./fitEffAcc_hf_trigger.exe"
 
@@ -41,8 +41,8 @@ print "# Output directory: ", outdir
 probeLocs = ("HFp", "HFm")
 # Maps locations to (mean, sigma)
 smearpar = {  
-        "ET": (0.98, 0.020),
-        "HFp": (1.05, 0.070),
+        "ET": (0.9805, 0.017),  # Average of EE and EB from Kevin
+        "HFp": (1.05, 0.070),  # Sigma from Kevin, mean by hand
         "HFm": (1.05, 0.070)
         }
 PUs = ((0, 4), (5, 101))
@@ -88,7 +88,31 @@ for probe in probeLocs:
                     )
             inputList.append(command)
 
+# The ALL bin
+outfile = "%s/HF_Trig_ALL.root" % outdir
+command = (
+    exe,
+    signalFile,
+    dataFile,
+    outfile,
+    tag,
+    "HF",
+    str(0),
+    str(101),
+    str(minMZ),
+    str(maxMZ),
+    str(0.),
+    str(1.),
+    str(1),
+    str(smearpar[tag][0]),
+    str(smearpar[tag][1]),
+    str(smearpar[probe][0]),
+    str(smearpar[probe][1])
+    )
+inputList.append(command)
+
 # Run jobs in parallel
+NJOBS = 1  # Override multiprocessing
 if HasMP and NJOBS > 1:
     pool = mp.Pool(processes=NJOBS)
     pool.map(call, inputList)  # Note, no return values so we don't care about them
