@@ -19,7 +19,7 @@ else:  # Only runs when try succeeds
 # Input Files
 ## MC VS MC
 dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131028_2x_ecalsc_mc_hijacked_wp90/20131028_2x_ecalsc_mc_hijacked_wp90_summed.root"
-signalFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131028_2x_ecalsc_mc_hijacked_wp90/20131028_2x_ecalsc_mc_hijacked_wp90_summed.root"
+signalFile = dataFile
 
 # Mass_Z
 minMZ = 60
