@@ -135,6 +135,7 @@ nosetests.xml
 *.slo
 *.lo
 *.o
+*.gch
 
 # Dependency Files
 *.d

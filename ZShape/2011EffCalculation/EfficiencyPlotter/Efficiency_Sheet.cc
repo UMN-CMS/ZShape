@@ -1,88 +1,49 @@
+#include "Efficiency_Sheet.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <map>
-
-#ifndef Efficiency_Sheet
-#define Efficiency_Sheet
-
-class EffSheet{
-    public:
-        struct EffMapKey{
-            double etamin;
-            double etamax;
-            double pumin;
-            double pumax;
-            bool phistar;
-
-            bool operator()(const EffSheet::EffMapKey one, const EffSheet::EffMapKey other){
-                // Pt < Phistar
-                if (one.phistar && !other.phistar) {
-                    return false;
-                } else if (!one.phistar && other.phistar) {
-                    return true;
-                }
-
-                // Eta Min
-                if (one.etamin < other.etamin){
-                    return true;
-                } else if (one.etamin > other.etamin){
-                    return false;
-                }
-
-                // Eta Max
-                if (one.etamax < other.etamax){
-                    return true;
-                } else if (one.etamax > other.etamax){
-                    return false;
-                }
-
-                //PU Min
-                if (one.pumin < other.pumin){
-                    return true;
-                } else if (one.pumin > other.pumin){
-                    return false;
-                }
-
-                //PU Max
-                if (one.pumax < other.pumax){
-                    return true;
-                } else if (one.pumax > other.pumax){
-                    return false;
-                }
-
-                // They are equal
-                return false; 
-            }
-        };
-
-        EffSheet(const std::string textFile);
-        struct EffLine;
-        struct EffMapKey;
-        EffLine* current;
-        std::map<EffMapKey, std::vector<EffLine>, EffMapKey > values;
-
-    private:
-};
 
 
-struct EffSheet::EffLine{
-    double xmin;
-    double xmax;
-    double etamin;
-    double etamax;
-    double pumin;
-    double pumax;
-    int numparms;
-    double eff;
-    double systp;
-    double systm;
-    double den;
-    bool phistar;
-};
+bool EffSheet::EffMapKey::operator()(const EffSheet::EffMapKey one, const EffSheet::EffMapKey other) {
+    // Pt < Phistar
+    if (one.phistar && !other.phistar) {
+        return false;
+    } else if (!one.phistar && other.phistar) {
+        return true;
+    }
+
+    // Eta Min
+    if (one.etamin < other.etamin){
+        return true;
+    } else if (one.etamin > other.etamin){
+        return false;
+    }
+
+    // Eta Max
+    if (one.etamax < other.etamax){
+        return true;
+    } else if (one.etamax > other.etamax){
+        return false;
+    }
+
+    //PU Min
+    if (one.pumin < other.pumin){
+        return true;
+    } else if (one.pumin > other.pumin){
+        return false;
+    }
+
+    //PU Max
+    if (one.pumax < other.pumax){
+        return true;
+    } else if (one.pumax > other.pumax){
+        return false;
+    }
+
+    // They are equal
+    return false; 
+}
 
 EffSheet::EffSheet(const std::string textFile){
     /* Open file */
@@ -131,8 +92,3 @@ EffSheet::EffSheet(const std::string textFile){
     /* Close file */
     inFile.close();
 }
-#endif
-
-/* Compile time notes:
- *    g++ -O2 -o Efficiency_Sheet.exe Efficiency_Sheet.cc `root-config --cflags --libs` 
- */

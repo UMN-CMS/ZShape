@@ -1,5 +1,4 @@
-#include "Efficiency_Sheet.cc"
-
+#include "Efficiency_Sheet.h"
 #include "EfficiencyStatistics.h"
 
 #include <string>
@@ -36,11 +35,11 @@ int makePNGs(const std::vector<TGraphAsymmErrors*> graphs, const std::string out
         TGraphAsymmErrors* i = *stari;
         if (stari == graphs.begin()){
             i->SetMarkerStyle(20);
-            i->SetMarkerColor(1);
+            i->SetMarkerColor(kBlack);
             leg->AddEntry(i, "Data", "p");
         } else {
             i->SetMarkerStyle(21);
-            i->SetMarkerColor(2);
+            i->SetMarkerColor(kRed);
             leg->AddEntry(i, "MC", "p");
         }
 
@@ -58,10 +57,12 @@ int makePNGs(const std::vector<TGraphAsymmErrors*> graphs, const std::string out
         mg->GetXaxis()->SetTitle("p_{T} [GeV/c^{2}]");
     }
     mg->GetYaxis()->SetTitle("Efficiency");
-    mg->SetMinimum(0.);
-    mg->SetMaximum(1.);
+    //mg->SetMinimum(0.01);
+    //mg->SetMaximum(1.);
+    mg->GetXaxis()->SetLimits(20., 500.);
     mg->Draw("a");
     leg->Draw();
+    canvas->SetLogy();
     canvas->Draw();
 
     canvas->Print(pngName.c_str(), "png");
