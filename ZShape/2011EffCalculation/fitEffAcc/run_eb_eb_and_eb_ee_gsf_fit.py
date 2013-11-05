@@ -26,7 +26,7 @@ minMZ = 60
 maxMZ = 150
 # Tag Location
 tag="ET"
-formatstring = "%s/gsf_%s_%s_pu_%s_%s_pt_%s_%s.root"
+formatstring = "%s/gsf_data_%s_%s_pu_%s_%s_pt_%s_%s.root"
 # Program
 exe = "./fitEffAcc_ecal_gsf.exe"
 

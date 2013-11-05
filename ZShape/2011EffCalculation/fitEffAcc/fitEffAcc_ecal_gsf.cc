@@ -52,11 +52,48 @@ TF1* getBGFitFunc(const std::string& name, bg::BinnedBackground& bgfunc, const E
     return tf1;
 }
 
-int fitDistributions(const std::string signalFile, const std::string ZEffFile, const std::string outFile, const std::string tagWP, const std::string probeWP, const electronLocation tagLoc, const electronLocation probeLoc, const EffBin effbin){
+void checkEvent(
+        ZEffTree::ZInfo const * const zinfo, const EffBin& effbin,
+        const electronLocation& tag_loc, const int tag_num,
+        const electronLocation& probe_loc, const int probe_num,
+        TH1D* pre_hist, TH1D* post_hist
+        ) {
+    // Set up some constants to save typing
+    const double PU = zinfo->nverts;
+    const double MZ = zinfo->mz;
+    const double tag_pt = zinfo->pt[tag_num];
+    const double probe_pt = zinfo->pt[probe_num];
+
+    // Check if the event passes our pre-cuts
+    if (    // In the Pileup bin, Mass bin, and pt bin
+            effbin.minPU <= PU && PU <= effbin.maxPU
+            && effbin.minMZ <= MZ && MZ <= effbin.maxMZ
+            && effbin.minX <= probe_pt && probe_pt <= effbin.maxX
+            // Both electrons are "triggerable"
+            && 20. < tag_pt && 20. < probe_pt
+            // Check the location of the electrons
+            && inAcceptance(probe_loc, zinfo->eta[probe_num])
+            && inAcceptance(tag_loc, zinfo->eta[tag_num])
+            // Check the hard cut on the tag
+            && zinfo->isSelected(tag_num, "WP80")
+       ) {
+        pre_hist->Fill(MZ);
+        // Check if the event passes our post-cuts
+        if (zinfo->isSelected(probe_num, "GsfTrack-EtaDet")) {
+            post_hist->Fill(MZ);
+        }
+    }
+}
+
+int fitDistributions(
+        const std::string& signalFile, const std::string& ZEffFile,
+        const std::string& outFile, const electronLocation& tag_loc,
+        const electronLocation& probe_loc, const EffBin& effbin
+        ) {
     // Some commont variables
     // Prepare the histogram to put the signal in
     std::vector<double> xbins;
-    getBinEdges(effbin.minMZ, effbin.maxMZ, probeLoc, &xbins);
+    getBinEdges(effbin.minMZ, effbin.maxMZ, probe_loc, &xbins);
     const int nbins = xbins.size() - 1;
     if (nbins <= 1){
         std::stringstream ss;
@@ -73,52 +110,26 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     ZEffTree* zes;
     zes = new ZEffTree(ZSFile, false);
 
-    const bool doSmearing = true;
+    const bool doSmearing = false;
     TRandom3* trand = new TRandom3(123456);
 
     bool run1 = true;
-    while (run1){
+    while (run1) {
         zes->Entries();
         if (doSmearing) {
             smearEvent(trand, &zes->reco);
         }
-        const double PU = zes->reco.nverts;
-        const double MZ = zes->reco.mz;
-        if (  // Right number of PU, MZ, and triggerable
-                effbin.minPU <= PU && PU <= effbin.maxPU
-                && effbin.minMZ <= MZ && MZ <= effbin.maxMZ
-                && 20. < zes->reco.pt[0] && 20. < zes->reco.pt[1]
-           ){
-            /* We set try either electron as the "probe", since this is MC either can be the "tag" */
-            for (int i=0; i < 2; ++i){
-                bool probeMatch = false;
-                bool tagMatch = false;
-                // Note that j is the PROBE and i is the TAG
-                int j;
-                if (i==0){
-                    j=1;
-                } else {
-                    j=0;
-                }
-                const double eX0 = zes->reco.pt[i];
-                const double eX1 = zes->reco.pt[j];
-                // Now we make sure exactly one e passes the tag region, and one the probe region requirements
-                if (effbin.minX <= eX1 && eX1 <= effbin.maxX) {
-                    probeMatch = inAcceptance(probeLoc, zes->reco.eta[j]);
-                    tagMatch = ( 
-                            inAcceptance(tagLoc, zes->reco.eta[i])
-                            //&& zes->reco.isSelected(i, "WP80")
-                            );
-                }
-                // Base Cuts, and Post Cuts which are a strict subset
-                if (tagMatch && probeMatch){
-                    signalPreHisto->Fill(MZ);
-                    // Emulate the ECAL-ECAL Trigger
-                    if (zes->reco.isSelected(j, "GsfTrack-EtaDet")) { // Uses hijacked WP90
-                        signalPostHisto->Fill(MZ); 
-                    }
-                }
+        /* We set try either electron as the "probe", since this is MC either can be the "tag" */
+        for (int tagNumber=0; tagNumber < 2; ++tagNumber){
+            int probeNumber;
+            if (tagNumber==0){
+                probeNumber=1;
+            } else {
+                probeNumber=0;
             }
+
+            // Fill our histograms
+            checkEvent(&zes->reco, effbin, tag_loc, tagNumber, probe_loc, probeNumber, signalPreHisto, signalPostHisto);
         }
         run1 = zes->GetNextEvent();
     }
@@ -162,50 +173,19 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     bool flop = true;
 
     while (run2){
-        /* Select a reproducably random tag and probe */
-        int tagNumber;
-        int probeNumber;
-        if (flop) {
-            tagNumber = 0;
-            probeNumber = 1;
-            flop = false;
-        } else {
-            tagNumber = 1;
-            probeNumber = 0;
-            flop = true;
-        }
-
         ze->Entries();
-        /* Check that the event passes our requirements */
-        if (    effbin.minPU <= ze->reco.nverts && ze->reco.nverts <= effbin.maxPU 
-                && effbin.minMZ <= ze->reco.mz && ze->reco.mz <= effbin.maxMZ 
-           ){
-            bool basePass = false;
-            bool postPass = false;
-            const double eX0 = ze->reco.pt[tagNumber];
-            const double eX1 = ze->reco.pt[probeNumber];
-            /* Check cuts */
-            if (    20. <= eX0 && 20. <= eX1  // Both Es pass min pt
-                    && effbin.minX <= eX1 && eX1 <= effbin.maxX // Probe in pt bin
-               ) {
-                /* Check the acceptance of the electrons */
-                const bool tagPass = (
-                        inAcceptance(tagLoc, ze->reco.eta[tagNumber]) 
-                        && ze->reco.trigtag[tagNumber] 
-                        && ze->reco.trigprobe[tagNumber]
-                        //&& ze->reco.isSelected(tagNumber, "WP80")
-                        );
-                const bool probePass = (
-                        inAcceptance(probeLoc, ze->reco.eta[probeNumber])
-                        && ze->reco.trigprobe[probeNumber]
-                        );
-                // Base Cuts, and Post Cuts which are a strict subset
-                if ( probePass ){
-                    baseHisto->Fill(ze->reco.mz);
-                    if (ze->reco.isSelected(probeNumber, "GsfTrack-EtaDet")) { // Tag passed all cuts
-                        postcutHisto->Fill(ze->reco.mz);
-                    }
-                }
+        // Select a reproducably random tag and probe
+        if (flop) {
+            flop = false;
+            // Check that the selection trigger passes
+            if (ze->reco.trigtag[0] && ze->reco.trigprobe[0] && ze->reco.trigprobe[1]) {
+                checkEvent(&ze->reco, effbin, tag_loc, 0, probe_loc, 1, baseHisto, postcutHisto);
+            }
+        } else {
+            flop = true;
+            // Check that the selection trigger passes
+            if (ze->reco.trigtag[1] && ze->reco.trigprobe[1] && ze->reco.trigprobe[0]) {
+                checkEvent(&ze->reco, effbin, tag_loc, 1, probe_loc, 0, baseHisto, postcutHisto);
             }
         }
         run2 = ze->GetNextEvent();
@@ -343,7 +323,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
             preBGandSigFunc->GetParError(1),
             postBGandSigFunc->GetParError(1)
             );
-    Efficiencies sigEff = EffFromSignal( 
+    Efficiencies sigEff = EffFromSignal(
             preSignal,
             postSignal,
             preBGandSigFunc->GetParError(1),
@@ -362,7 +342,7 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
     const double baseB = preBG->Integral(preBG->FindBin(effbin.minMZ), preBG->FindBin(effbin.maxMZ));
 
     const double denom = (baseD - baseB);
-    PrintEffs(probeLoc, effbin, sigEff.eff, countEff.eff, denom, false);
+    PrintEffs(probe_loc, effbin, sigEff.eff, countEff.eff, denom, false);
 
     return 0;
 }
@@ -370,10 +350,10 @@ int fitDistributions(const std::string signalFile, const std::string ZEffFile, c
 int main(int argc, char* argv[]){
     const int argcCorrect = 12;
     if (argc < argcCorrect) {
-        std::cout<<"Not enough arguments. Use:\nfitEffAcc_ecal_gsf.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Not enough arguments. Use:\nfitEffAcc_ecal_gsf.exe signalFile ZEffFile outFile tag_loc probe_loc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else if (argc > argcCorrect){
-        std::cout<<"Too many arguments. Use:\nfitEffAcc_ecal_gsf.exe signalFile ZEffFile outFile tagLoc probeLoc minPU maxPU minMZ maxMZ minX maxX\n";
+        std::cout<<"Too many arguments. Use:\nfitEffAcc_ecal_gsf.exe signalFile ZEffFile outFile tag_loc probe_loc minPU maxPU minMZ maxMZ minX maxX\n";
         return 1;
     } else {
         // Read in arguments
@@ -402,8 +382,8 @@ int main(int argc, char* argv[]){
         inStream.str(argv[5]);
         inStream >> probeL;
         inStream.clear();
-        electronLocation tagLoc = electronLocationToString(tagL);
-        electronLocation probeLoc = electronLocationToString(probeL);
+        electronLocation tag_loc = electronLocationToString(tagL);
+        electronLocation probe_loc = electronLocationToString(probeL);
 
         EffBin effbin;
         inStream.str(argv[6]);
@@ -425,58 +405,8 @@ int main(int argc, char* argv[]){
         inStream >> effbin.maxX;
         inStream.clear();
 
-        // Map location to other features
-        // Hard coded for now
-        std::string tagWP;
-        switch (tagLoc){
-            case EB:
-            case EBp:
-            case EBm:
-            case EE:
-            case EEp:
-            case EEm:
-            case ET:
-                tagWP = "WP80";
-                break;
-            case NT: // No NT case?
-            case NTp:
-            case NTm:
-                tagWP = "NTTightElectronId-EtaDet";
-                break;
-            case HF:
-            case HFp:
-            case HFm:
-                tagWP = "HFElectronId-EtaDet";
-                break;
-        }
-
-        std::string signalTH;
-        std::string probeWP; // Wokring point to test
-
-        switch (probeLoc){
-            case EB:
-            case EBp:
-            case EBm:
-            case EE:
-            case EEp:
-            case EEm:
-            case ET:
-                probeWP = "ECAL-Trigger";
-                break;
-            case NT: // No NT case?
-            case NTp:
-            case NTm:
-                probeWP = "NTTightElectronId-EtaDet";
-                break;
-            case HF:
-            case HFp:
-            case HFm:
-                probeWP = "HFTID";
-                break;
-        }
-
         std::stringstream ss;
-        ss << "#efficiency name: " << probeWP << std::endl;
+        ss << "#efficiency name: GSF (Data)" << std::endl;
         ss << "#dimension: 1" << std::endl;
         std::cout << ss.str() << std::flush;
 
@@ -484,10 +414,8 @@ int main(int argc, char* argv[]){
                 signalFile,
                 ZEffFile,
                 outFile,
-                tagWP,
-                probeWP,
-                tagLoc,
-                probeLoc,
+                tag_loc,
+                probe_loc,
                 effbin
                 );
     }
