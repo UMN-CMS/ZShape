@@ -54,6 +54,23 @@ hijacked90 = cms.PSet(
             9999., 9999., 0, -1, 0.0, 0.0
             ),
         )
+
+# This cut is _NOT_ WP85 or anything like it. It is
+# CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT as used by the 2011 HLT trigger, although
+# that also requires a R9 < 0.98 (999999.9)
+
+hijacked85 = cms.PSet(
+        barrel =  cms.vdouble(
+            0.05, 0.011, 0.07, 0.008, -1, -1, 9999., 9999., 9999., 9999.,
+            9999., 0.05, 0.05, 0.05, 9999., 9999., 9999., 9999., 0.0, -9999.,
+            9999., 9999., 0, -1, 0.0, 0.0
+            ),
+        endcap = cms.vdouble(
+            0.05, 0.031, 0.05, 0.008, -1, -1, 9999., 9999., 9999., 9999.,
+            9999., 0.05, 0.05, 0.05, 9999., 9999., 9999., 9999., 0.0, -9999.,
+            9999., 9999., 0, -1, 0.0, 0.0
+            ),
+        )
 # Remove relative
 
 # The cuts below are based on

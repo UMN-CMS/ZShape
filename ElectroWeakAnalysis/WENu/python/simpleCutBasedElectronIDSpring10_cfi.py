@@ -203,23 +203,26 @@ simpleCutBasedElectronID = cms.EDProducer("EleIdCutBasedExtProducer",
                 2.0e-02, 0.0, -9999., 9999., 9999., 0, -1, 0.02, 0.02, 
                 ),
             ),
-    # Implemented by Alex based on
-    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID2011
     # Imported from simpleCutBasedElectronIDSpring10Alex_cfi.py
     # Modified version to emulate 2011 CaloIdL_CaloIsoVL
     robust90relIsoEleIDCutsV20 = alexCuts.hijacked90,
     robust90cIsoEleIDCutsV20   = alexCuts.hijacked90,
+    # Modified version to emulate 2011 CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT
+    robust85relIsoEleIDCutsV20 = alexCuts.ele85V20,
+    robust85cIsoEleIDCutsV20   = alexCuts.ele85V20,
+    # Implemented by Alex based on
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID2011
     # Normal cuts as defined by 2011, we do not implement a difference between
     # rel and c
     robust95relIsoEleIDCutsV20 = alexCuts.ele95V20,
     #robust90relIsoEleIDCutsV20 = alexCuts.ele90V20,
-    robust85relIsoEleIDCutsV20 = alexCuts.ele85V20,
+    #robust85relIsoEleIDCutsV20 = alexCuts.ele85V20,
     robust80relIsoEleIDCutsV20 = alexCuts.ele80V20,
     robust70relIsoEleIDCutsV20 = alexCuts.ele70V20,
     robust60relIsoEleIDCutsV20 = alexCuts.ele60V20,
     robust95cIsoEleIDCutsV20   = alexCuts.ele95V20,
     #robust90cIsoEleIDCutsV20   = alexCuts.ele90V20,
-    robust85cIsoEleIDCutsV20   = alexCuts.ele85V20,
+    #robust85cIsoEleIDCutsV20   = alexCuts.ele85V20,
     robust80cIsoEleIDCutsV20   = alexCuts.ele80V20,
     robust70cIsoEleIDCutsV20   = alexCuts.ele70V20,
     robust60cIsoEleIDCutsV20   = alexCuts.ele60V20,
