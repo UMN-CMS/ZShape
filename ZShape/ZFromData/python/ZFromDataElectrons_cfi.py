@@ -510,6 +510,12 @@ tpMapWP80AndECALSC = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(False),
 )
 
+tpMapWP85AndECALSC = cms.EDProducer("CandViewShallowCloneCombiner",
+    decay = cms.string("WorkingPoint85 allECALClusters"), # charge conjugate states are implied
+    cut   = cms.string("30 < mass < 150"),
+    checkCharge = cms.bool(False),
+)
+
 tpMapECALSCAndECALSC = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("allECALClusters allECALClusters"), # charge conjugate states are implied
     cut   = cms.string("30 < mass < 150"),
@@ -589,7 +595,7 @@ tpMapTIDDoubleTrigHFTID =  cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 
-tpMap_sequence = cms.Sequence( tpMapSuperClusters + tpMapGsfElectrons + tpMapGsfElectrons + tpMapGsfAndSC + tpMapGsfAndHFSC + tpMapWP80AndHFSC + tpMapWP80AndECALSC + tpMapECALSCAndECALSC + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF + tpMapWP95AndHF + tpMapWP80AndHF + tpMapWP80AndSupers + tpMapWP90AndSupers +tpMapTIDSingleTrigHFSC +tpMapTIDDoubleTrigHFTID )
+tpMap_sequence = cms.Sequence( tpMapSuperClusters + tpMapGsfElectrons + tpMapGsfElectrons + tpMapGsfAndSC + tpMapGsfAndHFSC + tpMapWP80AndHFSC + tpMapWP80AndECALSC + tpMapWP85AndECALSC + tpMapECALSCAndECALSC + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF + tpMapWP95AndHF + tpMapWP80AndHF + tpMapWP80AndSupers + tpMapWP90AndSupers +tpMapTIDSingleTrigHFSC +tpMapTIDDoubleTrigHFTID )
 #tpMap_sequence = cms.Sequence( tpMapGsfElectrons + tpMapIsolation + tpMapId + tpMapHFSuperClusters + tpMapGsfAndHF)
 
 ##    __  __  ____   __  __       _       _               
