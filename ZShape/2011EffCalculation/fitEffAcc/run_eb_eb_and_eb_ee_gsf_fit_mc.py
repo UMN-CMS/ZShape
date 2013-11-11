@@ -18,7 +18,7 @@ else:  # Only runs when try succeeds
 
 # Input Files
 ## MC VS MC
-dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131028_2x_ecalsc_mc_hijacked_wp90/20131028_2x_ecalsc_mc_hijacked_wp90_summed.root"
+dataFile = "/local/cms/user/gude/2012_kevin_thesis_eff/20131105_hijacked_wp85_ecalsc_mc/20131105_hijacked_wp85_ecalsc_mc_summed.root"
 signalFile = dataFile
 
 # Mass_Z
@@ -26,7 +26,7 @@ minMZ = 60
 maxMZ = 150
 # Tag Location
 tag="ET"
-formatstring = "%s/gsf_%s_%s_pu_%s_%s_pt_%s_%s.root"
+formatstring = "%s/gsf_mc_%s_%s_pu_%s_%s_pt_%s_%s.root"
 # Program
 exe = "./fitEffAcc_ecal_gsf_mc.exe"
 

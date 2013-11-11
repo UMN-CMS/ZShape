@@ -1,7 +1,6 @@
 #include "../BackgroundLibrary/BackgroundFunctions.h"
 #include "../ElectronLocation/ElectronLocation.h"
 #include "../../MakeZEffTree/src/ZEffTree.h"
-#include "../ZSmearer/ZSmearer.h"  // smearEvent()
 #include "../FitterLibrary/FitterLibrary.h"  // getBinEdges, EffFromCounting, EffFromSignal, PrintEffs, EffBin, Efficiencies
 
 #include <string>
@@ -73,8 +72,9 @@ void checkEvent(
             // Check the location of the electrons
             && inAcceptance(probe_loc, zinfo->eta[probe_num])
             && inAcceptance(tag_loc, zinfo->eta[tag_num])
-            // Check the hard cut on the tag
-            && zinfo->isSelected(tag_num, "WP80")
+            // Check the hard cut on the tag that emulates the trigger
+            && zinfo->isSelected(tag_num, "WP85")
+            && zinfo->r9[tag_num] < 0.98
        ) {
         pre_hist->Fill(MZ);
         // Check if the event passes our post-cuts

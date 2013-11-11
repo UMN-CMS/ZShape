@@ -74,8 +74,9 @@ void checkEvent(
             // Check the location of the electrons
             && inAcceptance(probe_loc, zinfo->eta[probe_num])
             && inAcceptance(tag_loc, zinfo->eta[tag_num])
-            // Check the hard cut on the tag
-            && zinfo->isSelected(tag_num, "WP80")
+            // Check the hard cut on the tag that emulates the trigger
+            && zinfo->isSelected(tag_num, "WP85")
+            && zinfo->r9[tag_num] < 0.98
        ) {
         pre_hist->Fill(MZ);
         // Check if the event passes our post-cuts
@@ -110,7 +111,7 @@ int fitDistributions(
     ZEffTree* zes;
     zes = new ZEffTree(ZSFile, false);
 
-    const bool doSmearing = false;
+    const bool doSmearing = true;
     TRandom3* trand = new TRandom3(123456);
 
     bool run1 = true;
