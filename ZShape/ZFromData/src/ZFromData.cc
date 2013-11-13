@@ -285,20 +285,8 @@ void ZFromData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool pairing;
 
     if (!quiet_) {
-evt_.dump();
+        evt_.dump();
     }
-    bool dump2 = false;
-    if ((evt_.elec(0).p4_ + evt_.elec(1).p4_).mass() < 50) { 
-        dump2 = false; 
-    }
-    if (dump2) {
-        printf("@------------------\n");
-        printf("@Z: m: %0.2f pu: -- \n", (evt_.elec(0).p4_ + evt_.elec(1).p4_).mass());
-        printf("@e1: pt: %0.2f eta: %0.2f phi: %0.2f \n", evt_.elec(0).p4_.Pt(), evt_.elec(0).detEta_, evt_.elec(0).detPhi_);
-        printf("@e1: pt: %0.2f eta: %0.2f phi: %0.2f \n", evt_.elec(1).p4_.Pt(), evt_.elec(1).detEta_, evt_.elec(1).detPhi_);
-        printf("@------------------\n");
-
-    }//end dump out
 
     // selections done at first pass, no matter whether there are trials or not
     for (std::map<std::string, ZShapeZDef*>::const_iterator q = zdefs_.begin(); q != zdefs_.end(); ++q) {
@@ -352,10 +340,14 @@ evt_.dump();
                 std::swap(e1n, e2n);
             }
             if (ok) {
-                if (j == q->second->criteriaCount(ZShapeZDef::crit_Z) - 1) spitoutZ = true;
+                if (j == q->second->criteriaCount(ZShapeZDef::crit_Z) - 1) {
+                    spitoutZ = true;
+                }
                 plots->zCut_[j].FillEvt(evt_);
                 plots->zCut_[j].Fill(evt_.elec(e1n), evt_.elec(e2n), evtMC_.elec(e1n).p4_, evtMC_.elec(e2n).p4_, wgt, doMC_);
-                if (extraHistos_) plots->zCutExtra_[j].Fill(evt_.elec(e1n), evt_.elec(e2n), evtMC_.elec(e1n), evtMC_.elec(e2n), wgt, doMC_);
+                if (extraHistos_) { 
+                    plots->zCutExtra_[j].Fill(evt_.elec(e1n), evt_.elec(e2n), evtMC_.elec(e1n), evtMC_.elec(e2n), wgt, doMC_);
+                }
             }
             if (spitoutE && spitoutZ && spitright) {
                 std::cout << "MYZ " << q->first << " RUN: " << iEvent.run() << " Event: " << iEvent.id().event() << " LS: " << iEvent.luminosityBlock() << "BX: " << iEvent.bunchCrossing() << " ORBIT: " << iEvent.orbitNumber() << std::endl;
